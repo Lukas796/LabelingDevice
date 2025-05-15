@@ -6,11 +6,15 @@
  */ 
 
 #include <avr/io.h>
+#include "motor_control.h"
+#include "config.h"
 
 
 int main(void)
 {
-    /* Replace with your application code */
+    motor_init();
+	motor_enable(AXIS_X);
+	
     while (1) 
     {
     }
