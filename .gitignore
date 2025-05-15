@@ -1,0 +1,26 @@
+# Microchip Studio / Atmel Studio
+*.o
+*.d
+*.elf
+*.map
+*.lss
+*.eep
+*.srec
+*.hex
+*.bak
+
+# Build-Verzeichnisse
+Debug/
+Release/
+build/
+obj/
+
+# Temporäres aus Windows
+*.log
+*.tmp
+*.DS_Store
+Thumbs.db
+
+# Benutzerbezogene Dateien
+*.user
+*.aps
