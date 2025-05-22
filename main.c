@@ -9,36 +9,33 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include "lcd.h"
 
-// LCD-Pins für Arduino Mega 2560
-#define RS 30
-#define E 31
-#define DB4 32
-#define DB5 33
-#define DB6 34
-#define DB7 35
-
-// LED-Pin
-#define LED_PIN 9  // Eingebaute LED auf dem Mega 2560
-
-void lcd_char(char t);
-void lcd_cmd(uint8_t cmd);
-void lcd_init(void);
-
-int main(void) {
-	// Setze LCD-Pins als Ausgang
+int main(void)
+{
+	// LCD-Pins als Ausgang setzen
 	DDRC = 0xFC;
-	lcd_init(); // Initialisiere das LCD
-	lcd_char('A'); // Zeige einen Buchstaben auf dem LCD
+
+	// LCD initialisieren
+	lcd_init();
+
+	// Text definieren
+	char text[] = "Labeling Device Robin Lukas"; // Beispieltext
+
+	// Manuelle Längenberechnung ohne `strlen()`
+	uint8_t j = 0;
 	
-	// Setze LED-Pin als Ausgang
-	DDRB |= (1 << LED_PIN);
-	
-	while (1) {
-		PORTB |= (1 << LED_PIN); // LED AN
-		_delay_ms(50);
-		PORTB &= ~(1 << LED_PIN); // LED AUS
-		_delay_ms(500);
+	lcd_Pos(1, 1); // Cursor auf Zeile 1 setzen
+	while (text[j] != '\0') // Schleife über den Text
+	{
+		if (j == 16) // Wenn 16 Zeichen erreicht sind, springe zu Zeile 2
+		{
+			lcd_Pos(2, 1);
+		}
+		lcd_char(text[j]);  // Einzelne Zeichen senden
+		j++;
 	}
+
+	while (1) {} // Endlosschleife
 }
 
