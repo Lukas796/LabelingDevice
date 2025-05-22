@@ -8,6 +8,14 @@
 #include "motor_control.h"
 #include "config.h"
 
+// Schrittzähler je Motor
+volatile uint16_t steps_x_done = 0;
+volatile uint16_t steps_y_done = 0;
+volatile uint16_t steps_z_done = 0;
+
+volatile uint16_t steps_x_target = 0;
+volatile uint16_t steps_y_target = 0;
+volatile uint16_t steps_z_target = 0;
 
 void motor_init(void) {
 	// X
@@ -26,16 +34,16 @@ void motor_init(void) {
 
 void motor_enable(uint8_t axis) {
 	switch (axis) {
-		case AXIS_X: EN_X_PORT |= (1 << EN_X_PIN); break;	//SET EN_X_PIN to 1
-		case AXIS_Y: EN_Y_PORT |= (1 << EN_Y_PIN); break;	//SET EN_Y_PIN to 1
+		case AXIS_X: EN_X_PORT &= ~(1 << EN_X_PIN); break;	//SET EN_X_PIN to 0 - low active
+		case AXIS_Y: EN_Y_PORT &= ~(1 << EN_Y_PIN); break;	//SET EN_Y_PIN to 1 - low active
 		//case AXIS_Z: EN_Z_PORT |= (1 << EN_Z_PIN); break;
 	}
 }
 
 void motor_disable(uint8_t axis) {
 	switch (axis) {
-		case AXIS_X: EN_X_PORT &= ~(1 << EN_X_PIN); break;	//SET EN_X_PIN to 0
-		case AXIS_Y: EN_Y_PORT &= ~(1 << EN_Y_PIN); break;	//SET EN_Y_PIN to 0
+		case AXIS_X: EN_X_PORT |= (1 << EN_X_PIN); break;	//SET EN_X_PIN to 0
+		case AXIS_Y: EN_Y_PORT |= (1 << EN_Y_PIN); break;	//SET EN_Y_PIN to 0
 		//case AXIS_Z: EN_Z_PORT &= ~(1 << EN_Z_PIN); break;
 	}
 }
@@ -53,7 +61,7 @@ void motor_set_direction(uint8_t axis, uint8_t direction) {
 		case AXIS_Z:
 		//if (direction) DIR_Z_PORT |= (1 << DIR_Z_PIN);
 		//else DIR_Z_PORT &= ~(1 << DIR_Z_PIN);
-		//break;
+		break;
 	}
 }
 
@@ -68,7 +76,90 @@ void motor_step(uint8_t axis) {
 		default: return;
 	}
 
-	*port |= (1 << pin);      // HIGH
-	_delay_us(5);             // Mindestens 5 µs Puls
-	*port &= ~(1 << pin);     // LOW
+	*port |= (1 << pin);
+	_delay_ms(100);
+	*port &= ~(1 << pin);
+	_delay_ms(100);
 }
+
+// --- Timer-basierte Steuerung ---
+void motor_start_steps(uint8_t axis, uint16_t steps) {
+switch(axis) {
+	case AXIS_X:
+	steps_x_done = 0;
+	steps_x_target = steps * 2;
+
+	STEP_X_TCNT = 0;
+	STEP_X_OCR = 100;
+	STEP_X_OC_REG |= (1 << STEP_X_OC_BIT);   // Toggle OCxB
+	STEP_X_TCCRB |= (1 << WGM32);            // CTC mode (TCCR3B shared)
+	STEP_X_TIMSK |= (1 << STEP_X_OCIE_BIT);  // enable interrupt
+	STEP_X_TCCRB |= (1 << CS31);             // Motor starten mit Prescaler 8
+	break;
+
+	case AXIS_Y:
+	steps_y_done = 0;
+	steps_y_target = steps * 2;
+
+	STEP_Y_TCNT = 0;
+	STEP_Y_OCR = 100;
+	STEP_Y_OC_REG |= (1 << STEP_Y_OC_BIT);
+	STEP_Y_TCCRB |= (1 << WGM12);
+	STEP_Y_TIMSK |= (1 << STEP_Y_OCIE_BIT);
+	STEP_Y_TCCRB |= (1 << CS11);
+	break;
+
+	case AXIS_Z:
+	steps_z_done = 0;
+	steps_z_target = steps * 2;
+
+	STEP_Z_TCNT = 0;
+	STEP_Z_OCR = 100;
+	STEP_Z_OC_REG |= (1 << STEP_Z_OC_BIT);
+	STEP_Z_TCCRB |= (1 << WGM42);
+	STEP_Z_TIMSK |= (1 << STEP_Z_OCIE_BIT);
+	STEP_Z_TCCRB |= (1 << CS41);
+	break;
+}
+}
+
+void motor_stop(uint8_t axis) {
+	switch(axis) {
+		case AXIS_X:
+		STEP_X_TCCRB &= ~((1 << CS32) | (1 << CS31) | (1 << CS30));
+		STEP_X_TIMSK &= ~(1 << STEP_X_OCIE_BIT);
+		break;
+
+		case AXIS_Y:
+		STEP_Y_TCCRB &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
+		STEP_Y_TIMSK &= ~(1 << STEP_Y_OCIE_BIT);
+		break;
+
+		case AXIS_Z:
+		STEP_Z_TCCRB &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
+		STEP_Z_TIMSK &= ~(1 << STEP_Z_OCIE_BIT);
+		break;
+	}
+}
+
+// --- ISR: Schrittzähler prüfen ---
+//ISR(TIMER3_COMPA_vect) {
+	//steps_x_done++;
+	//if (steps_x_done >= steps_x_target) {
+		//motor_stop(AXIS_X);
+	//}
+//}
+//
+//ISR(TIMER1_COMPA_vect) {
+	//steps_y_done++;
+	//if (steps_y_done >= steps_y_target) {
+		//motor_stop(AXIS_Y);
+	//}
+//}
+//
+//ISR(TIMER4_COMPA_vect) {
+	//steps_z_done++;
+	//if (steps_z_done >= steps_z_target) {
+		//motor_stop(AXIS_Z);
+	//}
+//}

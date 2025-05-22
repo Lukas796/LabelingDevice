@@ -13,10 +13,22 @@
 int main(void)
 {
     motor_init();
-	motor_enable(AXIS_X);
+	motor_enable(AXIS_Y);
+	motor_disable(AXIS_X);
+
+	
+	motor_set_direction(AXIS_X,DIR_CW);
+	motor_set_direction(AXIS_Y,DIR_CW);
 	
     while (1) 
     {
+		//STEP_X_PORT |= (1 << STEP_X_PIN);
+		//STEP_Y_PORT |= (1 << STEP_Y_PIN);
+		//_delay_ms(5);
+		//STEP_X_PORT &= ~(1 << STEP_X_PIN);
+		//STEP_Y_PORT &= ~(1 << STEP_Y_PIN);
+		//_delay_ms(5);    
+		motor_step(AXIS_Y)  ; 
     }
 }
 

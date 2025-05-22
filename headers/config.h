@@ -96,8 +96,6 @@
 #define STEP_Z_OCIE_BIT  OCIE4A
 #define STEP_Z_TCCRB     TCCR4B
 
-
-
 // ADC für Lasersensor
 #define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0
 
