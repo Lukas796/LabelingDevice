@@ -1,5 +1,5 @@
 /*
- * config.h - Konfigurationsdatei
+ * config.h - Cónfig Data for IO-Mapping
  *
  * Created: 15.05.2025 21:45
  * Authors : lukasstrittmatter
@@ -13,55 +13,90 @@
 
 #define F_CPU 16000000UL  // CPU-Frequenz für Delayfunktionen
 
+// --- Motor Control ---
 // Achsenbezeichnungen
 #define AXIS_X 0
 #define AXIS_Y 1
 #define AXIS_Z 2
 
 // Richtungsdefinitionen
-#define DIR_CW  0   // Rechtslauf
-#define DIR_CCW 1   // Linkslauf
+#define DIR_CW  0   // Counterwise
+#define DIR_CCW 1   // CounterClockwise
 
-// --- Schrittmotor Pins ---
-
+//IO-Port-Mapping - Motoren
 // X-Achse
-#define STEP_X_PORT PORTB
-#define STEP_X_DDR  DDRB
-#define STEP_X_PIN  PB1
+#define STEP_X_PORT PORTE	//Output-Port for STEP Axis-X
+#define STEP_X_DDR  DDRE	//Data Direction Register for STEP Axis X 
+#define STEP_X_PIN  PE4		//Pin PE4 - Digital Pin 2 for STEP Axis X
 
-#define DIR_X_PORT  PORTB
-#define DIR_X_DDR   DDRB
-#define DIR_X_PIN   PB0
+#define DIR_X_PORT  PORTA	//Output-Port for DIR Axis-X
+#define DIR_X_DDR   DDRA	//Data Direction Register for DIR Axis-X 
+#define DIR_X_PIN   PA4		//Pin PA4 - Digital Pin 26 for STEP Axis X
 
-#define EN_X_PORT   PORTB
-#define EN_X_DDR    DDRB
-#define EN_X_PIN    PB2
+#define EN_X_PORT   PORTA	//Output-Port for ENABLE Axis-X
+#define EN_X_DDR    DDRA	//Data Direction Register for ENABLE Axis X 
+#define EN_X_PIN    PA3		//Pin PA3 - Digital Pin 25 for ENABLE Axis X
+
+// X-Achse → Timer 3, Compare Match B → OC3B → PE4
+#define TIMER_X          3
+#define STEP_X_OC_PIN    PE4        // OC3B
+#define STEP_X_OC_REG    TCCR3A
+#define STEP_X_OC_BIT    COM3B0
+#define STEP_X_OCR       OCR3A
+#define STEP_X_TCNT      TCNT3
+#define STEP_X_TIMSK     TIMSK3
+#define STEP_X_OCIE_BIT  OCIE3A
+#define STEP_X_TCCRB     TCCR3B
 
 // Y-Achse
-#define STEP_Y_PORT PORTB
-#define STEP_Y_DDR  DDRB
-#define STEP_Y_PIN  PB3
+#define STEP_Y_PORT PORTB	//Output-Port for STEP Axis-Y
+#define STEP_Y_DDR  DDRB	//Data Direction Register for STEP Axis Y 
+#define STEP_Y_PIN  PB6		//Pin PB6 - Digital Pin 12 for STEP Axis Y
 
-#define DIR_Y_PORT  PORTB
-#define DIR_Y_DDR   DDRB
-#define DIR_Y_PIN   PB4
+#define DIR_Y_PORT  PORTA	//Output-Port for DIR Axis-Y
+#define DIR_Y_DDR   DDRA	//Data Direction Register for DIR Axis-Y
+#define DIR_Y_PIN   PA1		//Pin PA1 - Digital Pin 23 for STEP Axis Y
 
-#define EN_Y_PORT   PORTB
-#define EN_Y_DDR    DDRB
-#define EN_Y_PIN    PB5
+#define EN_Y_PORT   PORTA	//Output-Port for DIR Axis-Y
+#define EN_Y_DDR    DDRA	//Data Direction Register for DIR Axis-Y
+#define EN_Y_PIN    PA0		//Pin PA0 - Digital Pin 22 for STEP Axis Y
+
+// Y-Achse → Timer 1, Compare Match B → OC1B → PB6
+#define TIMER_Y          1
+#define STEP_Y_OC_PIN    PB6        // OC1B
+#define STEP_Y_OC_REG    TCCR1A
+#define STEP_Y_OC_BIT    COM1B0
+#define STEP_Y_OCR       OCR1A
+#define STEP_Y_TCNT      TCNT1
+#define STEP_Y_TIMSK     TIMSK1
+#define STEP_Y_OCIE_BIT  OCIE1A
+#define STEP_Y_TCCRB     TCCR1B
 
 // Z-Achse (Rotation)
-#define STEP_Z_PORT PORTB
-#define STEP_Z_DDR  DDRB
-#define STEP_Z_PIN  PB6
+#define STEP_Z_PORT PORTH	//Output-Port for DIR Axis-X
+#define STEP_Z_DDR  DDRH	//Data Direction Register for DIR Axis-X 
+#define STEP_Z_PIN  PH4		//Pin PH4 - Digital Pin 7 for STEP Axis X
 
-#define DIR_Z_PORT  PORTB
-#define DIR_Z_DDR   DDRB
-#define DIR_Z_PIN   PB7
+//#define DIR_Z_PORT  
+//#define DIR_Z_DDR   
+//#define DIR_Z_PIN   
 
-#define EN_Z_PORT   PORTD
-#define EN_Z_DDR    DDRD
-#define EN_Z_PIN    PD6
+//#define EN_Z_PORT   
+//#define EN_Z_DDR   
+//#define EN_Z_PIN    
+
+// Z-Achse → Timer 4, Compare Match B → OC4B → PH4
+#define TIMER_Z          4
+#define STEP_Z_OC_PIN    PH4        // OC4B
+#define STEP_Z_OC_REG    TCCR4A
+#define STEP_Z_OC_BIT    COM4B0
+#define STEP_Z_OCR       OCR4A
+#define STEP_Z_TCNT      TCNT4
+#define STEP_Z_TIMSK     TIMSK4
+#define STEP_Z_OCIE_BIT  OCIE4A
+#define STEP_Z_TCCRB     TCCR4B
+
+
 
 // ADC für Lasersensor
 #define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0
