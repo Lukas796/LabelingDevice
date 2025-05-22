@@ -2,7 +2,7 @@
  * LabelingDevice.c
  *
  * Created: 15.05.2025 12:49:39
- * Authors : lukasstrittmatter, robinschad
+ * Authors : lukasstrittmatter, robinschad, hallo Robin
  */ 
 
 #include <avr/io.h>
