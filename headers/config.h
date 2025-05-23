@@ -64,7 +64,8 @@
 #define EN_Z_PIN    PD6
 
 // ADC für Lasersensor
-#define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0
+#define OP1 PK4				// Analog-Signal für Abstandsmessung
+#define OP2 PK5				// Digitaler Teach-In-Pin
 
 // UART
 #define BAUDRATE 115200

@@ -6,17 +6,19 @@
  */ 
 
 #include <avr/io.h>
-#include "motor_control.h"
+#include "Laser.h"
 #include "config.h"
 
 
 int main(void)
 {
-    motor_init();
-	motor_enable(AXIS_X);
-	
-    while (1) 
-    {
-    }
+	DDRK &= ~((1 << OP1) | (1 << OP2)); // Eingänge setzen
+	laser_init();  // Sensor initialisieren
+
+	while (1)
+	{
+		laser_read();  // Abstandsmessung
+		_delay_ms(500);   // Alle 500ms aktualisieren
+	}
 }
 
