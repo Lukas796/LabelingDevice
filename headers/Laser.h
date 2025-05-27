@@ -13,9 +13,10 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-void laser_init(void);
+void init_ADC(void);
+uint16_t read_ADC(void);
 uint16_t laser_read(void);
 void laser_teach(void);
-void laser_display(void);
+
 
 #endif /* INCFILE1_H_ */

@@ -12,8 +12,7 @@
 
 int main(void)
 {
-	DDRK &= ~((1 << OP1) | (1 << OP2)); // Eingänge setzen
-	laser_init();  // Sensor initialisieren
+	init_ADC();  // Sensor initialisieren
 
 	while (1)
 	{

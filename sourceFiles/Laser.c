@@ -7,9 +7,9 @@
 #include "Laser.h"
 #include "config.h"
 
-void setup() {
-	Serial.begin(9600); // Serielle Verbindung starten mit 9600 Baud
-}
+// void setup() {
+//	Serial.begin(9600); // Serielle Verbindung starten mit 9600 Baud
+// }
 
 void init_ADC() {
 	ADMUX |= (1 << REFS0);												// REFS0 1 und REFS1 0 --> AVCC with external capacitor at AREF Pin -->5V Versorgung (Standardmessung)
@@ -19,7 +19,7 @@ void init_ADC() {
 	ADMUX &= ~((1 << MUX3) | (1 << MUX1) | (1 << MUX4));				// Setze MUX5, MUX2, MUX0 auf 1 und MUX1, MUX3, MUX4 auf 0
 	ADCSRB |= (1 << MUX5);												// ADC Control and Status Register B ADCSRB
 	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Setze ADEN auf 1 --> Enable ADC; Setze ADPS2, ADPS1 und ADPS0 auf 1 --> Division Factor 128 (XTAL/Input Clock) 125kHz
-	// ADC Control and Status Register A ADCSRA
+																		// ADC Control and Status Register A ADCSRA
 	
 	DDRK &= ~(1 << OutP2);												// Eingänge setzen: OutP2
 	PORTK &= ~(1 << OutP2);												// Wenn Port als Eingang gesetzt ist, wird der Pull-up-Widerstand an OutP2 deaktiviert
