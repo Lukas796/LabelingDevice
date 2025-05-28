@@ -7,8 +7,9 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "config.h"
+
 #define USART_BUFFER_SIZE 64 // Größe des Ringbuffers
-#define F_CPU 16000000UL
 
 volatile uint8_t usart_rx_buffer[USART_BUFFER_SIZE]; // Empfangspuffer
 volatile uint8_t usart_rx_head = 0; // Schreibindex des Puffers
@@ -17,10 +18,11 @@ volatile uint8_t usart_rx_tail = 0; // Leseindex des Puffers
 // USART initialisieren
 void USART_Init(uint16_t baud) 
 {
-	uint16_t ubrr_value = (F_CPU / (16UL * baud)) - 1; // Baudrate berechnen
+	//uint16_t ubrr_value = (F_CPU / (16UL * baud)) - 1; // UBBR-Wert berechnen bei 16.MIo und 96000 ~ 7
 
-	UBRR0H = (uint8_t)(ubrr_value >> 8);
-	UBRR0L = (uint8_t)ubrr_value;
+	//UBRR0H = (uint8_t)(ubrr_value >> 8); 
+	//UBRR0L = (uint8_t)ubrr_value;
+	UBRR0L = 103;
 
 	// RX & TX aktivieren, RX-Interrupt freigeben
 	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);

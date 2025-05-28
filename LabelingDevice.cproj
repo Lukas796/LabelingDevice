@@ -127,6 +127,9 @@
     <Compile Include="headers\config.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="headers\Laser.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="headers\lcd_control.h">
       <SubType>compile</SubType>
     </Compile>
@@ -137,6 +140,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sourceFiles\Laser.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\lcd_control.c">

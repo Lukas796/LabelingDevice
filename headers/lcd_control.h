@@ -1,7 +1,7 @@
 #ifndef LCD_H_
 #define LCD_H_
 
-#define F_CPU 16000000UL  // 16 MHz Taktfrequenz
+#include "config.h"
 #include <avr/io.h>
 #include <util/delay.h>
 

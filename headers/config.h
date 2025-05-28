@@ -64,9 +64,10 @@
 #define EN_Z_PIN    PD6
 
 // ADC für Lasersensor
-#define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0
+#define OutP1 PK6  // z.B. ADC0 für A0
+#define OutP2 PK5
 
 // UART
-#define BAUDRATE 115200
+#define BAUDRATE 9600
 
 #endif
