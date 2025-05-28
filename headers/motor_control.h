@@ -11,6 +11,7 @@
 
 #include <avr/io.h>
 #include <stdint.h>
+#include <avr/interrupt.h>	
 
 void motor_init(void);
 void motor_enable(uint8_t axis);

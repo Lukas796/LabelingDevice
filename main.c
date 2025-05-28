@@ -6,6 +6,7 @@
  */ 
 
 #include <avr/io.h>
+#include <avr/interrupt.h>								
 #include "motor_control.h"
 #include "config.h"
 
