@@ -133,6 +133,9 @@
     <Compile Include="headers\motor_control.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="headers\USART.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
@@ -140,6 +143,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\motor_control.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sourceFiles\USART.c">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
