@@ -73,18 +73,20 @@
 #define STEP_Y_OCIE_BIT  OCIE1A
 #define STEP_Y_TCCRB     TCCR1B
 
-// Z-Achse (Rotation)
+// Z-Achse (Takt)
 #define STEP_Z_PORT PORTH	//Output-Port for DIR Axis-X
 #define STEP_Z_DDR  DDRH	//Data Direction Register for DIR Axis-X 
 #define STEP_Z_PIN  PH4		//Pin PH4 - Digital Pin 7 for STEP Axis X
 
-//#define DIR_Z_PORT  
-//#define DIR_Z_DDR   
-//#define DIR_Z_PIN   
+// Z-Achse (Drehrichtung)
+#define DIR_Z_PORT  PORTL
+#define DIR_Z_DDR   DDRL
+#define DIR_Z_PIN   PL2
 
-//#define EN_Z_PORT   
-//#define EN_Z_DDR   
-//#define EN_Z_PIN    
+// Z-Achse (Enable)
+#define EN_Z_PORT  PORTL
+#define EN_Z_DDR   DDRL
+#define EN_Z_PIN   PL3
 
 //  Z-Axis uses for STEP PH4 --> Timer OC4B 
 #define TIMER_Z          4

@@ -28,23 +28,23 @@ void motor_init(void) {
 	EN_Y_DDR   |= (1 << EN_Y_PIN);		//set Enable Y DDR as OUTPUT
 	// Z
 	STEP_Z_DDR |= (1 << STEP_Z_PIN);	//set Step Z DDR as OUTPUT
-	//DIR_Z_DDR  |= (1 << DIR_Z_PIN);
-	//EN_Z_DDR   |= (1 << EN_Z_PIN);
+	DIR_Z_DDR  |= (1 << DIR_Z_PIN);		//set Step Z DDR as OUTPUT
+	EN_Z_DDR   |= (1 << EN_Z_PIN);
 }
 
 void motor_enable(uint8_t axis) {
 	switch (axis) {
 		case AXIS_X: EN_X_PORT &= ~(1 << EN_X_PIN); break;	//SET EN_X_PIN to 0 - low active
-		case AXIS_Y: EN_Y_PORT &= ~(1 << EN_Y_PIN); break;	//SET EN_Y_PIN to 1 - low active
-		//case AXIS_Z: EN_Z_PORT |= (1 << EN_Z_PIN); break;
+		case AXIS_Y: EN_Y_PORT &= ~(1 << EN_Y_PIN); break;	//SET EN_Y_PIN to 0 - low active
+		case AXIS_Z: EN_Z_PORT |= (1 << EN_Z_PIN); break;	//SET EN_Z_PIN to 1 - high active
 	}
 }
 
 void motor_disable(uint8_t axis) {
 	switch (axis) {
-		case AXIS_X: EN_X_PORT |= (1 << EN_X_PIN); break;	//SET EN_X_PIN to 0
-		case AXIS_Y: EN_Y_PORT |= (1 << EN_Y_PIN); break;	//SET EN_Y_PIN to 0
-		//case AXIS_Z: EN_Z_PORT &= ~(1 << EN_Z_PIN); break;
+		case AXIS_X: EN_X_PORT |= (1 << EN_X_PIN); break;	//SET EN_X_PIN to 1
+		case AXIS_Y: EN_Y_PORT |= (1 << EN_Y_PIN); break;	//SET EN_Y_PIN to 1
+		case AXIS_Z: EN_Z_PORT &= ~(1 << EN_Z_PIN); break;	//SET EN_Z_PIN to 0
 	}
 }
 
@@ -59,8 +59,8 @@ void motor_set_direction(uint8_t axis, uint8_t direction) {
 		else DIR_Y_PORT &= ~(1 << DIR_Y_PIN);			//SET DIR_Y_PIN to 0 if DIR_CW
 		break;
 		case AXIS_Z:
-		//if (direction) DIR_Z_PORT |= (1 << DIR_Z_PIN);
-		//else DIR_Z_PORT &= ~(1 << DIR_Z_PIN);
+		if (direction) DIR_Z_PORT |= (1 << DIR_Z_PIN);	//SET DIR_Z_PIN to 1 if DIR_CCW
+		else DIR_Z_PORT &= ~(1 << DIR_Z_PIN);			//SET DIR_Z_PIN to 0 if DIR_CW
 		break;
 	}
 }
@@ -77,9 +77,9 @@ void motor_step(uint8_t axis) {
 	}
 
 	*port |= (1 << pin);
-	_delay_ms(100);
+	_delay_ms(20);
 	*port &= ~(1 << pin);
-	_delay_ms(100);
+	_delay_ms(20);
 }
 
 void motor_init_timer(void) {
