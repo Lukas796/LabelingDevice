@@ -40,7 +40,7 @@
 
 // X-Axis uses for STEP the Pin PE4, that can also serve as an External Interrupt source for the Timer/Counter 3 - OC3B -
 #define TIMER_X				3
-#define STEP_X_OC_PIN		PE4        // PE4 is the Pin for OutputCompare Timer OC3B
+#define STEP_X_OC_PIN		PE4         // PE4 is the Pin for OutputCompare Timer OC3B
 #define STEP_X_OC_REG		TCCR3A		// TCCR3A is the Timer/Counter Control Register A for Timer3 --> Output Control for Timer 3 
 #define STEP_X_OC_BIT		COM3B0		// COM3BO in the TCCR3A Register: Toggle OC3B on compare Match
 #define STEP_X_OCR			OCR3A		// OCR3A is the Output Compare Register for A for Timer 3 --> Target Value for Timer/Counter
@@ -64,14 +64,14 @@
 
 // Y-Axis uses for STEP PB6 --> Timer OC1B 
 #define TIMER_Y          1
-#define STEP_Y_OC_PIN    PB6        // OC1B
+#define STEP_Y_OC_PIN    PB6        
 #define STEP_Y_OC_REG    TCCR1A
 #define STEP_Y_OC_BIT    COM1B0
 #define STEP_Y_OCR       OCR1A
 #define STEP_Y_TCNT      TCNT1
-#define STEP_Y_TIMSK     TIMSK1
+#define STEP_Y_TIMSK_REG TIMSK1
 #define STEP_Y_OCIE_BIT  OCIE1A
-#define STEP_Y_TCCRB     TCCR1B
+#define STEP_Y_TCCRB_REG TCCR1B
 
 // Z-Achse (Takt)
 #define STEP_Z_PORT PORTH	//Output-Port for DIR Axis-X
@@ -95,9 +95,9 @@
 #define STEP_Z_OC_BIT    COM4B0
 #define STEP_Z_OCR       OCR4A
 #define STEP_Z_TCNT      TCNT4
-#define STEP_Z_TIMSK     TIMSK4
+#define STEP_Z_TIMSK_REG TIMSK4
 #define STEP_Z_OCIE_BIT  OCIE4A
-#define STEP_Z_TCCRB     TCCR4B
+#define STEP_Z_TCCRB_REG TCCR4B
 
 // ADC für Lasersensor
 #define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0

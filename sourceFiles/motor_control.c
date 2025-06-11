@@ -19,7 +19,7 @@ volatile uint16_t steps_z_target = 0;
 
 void motor_init(void) {
 	// X
-	STEP_X_DDR |= (1 << STEP_X_PIN);	//set Step X DDR as OUTPUT
+	STEP_X_DDR |= (1 << STEP_X_PIN);	//set Step X DDR as OUTPUT 
 	DIR_X_DDR  |= (1 << DIR_X_PIN);		//set Dir X DDR as OUTPUT
 	EN_X_DDR   |= (1 << EN_X_PIN);		//set Enable X DDR as OUTPUT
 	// Y
@@ -84,22 +84,22 @@ void motor_step(uint8_t axis) {
 
 void motor_init_timer(void) {
 	// --- Timer X: Timer3, OC3B (PE4) ---
-	STEP_X_OC_REG |= (1 << STEP_X_OC_BIT);			// Toggle OC3B on compare match
-	STEP_X_TCCRB_REG |= (1 << WGM32);				// set CTC - Mode (Clear Timer on Compare Match)
+	STEP_X_OC_REG |= (1 << STEP_X_OC_BIT);			// Toggle OC3B on compare match - set COM3B0 in TCCR3A
+	STEP_X_TCCRB_REG |= (1 << WGM32);				// set CTC - Mode (Clear Timer on Compare Match) - set WGM32 in TCCR3B
 	STEP_X_OCR = 100;								// set init Value for OCR3A --> Target Value for Compare Match
 	STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);     // activate OCIE3A bit in TIMSK3 Register to activate Interrupt on Compare Match
 	
 	// --- Timer Y: Timer1, OC1B (PB6) ---
-	STEP_Y_OC_REG |= (1 << STEP_Y_OC_BIT);       // Toggle OC1B on compare match
-	STEP_Y_TCCRB |= (1 << WGM12);                // CTC-Modus: WGM12 = 1
+	STEP_Y_OC_REG |= (1 << STEP_Y_OC_BIT);			 // Toggle OC1B on compare match-- setze COM1B= in TCCR1A
+	STEP_Y_TCCRB_REG |= (1 << WGM12);                // CTC-Modus: setze WGM12 in TCCR1B
 	STEP_Y_OCR = 100;
-	STEP_Y_TIMSK |= (1 << STEP_Y_OCIE_BIT);
+	STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);
 	
 	// --- Timer Z: Timer4, OC4B (PH4) ---
 	STEP_Z_OC_REG |= (1 << STEP_Z_OC_BIT);       // Toggle OC4B on compare match
-	STEP_Z_TCCRB |= (1 << WGM42);                // CTC-Modus: WGM42 = 1
+	STEP_Z_TCCRB_REG |= (1 << WGM42);                // CTC-Modus: WGM42 = 1
 	STEP_Z_OCR = 100;
-	STEP_Z_TIMSK |= (1 << STEP_Z_OCIE_BIT);
+	STEP_Z_TIMSK_REG |= (1 << STEP_Z_OCIE_BIT);
 }
 // --- Timer-based motor Control --
 void motor_start_steps(uint8_t axis, uint16_t steps) {
@@ -114,31 +114,29 @@ switch(axis) {
 	STEP_X_TCNT = 0;
 	STEP_X_OCR = 100;
 	STEP_X_TCCRB_REG |= (1 << CS31) | (1 << CS30);             // start Motor with Prescaler 64. 
-	
 	break;
 
 	case AXIS_Y:
 	steps_y_done = 0;
 	steps_y_target = steps * 2;
 
+	// Calculation of OCR - Bit:
+	// OCR = Fcpu/(2*PrescalerValue*fmotor) -1
+	// example: for f = 1,2kHz --> 16000000/(2*64*1200)-1 = 100
 	STEP_Y_TCNT = 0;
 	STEP_Y_OCR = 100;
-	STEP_Y_OC_REG |= (1 << STEP_Y_OC_BIT);
-	STEP_Y_TCCRB |= (1 << WGM12);
-	STEP_Y_TIMSK |= (1 << STEP_Y_OCIE_BIT);
-	STEP_Y_TCCRB |= (1 << CS11);
+	STEP_Y_TCCRB_REG |= (1 << CS11) | (1 << CS10);				// start Motor with Prescaler 64. 
 	break;
 
 	case AXIS_Z:
 	steps_z_done = 0;
 	steps_z_target = steps * 2;
-
+	// Calculation of OCR - Bit:
+	// OCR = Fcpu/(2*PrescalerValue*fmotor) -1
+	// example: for f = 1,2kHz --> 16000000/(2*64*1200)-1 = 100
 	STEP_Z_TCNT = 0;
 	STEP_Z_OCR = 100;
-	STEP_Z_OC_REG |= (1 << STEP_Z_OC_BIT);
-	STEP_Z_TCCRB |= (1 << WGM42);
-	STEP_Z_TIMSK |= (1 << STEP_Z_OCIE_BIT);
-	STEP_Z_TCCRB |= (1 << CS41);
+	STEP_Z_TCCRB_REG |= (1 << CS41) | (1 << CS40); ;			// start Motor with Prescaler 64. 
 	break;
 }
 }
@@ -151,13 +149,13 @@ void motor_stop(uint8_t axis) {
 		break;
 
 		case AXIS_Y:
-		STEP_Y_TCCRB &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
-		STEP_Y_TIMSK &= ~(1 << STEP_Y_OCIE_BIT);
+		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
+		STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT);
 		break;
 
 		case AXIS_Z:
-		STEP_Z_TCCRB &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
-		STEP_Z_TIMSK &= ~(1 << STEP_Z_OCIE_BIT);
+		STEP_Z_TCCRB_REG &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
+		STEP_Z_TIMSK_REG &= ~(1 << STEP_Z_OCIE_BIT);
 		break;
 	}
 }
