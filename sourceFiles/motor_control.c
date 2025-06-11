@@ -29,7 +29,7 @@ void motor_init(void) {
 	// Z
 	STEP_Z_DDR |= (1 << STEP_Z_PIN);	//set Step Z DDR as OUTPUT
 	DIR_Z_DDR  |= (1 << DIR_Z_PIN);		//set Step Z DDR as OUTPUT
-	EN_Z_DDR   |= (1 << EN_Z_PIN);
+	EN_Z_DDR   |= (1 << EN_Z_PIN);		//set Enable Z DDR as OUTPUT
 }
 
 void motor_enable(uint8_t axis) {
@@ -87,7 +87,7 @@ void motor_init_timer(void) {
 	STEP_X_OC_REG |= (1 << STEP_X_OC_BIT);			// Toggle OC3B on compare match - set COM3B0 in TCCR3A
 	STEP_X_TCCRB_REG |= (1 << WGM32);				// set CTC - Mode (Clear Timer on Compare Match) - set WGM32 in TCCR3B
 	STEP_X_OCR = 100;								// set init Value for OCR3A --> Target Value for Compare Match
-	STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);     // activate OCIE3A bit in TIMSK3 Register to activate Interrupt on Compare Match
+	STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);     // activate OCIE3B bit in TIMSK3 Register to activate Interrupt on Compare Match
 	
 	// --- Timer Y: Timer1, OC1B (PB6) ---
 	STEP_Y_OC_REG |= (1 << STEP_Y_OC_BIT);			 // Toggle OC1B on compare match-- setze COM1B= in TCCR1A
@@ -102,45 +102,55 @@ void motor_init_timer(void) {
 	STEP_Z_TIMSK_REG |= (1 << STEP_Z_OCIE_BIT);
 }
 // --- Timer-based motor Control --
-void motor_start_steps(uint8_t axis, uint16_t steps) {
-switch(axis) {
-	case AXIS_X:
-	steps_x_done = 0;
-	steps_x_target = steps * 2;
+void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
+	const uint16_t prescaler = 64;
+	uint16_t ocr_val;
 
-	// Calculation of OCR - Bit: 
-	// OCR = Fcpu/(2*PrescalerValue*fmotor) -1
-	// example: for f = 1,2kHz --> 16000000/(2*64*1200)-1 = 100
-	STEP_X_TCNT = 0;
-	STEP_X_OCR = 100;
-	STEP_X_TCCRB_REG |= (1 << CS31) | (1 << CS30);             // start Motor with Prescaler 64. 
-	break;
-
-	case AXIS_Y:
-	steps_y_done = 0;
-	steps_y_target = steps * 2;
+	// set freqeuncy borders
+	if (freq_hz < 5) freq_hz = 5;
+	if (freq_hz > 2000) freq_hz = 2000;
 
 	// Calculation of OCR - Bit:
 	// OCR = Fcpu/(2*PrescalerValue*fmotor) -1
 	// example: for f = 1,2kHz --> 16000000/(2*64*1200)-1 = 100
-	STEP_Y_TCNT = 0;
-	STEP_Y_OCR = 100;
-	STEP_Y_TCCRB_REG |= (1 << CS11) | (1 << CS10);				// start Motor with Prescaler 64. 
-	break;
+	// 2UL --> unsigned ling intege
+	ocr_val = (F_CPU / (2UL * prescaler * freq_hz)) - 1;
 
-	case AXIS_Z:
-	steps_z_done = 0;
-	steps_z_target = steps * 2;
-	// Calculation of OCR - Bit:
-	// OCR = Fcpu/(2*PrescalerValue*fmotor) -1
-	// example: for f = 1,2kHz --> 16000000/(2*64*1200)-1 = 100
-	STEP_Z_TCNT = 0;
-	STEP_Z_OCR = 100;
-	STEP_Z_TCCRB_REG |= (1 << CS41) | (1 << CS40); ;			// start Motor with Prescaler 64. 
-	break;
-}
-}
+	switch(axis) {
+		case AXIS_X:
+		steps_x_done = 0;
+		steps_x_target = steps * 2;
 
+		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
+		STEP_X_TCNT = 0;
+		STEP_X_OCR = ocr_val;
+		STEP_X_TCCRB_REG |= (1 << CS31) | (1 << CS30); // start timer with Prescaler 64
+		break;
+
+		case AXIS_Y:
+		steps_y_done = 0;
+		steps_y_target = steps * 2;
+
+		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
+		STEP_Y_TCNT = 0;
+		STEP_Y_OCR = ocr_val;
+		STEP_Y_TCCRB_REG |= (1 << CS11) | (1 << CS10);
+		break;
+
+		case AXIS_Z:
+		steps_z_done = 0;
+		steps_z_target = steps * 2;
+
+		STEP_Z_TCCRB_REG &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
+		STEP_Z_TCNT = 0;
+		STEP_Z_OCR = ocr_val;
+		STEP_Z_TCCRB_REG |= (1 << CS41) | (1 << CS40);
+		break;
+
+		default:
+		break;
+	}
+}
 void motor_stop(uint8_t axis) {
 	switch(axis) {
 		case AXIS_X:
@@ -161,21 +171,21 @@ void motor_stop(uint8_t axis) {
 }
 
  //--- ISR: Interrupts on CompareMatch from the Timers ---
- ISR(TIMER3_COMPA_vect) {
+ ISR(TIMER3_COMPB_vect) {
 	 steps_x_done++;
 	 if (steps_x_done >= steps_x_target) {
 		 motor_stop(AXIS_X);
 	 }
  }
 
- ISR(TIMER1_COMPA_vect) {
+ ISR(TIMER1_COMPB_vect) {
 	 steps_y_done++;
 	 if (steps_y_done >= steps_y_target) {
 		 motor_stop(AXIS_Y);
 	 }
  }
 
- ISR(TIMER4_COMPA_vect) {
+ ISR(TIMER4_COMPB_vect) {
 	 steps_z_done++;
 	 if (steps_z_done >= steps_z_target) {
 		 motor_stop(AXIS_Z);

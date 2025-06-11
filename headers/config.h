@@ -46,7 +46,7 @@
 #define STEP_X_OCR			OCR3A		// OCR3A is the Output Compare Register for A for Timer 3 --> Target Value for Timer/Counter
 #define STEP_X_TCNT			TCNT3		// TCNT3 is the actual Value of of the Timer/Counter 3 
 #define STEP_X_TIMSK_REG	TIMSK3		// TIMSK3 is the Timer Interrupt Mask Register for Timer3 / activates Interrupts for Timer3
-#define STEP_X_OCIE_BIT		OCIE3A		// OCIE3A is the Output Compare Interrupt Enable A for Timer 3 --> Timer set an interrupt 
+#define STEP_X_OCIE_BIT		OCIE3B		// OCIE3B is the Output Compare Interrupt Enable B for Timer 3 --> Timer set an interrupt 
 #define STEP_X_TCCRB_REG	TCCR3B		// TCCR3B is the Timer/Counter Control Register B for Timer 3 // Important Bits: WGM32 / CS30 / CS31 / CS32
 
 // Y-Achse
@@ -70,7 +70,7 @@
 #define STEP_Y_OCR       OCR1A
 #define STEP_Y_TCNT      TCNT1
 #define STEP_Y_TIMSK_REG TIMSK1
-#define STEP_Y_OCIE_BIT  OCIE1A
+#define STEP_Y_OCIE_BIT  OCIE1B
 #define STEP_Y_TCCRB_REG TCCR1B
 
 // Z-Achse (Takt)
@@ -96,7 +96,7 @@
 #define STEP_Z_OCR       OCR4A
 #define STEP_Z_TCNT      TCNT4
 #define STEP_Z_TIMSK_REG TIMSK4
-#define STEP_Z_OCIE_BIT  OCIE4A
+#define STEP_Z_OCIE_BIT  OCIE4B
 #define STEP_Z_TCCRB_REG TCCR4B
 
 // ADC für Lasersensor
