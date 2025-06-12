@@ -16,6 +16,8 @@
 void motor_init(void);
 void motor_init_timer(void);
 void limit_switch_init(void); 
+void limit_switch_interrupt_init(void);
+void disable_limit_switch_interrupts(void);
 void motor_enable(uint8_t axis);
 void motor_disable(uint8_t axis);
 void motor_set_direction(uint8_t axis, uint8_t direction);
@@ -24,6 +26,7 @@ void motor_stop(uint8_t axis);
 void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz);
 void motor_start_continous(uint8_t axis, uint16_t freq_hz);
 void start_XY_reference(void);
+void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, uint16_t speed_hz);
 
 //IO-Port-Mapping for the EndSensors for X and Y
 #define X_SWITCH_TOP_PORT 		PORTD
@@ -45,6 +48,9 @@ void start_XY_reference(void);
 #define Y_SWITCH_RIGHT_IN_REG	PIND
 #define Y_SWITCH_RIGHT_DDR		DDRD
 #define Y_SWITCH_RIGHT_PIN		PD3
+
+#define EXT_INT_CONTROL_REG       EICRA  // External Interrupt Control Register A
+#define EXT_INT_MASK_REG          EIMSK  // External Interrupt Mask Register
 
 
 //IO-Port-Mapping for each Axis

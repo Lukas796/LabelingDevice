@@ -30,12 +30,6 @@
 #define DIR_Y_LEFT 2   // Y-Axis Positiv --> Left
 #define DIR_Y_RIGHT 3   // Y-Axis Negativ --> Right
 
-// --- Confirmation Button on PG1 ---
-#define CONFIRM_BUTTON_PORT     PORTG     // Port Register
-#define CONFIRM_BUTTON_DDR      DDRG      // Data Direction Register
-#define CONFIRM_BUTTON_PINREG   PING      // Input Register
-#define CONFIRM_BUTTON_PIN      PG1       // Pin Number
-
 // ADC für Lasersensor
 #define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0
 
