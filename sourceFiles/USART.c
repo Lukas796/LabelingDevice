@@ -77,3 +77,24 @@ uint8_t USART_ReadData()
 
 	return data;
 }
+
+// Prüft, ob Daten im Empfangspuffer vorhanden sind
+uint8_t USART_DataAvailable() {
+	return (usart_rx_head != usart_rx_tail);  // True, wenn Daten im Puffer vorhanden sind
+}
+
+// String aus dem Empfangspuffer lesen
+void USART_ReadString(char *buffer, uint8_t max_length) {
+	uint8_t i = 0;
+
+	// Daten aus dem Ringbuffer holen, bis \n gefunden wird oder max. Länge erreicht ist
+	while (USART_DataAvailable() && i < max_length - 1) {
+		buffer[i] = USART_ReadData();
+		if (buffer[i] == '\n') {  // Falls Endezeichen gefunden wird
+			break;
+		}
+		i++;
+	}
+
+	buffer[i] = '\0';  // Null-Terminierung hinzufügen
+}
