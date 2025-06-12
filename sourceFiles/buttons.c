@@ -69,5 +69,7 @@ void reference_StartPos_control(void){
 		limit_switch_interrupt_init(); //init interrupts for limit switches
 		interrupts_initialized = 1;
 	}
+	
+	
 } 
 
