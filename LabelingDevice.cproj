@@ -130,10 +130,16 @@
     <Compile Include="headers\config.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="headers\Laser.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="headers\lcd_control.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="headers\motor_control.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="headers\RS232.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
@@ -142,10 +148,16 @@
     <Compile Include="sourceFiles\buttons.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sourceFiles\Laser.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="sourceFiles\lcd_control.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\motor_control.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sourceFiles\RS232.c">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

@@ -14,6 +14,8 @@
 #include "motor_control.h"
 #include "lcd_control.h"
 #include "config.h"
+#include "laser.h"
+
 
 int main(void)
 {
@@ -26,13 +28,13 @@ int main(void)
 	
 	// LCD initialisieren
 	lcd_init();
-
+	init_ADC();  // Sensor initialisieren
 
 	
 	while (1)
 	{
 		reference_StartPos_control();
-		
+		laser_read();  // Abstandsmessung
 	}
 }
 
