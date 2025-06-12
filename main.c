@@ -4,6 +4,7 @@
  *
  * Created: 15.05.2025 12:49:39
  * Authors : lukasstrittmatter, robinschad
+ * Last Change 12-06-2025
  */ 
 #define F_CPU 16000000UL  // Mega 2560 läuft mit 16 MHz
 
