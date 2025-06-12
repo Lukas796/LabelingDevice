@@ -34,9 +34,6 @@ int main(void)
 	motor_set_direction(AXIS_Y, DIR_CW);
 	motor_set_direction(AXIS_Z, DIR_CW);
 
-
-int main(void)
-{
 	// LCD-Pins als Ausgang setzen
 	DDRC = 0xFC;
 
