@@ -7,6 +7,7 @@
 
 #include "motor_control.h"
 #include "config.h"
+#include "buttons.h"
 
 // Schrittzähler je Motor
 volatile uint16_t steps_x_done = 0;
@@ -30,6 +31,16 @@ void motor_init(void) {
 	STEP_Z_DDR |= (1 << STEP_Z_PIN);	//set Step Z DDR as OUTPUT
 	DIR_Z_DDR  |= (1 << DIR_Z_PIN);		//set Step Z DDR as OUTPUT
 	EN_Z_DDR   |= (1 << EN_Z_PIN);		//set Enable Z DDR as OUTPUT
+	
+	//enable all Axis 
+	motor_enable(AXIS_X);
+	motor_enable(AXIS_Y);
+	motor_enable(AXIS_Z);
+
+	//set Diretion to all Axis
+	motor_set_direction(AXIS_X, DIR_CW);
+	motor_set_direction(AXIS_Y, DIR_CW);
+	motor_set_direction(AXIS_Z, DIR_CW);
 }
 
 void motor_init_timer(void) {
@@ -70,12 +81,6 @@ void limit_switch_init(void) {
 	// X-RIGHT
 	Y_SWITCH_RIGHT_DDR &= ~(1 << Y_SWITCH_RIGHT_PIN);
 	Y_SWITCH_RIGHT_PORT |= (1 << Y_SWITCH_RIGHT_PIN);
-}
-
-void button_init(void) {
-	// Set PG1 as input
-	CONFIRM_BUTTON_DDR &= ~(1 << CONFIRM_BUTTON_PIN);       // Set as input
-	CONFIRM_BUTTON_PORT |= (1 << CONFIRM_BUTTON_PIN);       // Enable internal pull-up
 }
 
 void motor_enable(uint8_t axis) {
@@ -326,4 +331,5 @@ void motor_stop(uint8_t axis) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 _delay_ms(200);
+	 set_referenced(1);				// set referenced flag
  }

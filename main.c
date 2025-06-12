@@ -27,14 +27,7 @@ int main(void)
 	motor_init_timer();
 	button_init();  
 
-	motor_enable(AXIS_X);
-	motor_enable(AXIS_Y);
-	motor_enable(AXIS_Z);
-
-	motor_set_direction(AXIS_X, DIR_CW);
-	motor_set_direction(AXIS_Y, DIR_CW);
-	motor_set_direction(AXIS_Z, DIR_CW);
-
+	
 	// LCD-Pins als Ausgang setzen
 	DDRC = 0xFC;
 
@@ -60,12 +53,7 @@ int main(void)
 
 	while (1)
 	{
-		// Wenn Taster gedrückt UND noch nicht referenziert wurde
-		if ((CONFIRM_BUTTON_PINREG & (1 << CONFIRM_BUTTON_PIN)) && !referenced)
-		{
-			start_XY_reference();   // Referenzfahrt starten
-			referenced = 1;         // Flag setzen, damit nur einmal ausgeführt wird
-		}
+		reference_control();
 	}
 }
 
