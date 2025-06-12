@@ -29,18 +29,9 @@ int main(void)
 
 
 	
-	start_XY_reference();			 // Referenzfahrt starten
-	
-	move_to_position_steps_xy(1800,4200,1000);
-	
-	limit_switch_interrupt_init();
-	
-	move_to_position_steps_xy(10,10,300);
-	
 	while (1)
 	{
-		
-		
+		reference_StartPos_control();
 		
 	}
 }

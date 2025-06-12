@@ -16,6 +16,8 @@
 void motor_init(void);
 void motor_init_timer(void);
 void limit_switch_init(void); 
+void limit_switch_interrupt_init(void);
+void disable_limit_switch_interrupts(void);
 void motor_enable(uint8_t axis);
 void motor_disable(uint8_t axis);
 void motor_set_direction(uint8_t axis, uint8_t direction);

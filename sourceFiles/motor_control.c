@@ -107,6 +107,10 @@ void limit_switch_interrupt_init(void) {
 	EXT_INT_MASK_REG |= (1 << INT3);     // INT3 aktivieren
 }
 
+void disable_limit_switch_interrupts(void) {
+	EXT_INT_MASK_REG &= ~((1 << INT0) | (1 << INT1) | (1 << INT2) | (1 << INT3));
+}
+
 void motor_enable(uint8_t axis) {
 	switch (axis) {
 		case AXIS_X: EN_X_PORT &= ~(1 << EN_X_PIN); break;	//SET EN_X_PIN to 0 - low active
@@ -436,7 +440,8 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 	 _delay_ms(200);
 	 actual_steps_x = 0;
 	 actual_steps_y = 0;
-	 set_referenced(1);				// set referenced flag
+	 set_referenced(1);
+	 
  }
  
  void check_limit_switches(void) {

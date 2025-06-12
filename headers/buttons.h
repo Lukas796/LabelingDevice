@@ -13,8 +13,11 @@
 #include <stdint.h>
 
 void reference_control(void);
-uint8_t is_referenced(void);
 void set_referenced(uint8_t state);
+uint8_t is_referenced(void);
+
+void set_inStartPos(uint8_t state);
+uint8_t is_inStartPos(void);
 
 // --- Confirmation Button on PG1 ---
 #define CONFIRM_BUTTON_PORT     PORTG     // Port Register
