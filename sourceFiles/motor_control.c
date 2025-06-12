@@ -18,6 +18,10 @@ volatile uint16_t steps_x_target = 0;
 volatile uint16_t steps_y_target = 0;
 volatile uint16_t steps_z_target = 0;
 
+volatile uint16_t actual_steps_x = 0;
+volatile uint16_t actual_steps_y = 0;
+volatile uint16_t actual_steps_z = 0;
+
 void motor_init(void) {
 	// X
 	STEP_X_DDR |= (1 << STEP_X_PIN);	//set Step X DDR as OUTPUT 
@@ -81,6 +85,26 @@ void limit_switch_init(void) {
 	// X-RIGHT
 	Y_SWITCH_RIGHT_DDR &= ~(1 << Y_SWITCH_RIGHT_PIN);
 	Y_SWITCH_RIGHT_PORT |= (1 << Y_SWITCH_RIGHT_PIN);
+}
+
+void limit_switch_interrupt_init(void) {
+	// FALLING EDGE (Pull-up aktiv, Schalter schließt nach GND)
+
+	// INT0 ? PD0 ? X_SWITCH_TOP
+	EXT_INT_CONTROL_REG |= (1 << ISC01);    // ISC01 = 1, ISC00 = 0 ? falling edge
+	EXT_INT_MASK_REG |= (1 << INT0);     // INT0 aktivieren
+
+	// INT1 ? PD1 ? Y_SWITCH_LEFT
+	EXT_INT_CONTROL_REG |= (1 << ISC11);    // ISC11 = 1, ISC10 = 0 ? falling edge
+	EXT_INT_MASK_REG |= (1 << INT1);     // INT1 aktivieren
+
+	// INT2 ? PD2 ? X_SWITCH_BOTTOM
+	EXT_INT_CONTROL_REG |= (1 << ISC21);    // ISC21 = 1, ISC20 = 0 ? falling edge
+	EXT_INT_MASK_REG |= (1 << INT2);     // INT2 aktivieren
+
+	// INT3 ? PD3 ? Y_SWITCH_RIGHT
+	EXT_INT_CONTROL_REG |= (1 << ISC31);    // ISC31 = 1, ISC30 = 0 ? falling edge
+	EXT_INT_MASK_REG |= (1 << INT3);     // INT3 aktivieren
 }
 
 void motor_enable(uint8_t axis) {
@@ -275,6 +299,31 @@ void motor_stop(uint8_t axis) {
 	 }
  }
  
+ // Interrupts from Limit Switches
+ ISR(INT0_vect) {
+	 motor_stop(AXIS_X);
+	 motor_stop(AXIS_Y);
+	 motor_stop(AXIS_Z);
+ }
+
+ ISR(INT1_vect) {
+	 motor_stop(AXIS_X);
+	 motor_stop(AXIS_Y);
+	 motor_stop(AXIS_Z);
+ }
+
+ ISR(INT2_vect) {
+	 motor_stop(AXIS_X);
+	 motor_stop(AXIS_Y);
+	 motor_stop(AXIS_Z);
+ }
+
+ ISR(INT3_vect) {
+	 motor_stop(AXIS_X);
+	 motor_stop(AXIS_Y);
+	 motor_stop(AXIS_Z);
+ }
+ 
  void set_X_Y_direction(uint8_t direction) {
 	 switch (direction) {
 		 case DIR_X_TOP: // X positiv ? X = CCW, Y = CCW
@@ -300,6 +349,60 @@ void motor_stop(uint8_t axis) {
 		 break;
 	 }
  }
+ 
+void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, uint16_t speed_hz)
+{
+	int32_t delta_steps_x = target_steps_x - actual_steps_x;
+	int32_t delta_steps_y = target_steps_y - actual_steps_y;
+
+	// ========================
+	// --- X-Achse bewegen ---
+	// ========================
+	if (delta_steps_x != 0) {
+		if (delta_steps_x > 0) {
+			// Positive X-Richtung ? beide Motoren gleichsinnig (z.?B. CW)
+			set_X_Y_direction(DIR_X_BOTTOM);
+			} else {
+			// Negative X-Richtung ? beide Motoren gleichsinnig (z.?B. CCW)
+			set_X_Y_direction(DIR_X_TOP);
+			delta_steps_x = -delta_steps_x;  // positiv machen für Bewegung
+		}
+
+		steps_x_done = 0;
+		steps_y_done = 0;
+
+		motor_start_steps(AXIS_X, delta_steps_x, speed_hz);
+		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);
+
+		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten bis fertig
+
+		actual_steps_x = target_steps_x;
+	}
+
+	// ========================
+	// --- Y-Achse bewegen ---
+	// ========================
+	if (delta_steps_y != 0) {
+		if (delta_steps_y > 0) {
+			// Positive Y-Richtung ? Motoren gegensinnig
+			set_X_Y_direction(DIR_Y_LEFT);
+			} else {
+			// Negative Y-Richtung ? Motoren gegensinnig
+			set_X_Y_direction(DIR_Y_RIGHT);
+			delta_steps_y = -delta_steps_y;
+		}
+
+		steps_x_done = 0;
+		steps_y_done = 0;
+		
+		motor_start_steps(AXIS_X, delta_steps_y, speed_hz);
+		motor_start_steps(AXIS_Y, delta_steps_y, speed_hz);
+
+		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten bis fertig
+
+		actual_steps_y = target_steps_y;
+	}
+}
  
  void start_XY_reference(void) {
 	 // Set direction: move toward Y_RIGHT first
@@ -331,5 +434,21 @@ void motor_stop(uint8_t axis) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 _delay_ms(200);
+	 actual_steps_x = 0;
+	 actual_steps_y = 0;
 	 set_referenced(1);				// set referenced flag
+ }
+ 
+ void check_limit_switches(void) {
+	 // Prüfe alle Endschalter 
+	 if (!(X_SWITCH_TOP_IN_REG & (1 << X_SWITCH_TOP_PIN)) ||
+	 !(X_SWITCH_BOTTOM_IN_REG & (1 << X_SWITCH_BOTTOM_PIN)) ||
+	 !(Y_SWITCH_LEFT_IN_REG & (1 << Y_SWITCH_LEFT_PIN)) ||
+	 !(Y_SWITCH_RIGHT_IN_REG & (1 << Y_SWITCH_RIGHT_PIN)))
+	 {
+		 // Einer oder mehrere Schalter sind betätigt ? Alle Motoren stoppen
+		 motor_stop(AXIS_X);
+		 motor_stop(AXIS_Y);
+		 motor_stop(AXIS_Z);
+	 }
  }

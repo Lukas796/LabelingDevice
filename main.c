@@ -15,9 +15,6 @@
 #include "lcd_control.h"
 #include "config.h"
 
-// Status-Flag
-uint8_t referenced = 0;
-
 int main(void)
 {
 	sei();  // activate global interrupts
@@ -26,34 +23,25 @@ int main(void)
 	limit_switch_init();
 	motor_init_timer();
 	button_init();  
-
 	
-	// LCD-Pins als Ausgang setzen
-	DDRC = 0xFC;
-
 	// LCD initialisieren
 	lcd_init();
 
-	// Text definieren
-	char text[] = "Labeling Device Robin Lukas"; // Beispieltext
 
-	// Manuelle Längenberechnung ohne `strlen()`
-	uint8_t j = 0;
 	
-	lcd_Pos(1, 1); // Cursor auf Zeile 1 setzen
-	while (text[j] != '\0') // Schleife über den Text
-	{
-		if (j == 16) // Wenn 16 Zeichen erreicht sind, springe zu Zeile 2
-		{
-			lcd_Pos(2, 1);
-		}
-		lcd_char(text[j]);  // Einzelne Zeichen senden
-		j++;
-	}
-
+	start_XY_reference();			 // Referenzfahrt starten
+	
+	move_to_position_steps_xy(1800,4200,1000);
+	
+	limit_switch_interrupt_init();
+	
+	move_to_position_steps_xy(10,10,300);
+	
 	while (1)
 	{
-		reference_control();
+		
+		
+		
 	}
 }
 
