@@ -1,5 +1,5 @@
 /*
- * config.h - Konfigurationsdatei
+ * config.h - Config Data for IO-Mapping
  *
  * Created: 15.05.2025 21:45
  * Authors : lukasstrittmatter
@@ -11,57 +11,30 @@
 #include <util/delay.h>
 #include <stdint.h>
 
-#define F_CPU 16000000UL  // CPU-Frequenz für Delayfunktionen
+#define F_CPU 16000000UL  // CPU-Frequency for Delay-Functions
+// --------------------------------------
+// --- Motor Control --------------------
 
-// Achsenbezeichnungen
-#define AXIS_X 0
-#define AXIS_Y 1
-#define AXIS_Z 2
+// Definition of AXIS
+#define AXIS_X 0	//set AXIS_X as 0
+#define AXIS_Y 1	//set AXIS_Y as 1
+#define AXIS_Z 2	//set AXIS_Z as 2
 
-// Richtungsdefinitionen
-#define DIR_CW  0   // Rechtslauf
-#define DIR_CCW 1   // Linkslauf
+//Definition for Motor direction
+#define DIR_CW  0   // Counterwise
+#define DIR_CCW 1   // CounterClockwise
 
-// --- Schrittmotor Pins ---
+//Definition for X_Y_MarkerDirection
+#define DIR_X_TOP 0   // X-Axis Positiv --> Top
+#define DIR_X_BOTTOM 1   // X-Axis Negativ --> Bottom
+#define DIR_Y_LEFT 2   // Y-Axis Positiv --> Left
+#define DIR_Y_RIGHT 3   // Y-Axis Negativ --> Right
 
-// X-Achse
-#define STEP_X_PORT PORTB
-#define STEP_X_DDR  DDRB
-#define STEP_X_PIN  PB1
-
-#define DIR_X_PORT  PORTB
-#define DIR_X_DDR   DDRB
-#define DIR_X_PIN   PB0
-
-#define EN_X_PORT   PORTB
-#define EN_X_DDR    DDRB
-#define EN_X_PIN    PB2
-
-// Y-Achse
-#define STEP_Y_PORT PORTB
-#define STEP_Y_DDR  DDRB
-#define STEP_Y_PIN  PB3
-
-#define DIR_Y_PORT  PORTB
-#define DIR_Y_DDR   DDRB
-#define DIR_Y_PIN   PB4
-
-#define EN_Y_PORT   PORTB
-#define EN_Y_DDR    DDRB
-#define EN_Y_PIN    PB5
-
-// Z-Achse (Rotation)
-#define STEP_Z_PORT PORTB
-#define STEP_Z_DDR  DDRB
-#define STEP_Z_PIN  PB6
-
-#define DIR_Z_PORT  PORTB
-#define DIR_Z_DDR   DDRB
-#define DIR_Z_PIN   PB7
-
-#define EN_Z_PORT   PORTD
-#define EN_Z_DDR    DDRD
-#define EN_Z_PIN    PD6
+// --- Confirmation Button on PG1 ---
+#define CONFIRM_BUTTON_PORT     PORTG     // Port Register
+#define CONFIRM_BUTTON_DDR      DDRG      // Data Direction Register
+#define CONFIRM_BUTTON_PINREG   PING      // Input Register
+#define CONFIRM_BUTTON_PIN      PG1       // Pin Number
 
 // ADC für Lasersensor
 #define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0
