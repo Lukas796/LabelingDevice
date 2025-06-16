@@ -5,32 +5,66 @@
  *  Author: robin
  */ 
 
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "config.h"
+#include "USART.h"
+#include "lcd_control.h"
+#include "laser.h"
 
-#define USART_BUFFER_SIZE 64 // Größe des Ringbuffers
+#define USART_BUFFER_SIZE 64
 
-volatile uint8_t usart_rx_buffer[USART_BUFFER_SIZE]; // Empfangspuffer
-volatile uint8_t usart_rx_head = 0; // Schreibindex des Puffers
-volatile uint8_t usart_rx_tail = 0; // Leseindex des Puffers
+volatile uint8_t usart_rx_buffer[USART_BUFFER_SIZE];
+volatile uint8_t usart_rx_head = 0;
+volatile uint8_t usart_rx_tail = 0;
 
 // USART initialisieren
 void USART_Init(uint16_t baud) 
 {
-	//uint16_t ubrr_value = (F_CPU / (16UL * baud)) - 1; // UBBR-Wert berechnen bei 16.MIo und 96000 ~ 7
-
-	//UBRR0H = (uint8_t)(ubrr_value >> 8); 
-	//UBRR0L = (uint8_t)ubrr_value;
 	UBRR0L = 103;
-
-	// RX & TX aktivieren, RX-Interrupt freigeben
 	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
-
-	// Asynchroner Modus, 8 Datenbits, keine Parität, 1 Stop-Bit
 	UCSR0C |= (1 << UCSZ01) | (1 << UCSZ00);
+	sei();
+}
 
-	sei(); // Globale Interrupts aktivieren
+// Empfängt und verarbeitet UART-Befehle
+void USART_ProcessCommands(uint8_t* messung_aktiv) 
+{
+	if (USART_DataAvailable()) {
+		char buffer[30];
+		USART_ReadString(buffer, sizeof(buffer));
+
+		if (strcmp(buffer, "M") == 0) {
+			*messung_aktiv = 1;
+			} else if (strcmp(buffer, "MN") == 0) {
+			*messung_aktiv = 0;
+			} else if (strcmp(buffer, "R") == 0) {
+			USART_SendString("Referenzfahrt gestartet.\n");
+			lcd_text("Referenzfahrt gestartet");
+			} else if (strcmp(buffer, "STOP") == 0) {
+			USART_SendString("Notstop.\n");
+			lcd_text("Notstop");
+			} else if (strcmp(buffer, "START") == 0) {
+			USART_SendString("Wird gestartet.\n");
+			} else if (strstr(buffer, "Beschriftung:") != 0) {
+			USART_SendString("Folgender Text wird geschrieben: ");
+			char* text_start = buffer + strlen("Beschriftung:");
+			USART_SendString(text_start);
+			USART_SendString("\n");
+			lcd_text(text_start);
+		}
+	}
+}
+
+// Messungsprozess
+void USART_MESSUNG(uint8_t messung_aktiv) {
+	if (messung_aktiv) {
+		uint16_t distance = laser_read();
+		char send_buffer[20];
+		snprintf(send_buffer, sizeof(send_buffer), "%u mm\n", distance);
+		USART_SendString(send_buffer);
+	}
 }
 
 // Daten senden
