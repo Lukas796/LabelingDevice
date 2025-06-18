@@ -47,7 +47,7 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)
 			} else if (strcmp(buffer, "STOP") == 0) {
 			USART_SendString("Notstop.\n");
 			lcd_cmd(0xC0);
-			lcd_text("Notstop!");
+			lcd_text("Notstop!     ");
 			} else if (strcmp(buffer, "START") == 0) {
 			USART_SendString("Wird gestartet.\n");
 			lcd_cmd(0xC0);
@@ -76,7 +76,7 @@ void USART_MESSUNG(uint8_t messung_aktiv) {
 		uint16_t i = laser_read();
 		lcd_cmd (0xC0);
 		lcd_num (i,LCDstr);
-		lcd_text(LCDstr);
+		lcd_text(LCDstr,"   ");
 	}
 }
 
