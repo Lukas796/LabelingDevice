@@ -43,24 +43,24 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)
 			} else if (strcmp(buffer, "R") == 0) {
 			USART_SendString("Referenzfahrt gestartet.\n");
 			lcd_cmd(0xC0);
-			lcd_text("Referenzfahrt!");
+			lcd_text("Referenzfahrt!  ");
 			} else if (strcmp(buffer, "STOP") == 0) {
 			USART_SendString("Notstop.\n");
 			lcd_cmd(0xC0);
-			lcd_text("Notstop!     ");
+			lcd_text("Notstop!        ");
 			} else if (strcmp(buffer, "START") == 0) {
 			USART_SendString("Wird gestartet.\n");
 			lcd_cmd(0xC0);
-			lcd_text("Wird gestartet!");
+			lcd_text("Wird gestartet! ");
 			} else if (strstr(buffer, "Beschriftung:") != 0) {
 			USART_SendString("Folgender Text wird geschrieben: ");
 			char* text_start = buffer + strlen("Beschriftung:");
 			USART_SendString(text_start);
 			USART_SendString("\n");
 			lcd_cmd(0xC0);
-			lcd_text(text_start);
-			}else{
-			lcd_cmd (0x01);
+			char send_Text_buffer[17];
+			snprintf(send_Text_buffer, sizeof(send_Text_buffer), "%-16s",text_start);
+			lcd_text(send_Text_buffer);
 			}
 	}
 }
@@ -76,7 +76,9 @@ void USART_MESSUNG(uint8_t messung_aktiv) {
 		uint16_t i = laser_read();
 		lcd_cmd (0xC0);
 		lcd_num (i,LCDstr);
-		lcd_text(LCDstr,"   ");
+		char send_Messung_buffer[17];
+		snprintf(send_Messung_buffer, sizeof(send_Messung_buffer), "%-16s",LCDstr);
+		lcd_text(send_Messung_buffer);
 	}
 }
 
