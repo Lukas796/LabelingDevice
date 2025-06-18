@@ -2,6 +2,8 @@
 #define LCD_H_
 
 #include "config.h"
+#include <avr/io.h>
+#include <util/delay.h>
 
 #define RS PC2  // Register Select
 #define EC PC3  // Enable

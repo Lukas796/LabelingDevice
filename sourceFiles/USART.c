@@ -18,6 +18,7 @@
 volatile uint8_t usart_rx_buffer[USART_BUFFER_SIZE];
 volatile uint8_t usart_rx_head = 0;
 volatile uint8_t usart_rx_tail = 0;
+char LCDstr[17];
 
 // USART initialisieren
 void USART_Init(uint16_t baud) 
@@ -41,21 +42,29 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)
 			*messung_aktiv = 0;
 			} else if (strcmp(buffer, "R") == 0) {
 			USART_SendString("Referenzfahrt gestartet.\n");
-			lcd_text("Referenzfahrt gestartet");
+			lcd_cmd(0xC0);
+			lcd_text("Referenzfahrt!");
 			} else if (strcmp(buffer, "STOP") == 0) {
 			USART_SendString("Notstop.\n");
-			lcd_text("Notstop");
+			lcd_cmd(0xC0);
+			lcd_text("Notstop!");
 			} else if (strcmp(buffer, "START") == 0) {
 			USART_SendString("Wird gestartet.\n");
+			lcd_cmd(0xC0);
+			lcd_text("Wird gestartet!");
 			} else if (strstr(buffer, "Beschriftung:") != 0) {
 			USART_SendString("Folgender Text wird geschrieben: ");
 			char* text_start = buffer + strlen("Beschriftung:");
 			USART_SendString(text_start);
 			USART_SendString("\n");
+			lcd_cmd(0xC0);
 			lcd_text(text_start);
-		}
+			}else{
+			lcd_cmd (0x01);
+			}
 	}
 }
+
 
 // Messungsprozess
 void USART_MESSUNG(uint8_t messung_aktiv) {
@@ -64,6 +73,10 @@ void USART_MESSUNG(uint8_t messung_aktiv) {
 		char send_buffer[20];
 		snprintf(send_buffer, sizeof(send_buffer), "%u mm\n", distance);
 		USART_SendString(send_buffer);
+		uint16_t i = laser_read();
+		lcd_cmd (0xC0);
+		lcd_num (i,LCDstr);
+		lcd_text(LCDstr);
 	}
 }
 
