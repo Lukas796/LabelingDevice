@@ -42,10 +42,10 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)
 			} else if (strcmp(buffer, "MN") == 0) {
 			*messung_aktiv = 0;
 			} else if (strcmp(buffer, "R") == 0) {
-			reference_StartPos_control();
 			USART_SendString("Referenzfahrt gestartet.\n");
 			lcd_cmd(0xC0);
 			lcd_text("Referenzfahrt!  ");
+			request_reference_start(1);
 			} else if (strcmp(buffer, "STOP") == 0) {
 			USART_SendString("Notstop.\n");
 			lcd_cmd(0xC0);
@@ -54,6 +54,7 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)
 			USART_SendString("Wird gestartet.\n");
 			lcd_cmd(0xC0);
 			lcd_text("Wird gestartet! ");
+			request_Labeling_start(1);
 			} else if (strstr(buffer, "Beschriftung:") != 0) {
 			USART_SendString("Folgender Text wird geschrieben: ");
 			char* text_start = buffer + strlen("Beschriftung:");

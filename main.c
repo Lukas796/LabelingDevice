@@ -36,10 +36,13 @@ int main(void)
 	
 	while (1)
 	{
+		buttons();
+		reference_StartPos_control();
+		start_Laser_Positioning();
 		
-		  USART_ProcessCommands(&messung_aktiv);  // Verarbeitet eingehende Steuerbefehle
-		  USART_MESSUNG(messung_aktiv);           // Führt Messungen durch, falls aktiv
-		  _delay_ms(10);
+		USART_ProcessCommands(&messung_aktiv);  // Verarbeitet eingehende Steuerbefehle
+		USART_MESSUNG(messung_aktiv);           // Führt Messungen durch, falls aktiv
+		_delay_ms(100);
 	}
 }
 
