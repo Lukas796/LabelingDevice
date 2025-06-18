@@ -1,8 +1,8 @@
 /*
- * Laser.c
+ * CFile1.c
  *
  * Created: 22.05.2025 10:55:16
- *  Author: robin 
+ *  Author: robin
  */ 
 #include "Laser.h"
 #include "config.h"
@@ -39,7 +39,6 @@ uint16_t laser_read(void)
 	uint16_t rawValue = read_ADC();										// Neueste ADC-Wandlung starten und auslesen
 	int distance_mm = (rawValue / 1023.0) * 120;						// Skalierung auf 120 mm Messbereich
 	return (uint16_t)distance_mm;
-	_delay_ms(500);   // Alle 500ms aktualisieren
 }
 
 void laser_teach(void)													//Zum neu kalibrieren							

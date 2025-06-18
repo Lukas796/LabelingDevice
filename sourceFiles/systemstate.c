@@ -4,7 +4,7 @@
  * Created: 12.06.2025 09:20:17
  *  Author: lukasstrittmatter
  */ 
-#include "buttons.h"
+#include "systemstate.h"
 #include "motor_control.h"
 #include "config.h"
 
@@ -49,13 +49,13 @@ void reference_StartPos_control(void){
 	// Wenn Confirm Taster gedrückt UND noch nicht referenziert wurde
 	if (!is_referenced())
 	{
-		if ((CONFIRM_BUTTON_PINREG & (1 << CONFIRM_BUTTON_PIN)))
-		{
-			_delay_ms(50);  // Entprellen
+		//if ((CONFIRM_BUTTON_PINREG & (1 << CONFIRM_BUTTON_PIN)))
+		//{
+			//_delay_ms(50);  // Entprellen
 			disable_limit_switch_interrupts();
 			interrupts_initialized = 0;
 			start_XY_reference();			 // Referenzfahrt starten
-		}
+		//}
 	}
 	
 	if ((is_referenced()) && (!is_inStartPos()))

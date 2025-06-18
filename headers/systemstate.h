@@ -1,13 +1,13 @@
 /*
- * buttons.h
+ * systemstate.h
  *
  * Created: 12.06.2025 09:19:45
  *  Author: lukasstrittmatter
  */ 
 
 
-#ifndef BUTTONS_H_
-#define BUTTONS_H_
+#ifndef SYSTEMSTATE_H_
+#define SYSTEMSTATE_H_
 
 #include <avr/io.h>
 #include <stdint.h>
@@ -45,4 +45,4 @@ uint8_t is_inStartPos(void);
 
 
 
-#endif /* BUTTONS_H_ */
+#endif /* SYSTEMSTATE_H_ */

@@ -15,6 +15,8 @@
 #include "lcd_control.h"
 #include "config.h"
 #include "laser.h"
+#include "systemstate.h"
+#include "USART.h"
 
 
 int main(void)
@@ -25,16 +27,19 @@ int main(void)
 	limit_switch_init();
 	motor_init_timer();
 	button_init();  
-	
-	// LCD initialisieren
 	lcd_init();
-	init_ADC();  // Sensor initialisieren
-
+	init_ADC();  
+	USART_Init(BAUDRATE);
+	
+	uint8_t messung_aktiv = 0;
+	lcd_text("Labeling Device");
 	
 	while (1)
 	{
-		reference_StartPos_control();
-		laser_read();  // Abstandsmessung
+		
+		  USART_ProcessCommands(&messung_aktiv);  // Verarbeitet eingehende Steuerbefehle
+		  USART_MESSUNG(messung_aktiv);           // Führt Messungen durch, falls aktiv
+		  _delay_ms(10);
 	}
 }
 

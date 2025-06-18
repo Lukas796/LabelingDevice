@@ -124,7 +124,7 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="headers\buttons.h">
+    <Compile Include="headers\systemstate.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="headers\config.h">
@@ -142,10 +142,10 @@
     <Compile Include="headers\RS232.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="main.c">
+    <Compile Include="headers\USART.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="sourceFiles\buttons.c">
+    <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\Laser.c">
@@ -158,6 +158,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\RS232.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sourceFiles\systemstate.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sourceFiles\USART.c">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

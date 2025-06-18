@@ -34,6 +34,6 @@
 #define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0
 
 // UART
-#define BAUDRATE 115200
+#define BAUDRATE 9600
 
 #endif

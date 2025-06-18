@@ -7,7 +7,7 @@
 
 #include "motor_control.h"
 #include "config.h"
-#include "buttons.h"
+#include "systemstate.h"
 
 // Schrittzähler je Motor
 volatile uint16_t steps_x_done = 0;
@@ -185,7 +185,7 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
-		STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);    // ? INTERRUPT AKTIVIEREN
+		STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_X_TCCRB_REG |= (1 << CS31) | (1 << CS30); // start timer with Prescaler 64
 		break;
 
@@ -233,8 +233,8 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 
 	switch(axis) {
 		case AXIS_X:
-		// Interrupt deaktivieren
-		STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT);
+		
+		STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT); // Interrupt deaktivieren, damit Schritte nicht gezählt werden
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
@@ -242,7 +242,7 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 		break;
 
 		case AXIS_Y:
-		STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT);
+		STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT); // Interrupt deaktivieren, damit Schritte nicht gezählt werden
 		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
 		STEP_Y_TCNT = 0;
 		STEP_Y_OCR = ocr_val;
@@ -330,22 +330,22 @@ void motor_stop(uint8_t axis) {
  
  void set_X_Y_direction(uint8_t direction) {
 	 switch (direction) {
-		 case DIR_X_TOP: // X positiv ? X = CCW, Y = CCW
+		 case DIR_X_TOP: // X positiv  X = CCW, Y = CCW
 		 motor_set_direction(AXIS_X, DIR_CCW);
 		 motor_set_direction(AXIS_Y, DIR_CCW);
 		 break;
 
-		 case DIR_X_BOTTOM: // X negativ ? X = CW, Y = CW
+		 case DIR_X_BOTTOM: // X negativ  X = CW, Y = CW
 		 motor_set_direction(AXIS_X, DIR_CW);
 		 motor_set_direction(AXIS_Y, DIR_CW);
 		 break;
 		 
-		 case DIR_Y_LEFT: // Y positiv ? X = CW, Y = CCW
+		 case DIR_Y_LEFT: // Y positiv  X = CW, Y = CCW
 		 motor_set_direction(AXIS_X, DIR_CW);
 		 motor_set_direction(AXIS_Y, DIR_CCW);
 		 break;
 
-		 case DIR_Y_RIGHT: // Y negativ ? X = CCW, Y = CW
+		 case DIR_Y_RIGHT: // Y negativ  X = CCW, Y = CW
 		 motor_set_direction(AXIS_X, DIR_CCW);
 		 motor_set_direction(AXIS_Y, DIR_CW);
 		 break;

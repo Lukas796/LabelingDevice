@@ -65,9 +65,26 @@ void lcd_Pos(uint8_t zeile, uint8_t spalte) // Cursor-Position setzen
 	lcd_cmd(pos);  // Position an das LCD senden
 }
 
+void lcd_num(uint16_t num,char* text)
+{
+	char char1;			// variable for 100s
+	char char2;			// variable for 10s
+	
+	char1 = num/100 + 0x30; // charachter for 100s
+	num = num % 100;		// remainder
+	
+	char2 = num/10 + 0x30;	// character for 10s
+	num = num % 10;			// remainder
+	
+	text[0] = char1;		//
+	text[1] = char2;		//
+	text[2] = num + 0x30;	//
+	text[3] = 0x00;			// end of string
+}
 
 void lcd_init(void)
 {
+	DDRC = 0xFC;
 	_delay_ms(20);
 	PORTC &= ~((1 << RS) | (1 << PC6) | (1 << PC7));
 	PORTC |= (1 << PC5) | (1 << PC4) | (1 << EC);
