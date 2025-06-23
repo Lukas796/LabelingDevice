@@ -7,6 +7,7 @@
 #include "systemstate.h"
 #include "motor_control.h"
 #include "config.h"
+#include "letter_control.h"
 
 static uint8_t referenced = 0;	//static state variable if Axis are referenced	0 = not referenced , 1 = referenced
 static uint8_t start_reference = 0;	//static state variable if Axis are referenced	0 = dont start reference , 1 = start reference
@@ -115,6 +116,11 @@ void start_Laser_Positioning (void) {
 		{
 			move_Y_left_until_laser(20,200);
 			laser_pos_reached = 1;
+		}
+		
+		if (laser_pos_reached)
+		{
+			draw_A();
 		}
 	}
 		

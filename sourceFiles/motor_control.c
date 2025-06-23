@@ -506,3 +506,32 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		 //motor_stop(AXIS_Z);
 	 //}
  //}
+ 
+ void move_pen_down() {
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 20, 100);
+ }
+
+ void move_pen_up() {
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 20, 100);
+ }
+
+ void move_X(int32_t steps, uint16_t speed) {
+	 move_to_position_steps_xy(actual_steps_x + steps, actual_steps_y, speed);
+ }
+
+ void move_Z(int32_t steps, uint16_t speed) {
+	 motor_set_direction(AXIS_Z, (steps > 0) ? DIR_CW : DIR_CCW);
+	 motor_start_steps(AXIS_Z, abs(steps), speed);
+	 while (steps_z_done < steps_z_target);
+	 actual_steps_z += steps;
+ }
+
+ void move_XZ_diagonal(int32_t dx, int32_t dz, uint16_t speed) {
+	 motor_set_direction(AXIS_X, dx > 0 ? DIR_CW : DIR_CCW);
+	 motor_set_direction(AXIS_Z, dz > 0 ? DIR_CW : DIR_CCW);
+	 motor_start_steps(AXIS_X, abs(dx), speed);
+	 motor_start_steps(AXIS_Z, abs(dz), speed);
+	 while (steps_x_done < steps_x_target || steps_z_done < steps_z_target);
+	 actual_steps_x += dx;
+	 actual_steps_z += dz;
+ }

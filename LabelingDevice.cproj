@@ -124,6 +124,9 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="headers\letter_control.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="headers\systemstate.h">
       <SubType>compile</SubType>
     </Compile>
@@ -152,6 +155,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\lcd_control.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sourceFiles\letter_control.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\motor_control.c">
