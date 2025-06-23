@@ -24,3 +24,6 @@ Thumbs.db
 # Benutzerbezogene Dateien
 *.user
 *.aps
+
+# Visual Studio Projektordner (nicht VS Code!)
+.vs/
