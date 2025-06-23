@@ -1,0 +1,137 @@
+import tkinter as tk
+import serial
+import re
+import matplotlib.pyplot as plt
+import serial.tools.list_ports
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+# Globale Variablen
+ser = None
+messung_aktiv = 0
+time_values = []
+position_values = []
+counter = 0
+
+def find_arduino_port():
+    ports = list(serial.tools.list_ports.comports())
+    for port in ports:
+        if "usbmodem" in port.device or "usbserial" in port.device:
+            return port.device
+    raise IOError("Kein Arduino-Port gefunden.")
+
+def ensure_serial_connection():
+    global ser
+    if ser is None:
+        try:
+            port = find_arduino_port()
+            ser = serial.Serial(port, 9600)
+            print(f"✅ Verbunden mit {port}")
+        except Exception as e:
+            print(f"⚠️ Fehler bei Verbindung: {e}")
+            return False
+    return True
+
+def toggle_measurement(*args):
+    global counter, messung_aktiv
+
+    if not ensure_serial_connection():
+        abstand_var.set(False)
+        return
+
+    if abstand_var.get():
+        ser.write("M\n".encode())  # Messung starten
+        messung_aktiv = 1
+    else:
+        ser.write("MN\n".encode())
+        messung_aktiv = 0
+        ser.reset_input_buffer()
+
+def toggle_ref(*args):
+    if not ensure_serial_connection():
+        ref_var.set(False)
+        return
+
+    if ref_var.get():
+        ser.write("R\n".encode())  # Referenzfahrt starten
+    else:
+        print("⚠️ Keine Referenzfahrt gestartet")
+
+def send_text():
+    if not ensure_serial_connection():
+        return
+
+    text = text_entry.get().strip()
+    if text:
+        ser.write(f"Beschriftung:{text}\n".encode())
+    else:
+        print("⚠️ Kein Text gesendet")
+
+def start_action():
+    if not ensure_serial_connection():
+        return
+    ser.write("START\n".encode())
+
+def stop_action():
+    if not ensure_serial_connection():
+        return
+    ser.write("STOP\n".encode())
+
+def receive_data():
+    global counter
+
+    if ser and ser.in_waiting > 0:
+        received_message = ser.readline().decode("latin-1").strip()
+        try:
+            if "mm" in received_message and messung_aktiv:
+                distance = int(re.search(r'\d+', received_message).group())
+                time_values.append(counter)
+                position_values.append(distance)
+                counter += 1
+                update_plot()
+            else:
+                print(f"{received_message}")
+        except ValueError:
+            print(f"⚠️ Fehlerhafte Nachricht: {received_message}")
+    
+    root.after(100, receive_data)
+
+def update_plot():
+    ax.clear()
+    ax.plot(time_values, position_values, marker="x", linestyle="-", color="red")
+    ax.set_title("Abstandsmessung über Zeit")
+    ax.set_xlabel("Zeit")
+    ax.set_ylabel("Position")
+    canvas.draw()
+
+# --- GUI Aufbau ---
+root = tk.Tk()
+root.title("Arduino Steuerung")
+
+ref_var = tk.BooleanVar()
+ref_checkbox = tk.Checkbutton(root, text="Referenzfahrt", variable=ref_var)
+ref_checkbox.pack()
+ref_var.trace_add("write", toggle_ref)
+
+abstand_var = tk.BooleanVar()
+abstand_checkbox = tk.Checkbutton(root, text="Abstand messen", variable=abstand_var)
+abstand_checkbox.pack()
+abstand_var.trace_add("write", toggle_measurement)
+
+fig, ax = plt.subplots()
+canvas = FigureCanvasTkAgg(fig, master=root)
+canvas.get_tk_widget().pack()
+
+text_entry = tk.Entry(root)
+text_entry.pack()
+
+send_button = tk.Button(root, text="Sende Text", command=send_text)
+send_button.pack()
+
+start_button = tk.Button(root, text="Start", command=start_action)
+start_button.pack()
+
+stop_button = tk.Button(root, text="Not-Aus", command=stop_action, bg="red", fg="white")
+stop_button.pack()
+
+root.after(100, receive_data)
+root.mainloop()
