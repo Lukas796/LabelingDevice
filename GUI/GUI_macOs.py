@@ -33,13 +33,12 @@ def ensure_serial_connection():
 
 def toggle_measurement(*args):
     global counter, messung_aktiv
-
     if not ensure_serial_connection():
         abstand_var.set(False)
         return
 
     if abstand_var.get():
-        ser.write("M\n".encode())  # Messung starten
+        ser.write("M\n".encode())
         messung_aktiv = 1
     else:
         ser.write("MN\n".encode())
@@ -52,7 +51,7 @@ def toggle_ref(*args):
         return
 
     if ref_var.get():
-        ser.write("R\n".encode())  # Referenzfahrt starten
+        ser.write("R\n".encode())
     else:
         print("⚠️ Keine Referenzfahrt gestartet")
 
@@ -78,7 +77,6 @@ def stop_action():
 
 def receive_data():
     global counter
-
     if ser and ser.in_waiting > 0:
         received_message = ser.readline().decode("latin-1").strip()
         try:
@@ -107,31 +105,45 @@ def update_plot():
 root = tk.Tk()
 root.title("Arduino Steuerung")
 
+# Frames
+top_frame = tk.Frame(root)
+top_frame.pack(side=tk.TOP, pady=10)
+
+plot_frame = tk.Frame(root)
+plot_frame.pack(side=tk.TOP, pady=10)
+
+bottom_frame = tk.Frame(root)
+bottom_frame.pack(side=tk.TOP, pady=10)
+
+# Checkboxen
 ref_var = tk.BooleanVar()
-ref_checkbox = tk.Checkbutton(root, text="Referenzfahrt", variable=ref_var)
-ref_checkbox.pack()
+ref_checkbox = tk.Checkbutton(top_frame, text="Referenzfahrt", variable=ref_var)
+ref_checkbox.pack(side=tk.LEFT, padx=5)
 ref_var.trace_add("write", toggle_ref)
 
 abstand_var = tk.BooleanVar()
-abstand_checkbox = tk.Checkbutton(root, text="Abstand messen", variable=abstand_var)
-abstand_checkbox.pack()
+abstand_checkbox = tk.Checkbutton(top_frame, text="Abstand messen", variable=abstand_var)
+abstand_checkbox.pack(side=tk.LEFT, padx=5)
 abstand_var.trace_add("write", toggle_measurement)
 
-fig, ax = plt.subplots()
-canvas = FigureCanvasTkAgg(fig, master=root)
+# Plot kleiner darstellen
+fig, ax = plt.subplots(figsize=(6, 3))
+canvas = FigureCanvasTkAgg(fig, master=plot_frame)
 canvas.get_tk_widget().pack()
 
-text_entry = tk.Entry(root)
-text_entry.pack()
+# Textfeld & Buttons
+text_entry = tk.Entry(bottom_frame, width=30)
+text_entry.pack(pady=5)
 
-send_button = tk.Button(root, text="Sende Text", command=send_text)
-send_button.pack()
+send_button = tk.Button(bottom_frame, text="Sende Text", command=send_text)
+send_button.pack(pady=5)
 
-start_button = tk.Button(root, text="Start", command=start_action)
-start_button.pack()
+start_button = tk.Button(bottom_frame, text="Start", command=start_action)
+start_button.pack(pady=5)
 
-stop_button = tk.Button(root, text="Not-Aus", command=stop_action, bg="red", fg="white")
-stop_button.pack()
+stop_button = tk.Button(bottom_frame, text="Not-Aus", command=stop_action, bg="red", fg="white")
+stop_button.pack(pady=5)
 
+# Datenempfang starten
 root.after(100, receive_data)
 root.mainloop()
