@@ -181,5 +181,5 @@ stop_button = tk.Button(bottom_frame, text="Not-Aus", command=stop_action, bg="r
 stop_button.pack(pady=5)
 
 # Starte Datenempfang
-root.after(300, receive_data)
+root.after(500, receive_data)
 root.mainloop()
