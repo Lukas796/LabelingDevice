@@ -407,6 +407,8 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 
 		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten bis fertig
 
+		motor_stop(AXIS_X);
+		motor_stop(AXIS_Y);
 		actual_steps_x = target_steps_x;
 	}
 
@@ -430,7 +432,9 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		motor_start_steps(AXIS_Y, delta_steps_y, speed_hz);
 
 		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten bis fertig
-
+		
+		motor_stop(AXIS_X);
+		motor_stop(AXIS_Y);
 		actual_steps_y = target_steps_y;
 	}
 }

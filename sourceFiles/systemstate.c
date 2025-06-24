@@ -69,6 +69,7 @@ void reference_StartPos_control(void){
 	if ((is_referenced()) && (!is_inStartPos()))
 	{
 		move_to_position_steps_xy(1800,4300,1000);	// move to startposition 
+		
 		set_inStartPos(1);
 	}
 	
@@ -86,7 +87,7 @@ void start_Laser_Positioning (void) {
 		if (!laser_pos_reached)
 		{
 			move_Y_left_until_laser(20,200);
-			//move_to_position_steps_xy(1800,5500,400);
+			
 			laser_pos_reached = 1;
 		}
 		
