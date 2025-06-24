@@ -30,7 +30,7 @@ void USART_Init(uint16_t baud)														// Initialisiert die USART-Schnittst
 }  
 
 // Empfängt und verarbeitet UART-Befehle  
-void USART_ProcessCommands(uint8_t* messung_aktiv)									// Verarbeitet empfangene Befehle; "messung_aktiv" zeigt an, ob Messung läuft  
+void USART_ProcessCommands(uint8_t* messung_aktiv, uint8_t* pos_aktiv)									// Verarbeitet empfangene Befehle; "messung_aktiv" zeigt an, ob Messung läuft  
 {  
 	if (USART_DataAvailable()) {													// Prüft, ob Daten im Empfangspuffer vorhanden sind  
 		char buffer[30];															// Temporärer Puffer für den empfangenen Befehl  
@@ -62,7 +62,10 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)									// Verarbeitet empfan
 			char send_Text_buffer[17];												// Puffer für die formatierte Ausgabe auf dem LCD (16 Zeichen + Nullterminator)  
 			snprintf(send_Text_buffer, sizeof(send_Text_buffer), "%-16s",text_start); // Formatiert den Text linksbündig, füllt ggf. mit Leerzeichen auf  
 			lcd_text(send_Text_buffer);												// Zeigt den formatierten Text auf dem LCD an  
-			}  
+			} else if (strstr(buffer, "POS") != 0){									// Wenn der Befehl "POS" empfangen wurde
+			*pos_aktiv = 1;															// Setze POS aktiv
+			} else if (strcmp(buffer, "NPOS") == 0) {								// Wenn der Befehl "NPOS" empfangen wurde
+			*pos_aktiv = 0;
 	}  
 }  
 
@@ -80,7 +83,24 @@ void USART_MESSUNG(uint8_t messung_aktiv) {											// Führt den Messvorgang d
 		snprintf(send_Messung_buffer, sizeof(send_Messung_buffer), "%-16s",LCDstr); // Formatiert den Inhalt von LCDstr linksbündig, füllt mit Leerzeichen auf  
 		lcd_text(send_Messung_buffer);												// Zeigt die formatierte Messung auf dem LCD an  
 	}  
-}  
+}
+
+// Positionsprozess: Führt den Positionsprozess durch, wenn die Positionierung aktiv ist
+
+void USART_POSITIONIERUNG(uint8_t pos_aktiv) {  // pos_aktiv steuert, ob die Positionsausgabe aktiv ist
+	if (pos_aktiv) {                             // Nur wenn Positionierung aktiviert ist...
+		// Erstelle einen String mit den drei Positionswerten und sende ihn via USART
+		char send_buffer[40];  // Puffer für die serielle Ausgabe
+		snprintf(send_buffer, sizeof(send_buffer), "X:%u Y:%u Z:%u\n", act_Pos_x, act_Pos_y, act_Pos_z);
+		USART_SendString(send_buffer);           // Sende den formatierten String über die serielle Schnittstelle
+
+		// Aktualisiere das LCD-Display: Da das LCD oft nur 16 Zeichen hat, zeigen wir hier z.B. ausschliesslich X und Z an
+		lcd_cmd(0xC0);                           // Setzt den LCD-Cursor auf die zweite Zeile
+		char lcd_buffer[17];                     // Puffer für die LCD-Ausgabe (16 Zeichen + Nullterminator)
+		snprintf(lcd_buffer, sizeof(lcd_buffer), "X:%u Z:%u", act_Pos_x, act_Pos_z);  // Formatiert die Anzeige
+		lcd_text(lcd_buffer);                    // Zeigt die formatierte Ausgabe auf dem LCD an
+	}
+}
 
 // Daten senden  
 void USART_SendData(uint8_t data) {													// Sendet ein einzelnes Byte über die USART-Schnittstelle  
