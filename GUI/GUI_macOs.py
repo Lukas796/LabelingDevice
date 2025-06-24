@@ -53,6 +53,18 @@ def toggle_ref(*args):
     if ref_var.get():
         ser.write("R\n".encode())
 
+def toggle_position_tracking(*args):
+    if pos_var.get():
+        schedule_position_update()
+
+def schedule_position_update():
+    if pos_var.get() and ser:
+        try:
+            ser.write("POS\n".encode())
+        except Exception as e:
+            print(f"⚠️ Fehler bei POS-Abfrage: {e}")
+        root.after(1000, schedule_position_update)  # Alle 1000 ms
+
 def send_text():
     if not ensure_serial_connection():
         return
@@ -97,14 +109,7 @@ def receive_data():
         except ValueError:
             print(f"⚠️ Fehlerhafte Nachricht: {received_message}")
 
-    if pos_var.get():
-        try:
-            if ser:
-                ser.write("POS\n".encode())  # Nur eine kombinierte Anfrage
-        except Exception as e:
-            print(f"⚠️ Fehler bei POS-Abfrage: {e}")
-
-    root.after(500, receive_data)
+    root.after(300, receive_data)
 
 def update_plot():
     ax.clear()
@@ -142,6 +147,7 @@ abstand_var.trace_add("write", toggle_measurement)
 pos_var = tk.BooleanVar()
 pos_checkbox = tk.Checkbutton(top_frame, text="Position anzeigen", variable=pos_var)
 pos_checkbox.pack(side=tk.LEFT, padx=5)
+pos_var.trace_add("write", toggle_position_tracking)
 
 # Plot
 fig, ax = plt.subplots(figsize=(6, 3))
