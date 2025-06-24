@@ -22,6 +22,9 @@ volatile uint16_t actual_steps_x = 0;
 volatile uint16_t actual_steps_y = 0;
 volatile uint16_t actual_steps_z = 0;
 
+static uint16_t testpos = 130;
+static uint16_t testpos2 = 2030;
+
 uint16_t act_Pos_x(void) {
 	return actual_steps_x;
 }
@@ -198,7 +201,7 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
-		STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);    // INTERRUPT AKTIVIEREN
+		//STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_X_TCCRB_REG |= (1 << CS31) | (1 << CS30); // start timer with Prescaler 64
 		
 		if (steps_x_done >= steps_x_target) {
@@ -213,7 +216,7 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
 		STEP_Y_TCNT = 0;
 		STEP_Y_OCR = ocr_val;
-		STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);    // INTERRUPT AKTIVIEREN
+		//STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_Y_TCCRB_REG |= (1 << CS11) | (1 << CS10);
 		
 		if (steps_y_done >= steps_y_target) {
@@ -262,7 +265,6 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 		case AXIS_X:
 		steps_x_done = 0;
 		
-		//STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT); // Interrupt deaktivieren, damit Schritte nicht gezählt werden
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
@@ -271,7 +273,7 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 
 		case AXIS_Y:
 		steps_y_done = 0;
-		//STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT); // Interrupt deaktivieren, damit Schritte nicht gezählt werden
+		
 		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
 		STEP_Y_TCNT = 0;
 		STEP_Y_OCR = ocr_val;
@@ -280,7 +282,7 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 
 		case AXIS_Z:
 		steps_z_done = 0;
-		//STEP_Z_TIMSK_REG &= ~(1 << STEP_Z_OCIE_BIT);
+		
 		STEP_Z_TCCRB_REG &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
 		STEP_Z_TCNT = 0;
 		STEP_Z_OCR = ocr_val;
@@ -296,17 +298,17 @@ void motor_stop(uint8_t axis) {
 	switch(axis) {
 		case AXIS_X:
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30));
-		STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT);
+		//STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT);
 		break;
 
 		case AXIS_Y:
 		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
-		STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT);
+		//STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT);
 		break;
 
 		case AXIS_Z:
 		STEP_Z_TCCRB_REG &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
-		STEP_Z_TIMSK_REG &= ~(1 << STEP_Z_OCIE_BIT);
+		//STEP_Z_TIMSK_REG &= ~(1 << STEP_Z_OCIE_BIT);
 		break;
 	}
 }
@@ -314,17 +316,14 @@ void motor_stop(uint8_t axis) {
  //--- ISR: Interrupts on CompareMatch from the Timers ---
  ISR(TIMER3_COMPB_vect) {
 	 steps_x_done++;
-	 
  }
 
  ISR(TIMER1_COMPB_vect) {
-	 steps_y_done++;
-	 
+	 steps_y_done++; 
  }
 
  ISR(TIMER4_COMPB_vect) {
-	 steps_z_done++;
-	 
+	 steps_z_done++; 
  }
  
  // Interrupts from Limit Switches
@@ -332,24 +331,28 @@ void motor_stop(uint8_t axis) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 motor_stop(AXIS_Z);
+	 //set_referenced(0); //set reference to 0
  }
 
  ISR(INT1_vect) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 motor_stop(AXIS_Z);
+	//set_referenced(0); //set reference to 0
  }
 
  ISR(INT2_vect) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 motor_stop(AXIS_Z);
+	 //set_referenced(0); //set reference to 0
  }
 
  ISR(INT3_vect) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 motor_stop(AXIS_Z);
+	 //set_referenced(0); //set reference to 0
  }
  
  void set_X_Y_direction(uint8_t direction) {
@@ -461,11 +464,13 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 	 // Stop Motoren nach Erreichen von X_TOP
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
-	 _delay_ms(200);
-	 actual_steps_x = 0;
-	 actual_steps_y = 0;
-	 set_referenced(1);
 	 
+	 set_referenced(1);			//set reference state to1
+	 request_reference_start(0); //reset request bit
+	 actual_steps_x = 0;	//set actual steps to 0
+	 actual_steps_y = 0;	//set actual steps to 0
+	 _delay_ms(200);
+	
  }
  
  
@@ -473,6 +478,7 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
  {
 	 // Richtung setzen: Y-Richtung links ? X = CW, Y = CCW
 	 set_X_Y_direction(DIR_Y_LEFT);
+
 
 	 // Starte beide Motoren kontinuierlich
 	 motor_start_continous(AXIS_X, speed_hz);
@@ -486,33 +492,19 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 
-	 actual_steps_x = actual_steps_x + steps_x_done;
-	 actual_steps_y = actual_steps_y + steps_y_done;
-	 
+	actual_steps_y = actual_steps_y + steps_y_done;
+	 _delay_ms(200);
 	 
  }
  
- 
- //void check_limit_switches(void) {
-	 //// Prüfe alle Endschalter 
-	 //if (!(X_SWITCH_TOP_IN_REG & (1 << X_SWITCH_TOP_PIN)) ||
-	 //!(X_SWITCH_BOTTOM_IN_REG & (1 << X_SWITCH_BOTTOM_PIN)) ||
-	 //!(Y_SWITCH_LEFT_IN_REG & (1 << Y_SWITCH_LEFT_PIN)) ||
-	 //!(Y_SWITCH_RIGHT_IN_REG & (1 << Y_SWITCH_RIGHT_PIN)))
-	 //{
-		 //// Einer oder mehrere Schalter sind betätigt ? Alle Motoren stoppen
-		 //motor_stop(AXIS_X);
-		 //motor_stop(AXIS_Y);
-		 //motor_stop(AXIS_Z);
-	 //}
- //}
- 
- void move_pen_down() {
-	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 20, 100);
+ // Axis Control for letters
+ void move_pen_backward() {
+	
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 20, 100);
  }
 
- void move_pen_up() {
-	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 20, 100);
+ void move_pen_forward() {
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 20, 100);
  }
 
  void move_X(int32_t steps, uint16_t speed) {

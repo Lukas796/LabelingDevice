@@ -20,26 +20,26 @@ void draw_A() {
 	const int32_t diag_steps_z = 200;
 	const int32_t crossbar_z_steps = 100;
 
-	// Ausgangspunkt ? z.?B. untere linke Ecke
-	move_pen_down();
-
-	// Linker Schrägstrich nach oben (?)
-	move_XZ_diagonal(diag_steps_x, diag_steps_z, speed);
-
-	// Stift abheben, zurück zur Mitte
-	move_pen_up();
-	move_XZ_diagonal(-diag_steps_x / 2, -diag_steps_z / 2, speed);
-
-	// Querstrich (Z-Achse, ohne X)
-	move_pen_down();
-	move_Z(crossbar_z_steps, speed);
-
-	// Zurück zur Mitte, Stift heben
-	move_pen_up();
-	move_Z(-crossbar_z_steps, speed);
-
-	// Rechter Schrägstrich nach unten (?)
-	move_XZ_diagonal(diag_steps_x / 2, -diag_steps_z / 2, speed);
-
-	move_pen_up();
+	// Ausgangspunkt ? 
+	move_to_position_steps_xy(1800,4300,100);
+//
+	//// Linker Schrägstrich nach oben (?)
+	//move_XZ_diagonal(diag_steps_x, diag_steps_z, speed);
+//
+	//// Stift abheben, zurück zur Mitte
+	//move_pen_up();
+	//move_XZ_diagonal(-diag_steps_x / 2, -diag_steps_z / 2, speed);
+//
+	//// Querstrich (Z-Achse, ohne X)
+	//move_pen_down();
+	//move_Z(crossbar_z_steps, speed);
+//
+	//// Zurück zur Mitte, Stift heben
+	//move_pen_up();
+	//move_Z(-crossbar_z_steps, speed);
+//
+	//// Rechter Schrägstrich nach unten (?)
+	//move_XZ_diagonal(diag_steps_x / 2, -diag_steps_z / 2, speed);
+//
+	//move_pen_up();
 }

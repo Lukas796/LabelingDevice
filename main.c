@@ -17,7 +17,7 @@
 #include "laser.h"
 #include "systemstate.h"
 #include "USART.h"
-
+#include "buttons_control.h"
 
 int main(void)
 {

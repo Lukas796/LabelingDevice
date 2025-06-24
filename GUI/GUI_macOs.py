@@ -52,8 +52,6 @@ def toggle_ref(*args):
 
     if ref_var.get():
         ser.write("R\n".encode())
-    else:
-        print("⚠️ Keine Referenzfahrt gestartet")
 
 def send_text():
     if not ensure_serial_connection():
@@ -62,8 +60,6 @@ def send_text():
     text = text_entry.get().strip()
     if text:
         ser.write(f"Beschriftung:{text}\n".encode())
-    else:
-        print("⚠️ Kein Text gesendet")
 
 def start_action():
     if not ensure_serial_connection():
@@ -80,25 +76,42 @@ def receive_data():
     if ser and ser.in_waiting > 0:
         received_message = ser.readline().decode("latin-1").strip()
         try:
+            # Abstandsmessung
             if "mm" in received_message and messung_aktiv:
                 distance = int(re.search(r'\d+', received_message).group())
                 time_values.append(counter)
                 position_values.append(distance)
                 counter += 1
                 update_plot()
+            # Positionsdaten
+            elif received_message.startswith("X:") and "Y:" in received_message and "Z:" in received_message:
+                x = re.search(r"X:(-?\d+)", received_message)
+                y = re.search(r"Y:(-?\d+)", received_message)
+                z = re.search(r"Z:(-?\d+)", received_message)
+                if x and y and z:
+                    x_label.config(text=f"X = {x.group(1)}")
+                    y_label.config(text=f"Y = {y.group(1)}")
+                    z_label.config(text=f"Z = {z.group(1)}")
             else:
-                print(f"{received_message}")
+                print(received_message)
         except ValueError:
             print(f"⚠️ Fehlerhafte Nachricht: {received_message}")
-    
-    root.after(100, receive_data)
+
+    if pos_var.get():
+        try:
+            if ser:
+                ser.write("POS\n".encode())  # Nur eine kombinierte Anfrage
+        except Exception as e:
+            print(f"⚠️ Fehler bei POS-Abfrage: {e}")
+
+    root.after(500, receive_data)
 
 def update_plot():
     ax.clear()
     ax.plot(time_values, position_values, marker="x", linestyle="-", color="red")
     ax.set_title("Abstandsmessung über Zeit")
     ax.set_xlabel("Zeit")
-    ax.set_ylabel("Position")
+    ax.set_ylabel("Position (mm)")
     canvas.draw()
 
 # --- GUI Aufbau ---
@@ -126,10 +139,27 @@ abstand_checkbox = tk.Checkbutton(top_frame, text="Abstand messen", variable=abs
 abstand_checkbox.pack(side=tk.LEFT, padx=5)
 abstand_var.trace_add("write", toggle_measurement)
 
-# Plot kleiner darstellen
+pos_var = tk.BooleanVar()
+pos_checkbox = tk.Checkbutton(top_frame, text="Position anzeigen", variable=pos_var)
+pos_checkbox.pack(side=tk.LEFT, padx=5)
+
+# Plot
 fig, ax = plt.subplots(figsize=(6, 3))
 canvas = FigureCanvasTkAgg(fig, master=plot_frame)
 canvas.get_tk_widget().pack()
+
+# Position Labels
+position_frame = tk.Frame(root)
+position_frame.pack(pady=5)
+
+x_label = tk.Label(position_frame, text="X = ?")
+x_label.pack(side=tk.LEFT, padx=10)
+
+y_label = tk.Label(position_frame, text="Y = ?")
+y_label.pack(side=tk.LEFT, padx=10)
+
+z_label = tk.Label(position_frame, text="Z = ?")
+z_label.pack(side=tk.LEFT, padx=10)
 
 # Textfeld & Buttons
 text_entry = tk.Entry(bottom_frame, width=30)
@@ -144,6 +174,6 @@ start_button.pack(pady=5)
 stop_button = tk.Button(bottom_frame, text="Not-Aus", command=stop_action, bg="red", fg="white")
 stop_button.pack(pady=5)
 
-# Datenempfang starten
-root.after(100, receive_data)
+# Starte Datenempfang
+root.after(300, receive_data)
 root.mainloop()

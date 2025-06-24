@@ -124,6 +124,9 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="headers\buttons_control.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="headers\letter_control.h">
       <SubType>compile</SubType>
     </Compile>
@@ -149,6 +152,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sourceFiles\buttons_control.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\Laser.c">

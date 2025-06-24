@@ -13,12 +13,15 @@
 #include "lcd_control.h"
 #include "laser.h"
 #include "systemstate.h"
+#include "motor_control.h"
 
-#define USART_BUFFER_SIZE 64
+#define USART_BUFFER_SIZE 256
 
 volatile uint8_t usart_rx_buffer[USART_BUFFER_SIZE];
 volatile uint8_t usart_rx_head = 0;
 volatile uint8_t usart_rx_tail = 0;
+
+
 char LCDstr[17];
 
 // USART initialisieren
@@ -39,23 +42,28 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)
 
 		if (strcmp(buffer, "M") == 0) {
 			*messung_aktiv = 1;
-			} else if (strcmp(buffer, "MN") == 0) {
+			} 
+		else if (strcmp(buffer, "MN") == 0) {
 			*messung_aktiv = 0;
-			} else if (strcmp(buffer, "R") == 0) {
+			} 
+		else if (strcmp(buffer, "R") == 0) {
 			USART_SendString("Referenzfahrt gestartet.\n");
 			lcd_cmd(0xC0);
 			lcd_text("Referenzfahrt!  ");
 			request_reference_start(1);
-			} else if (strcmp(buffer, "STOP") == 0) {
+			} 
+		else if (strcmp(buffer, "STOP") == 0) {
 			USART_SendString("Notstop.\n");
 			lcd_cmd(0xC0);
 			lcd_text("Notstop!        ");
-			} else if (strcmp(buffer, "START") == 0) {
+			} 
+		else if (strcmp(buffer, "START") == 0) {
 			USART_SendString("Wird gestartet.\n");
 			lcd_cmd(0xC0);
 			lcd_text("Wird gestartet! ");
 			request_Labeling_start(1);
-			} else if (strstr(buffer, "Beschriftung:") != 0) {
+			} 
+		else if (strstr(buffer, "Beschriftung:") != 0) {
 			USART_SendString("Folgender Text wird geschrieben: ");
 			char* text_start = buffer + strlen("Beschriftung:");
 			USART_SendString(text_start);
@@ -65,6 +73,12 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)
 			snprintf(send_Text_buffer, sizeof(send_Text_buffer), "%-16s",text_start);
 			lcd_text(send_Text_buffer);
 			}
+		//Positionsabfrage
+		else if (strcmp(buffer, "POS") == 0) {
+			char pos_buffer[64];
+			snprintf(pos_buffer, sizeof(pos_buffer), "X:%d Y:%d Z:%d\n",  act_Pos_x(),  act_Pos_y(), act_Pos_z());
+			USART_SendString(pos_buffer);
+		}
 	}
 }
 
@@ -113,7 +127,7 @@ ISR(USART0_RX_vect)
 		usart_rx_head = next_head; // Schreibindex aktualisieren
 		} else {
 		// Puffer voll - Fehlerhandling (optional)
-		USART_SendString("Fehler: RX-Buffer voll!\n");
+		//USART_SendString("Fehler: RX-Buffer voll!\n");
 	}
 }
 
