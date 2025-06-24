@@ -22,6 +22,21 @@ volatile uint16_t actual_steps_x = 0;
 volatile uint16_t actual_steps_y = 0;
 volatile uint16_t actual_steps_z = 0;
 
+static uint16_t testpos = 130;
+static uint16_t testpos2 = 2030;
+
+uint16_t act_Pos_x(void) {
+	return actual_steps_x;
+}
+
+uint16_t act_Pos_y(void) {
+	return actual_steps_y;
+}
+
+uint16_t act_Pos_z(void) {
+	return actual_steps_z;
+}
+
 void motor_init(void) {
 	// X
 	STEP_X_DDR |= (1 << STEP_X_PIN);	//set Step X DDR as OUTPUT 
@@ -65,6 +80,7 @@ void motor_init_timer(void) {
 	STEP_Z_TCCRB_REG |= (1 << WGM42);                // CTC-Modus: WGM42 = 1
 	STEP_Z_OCR = 100;
 	STEP_Z_TIMSK_REG |= (1 << STEP_Z_OCIE_BIT);
+
 }
 
 void limit_switch_init(void) {
@@ -185,8 +201,12 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
-		STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);    // INTERRUPT AKTIVIEREN
+		//STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_X_TCCRB_REG |= (1 << CS31) | (1 << CS30); // start timer with Prescaler 64
+		
+		if (steps_x_done >= steps_x_target) {
+			motor_stop(AXIS_X);
+		}
 		break;
 
 		case AXIS_Y:
@@ -196,8 +216,12 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
 		STEP_Y_TCNT = 0;
 		STEP_Y_OCR = ocr_val;
-		STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);    // ? INTERRUPT AKTIVIEREN
+		//STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_Y_TCCRB_REG |= (1 << CS11) | (1 << CS10);
+		
+		if (steps_y_done >= steps_y_target) {
+			motor_stop(AXIS_Y);
+		}
 		break;
 
 		case AXIS_Z:
@@ -207,8 +231,13 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_Z_TCCRB_REG &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
 		STEP_Z_TCNT = 0;
 		STEP_Z_OCR = ocr_val;
-		STEP_Z_TIMSK_REG |= (1 << STEP_Z_OCIE_BIT);    // ? INTERRUPT AKTIVIEREN
+		
 		STEP_Z_TCCRB_REG |= (1 << CS41) | (1 << CS40);
+		
+		if (steps_z_done >= steps_z_target) {
+			motor_stop(AXIS_Z);
+		}
+		
 		break;
 
 		default:
@@ -224,6 +253,7 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 	// set freqeuncy borders
 	if (freq_hz < 5) freq_hz = 5;
 	if (freq_hz > 2000) freq_hz = 2000;
+	
 
 	// Calculation of OCR - Bit:
 	// OCR = Fcpu/(2*PrescalerValue*fmotor) -1
@@ -233,8 +263,8 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 
 	switch(axis) {
 		case AXIS_X:
+		steps_x_done = 0;
 		
-		STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT); // Interrupt deaktivieren, damit Schritte nicht gezählt werden
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
@@ -242,7 +272,8 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 		break;
 
 		case AXIS_Y:
-		STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT); // Interrupt deaktivieren, damit Schritte nicht gezählt werden
+		steps_y_done = 0;
+		
 		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
 		STEP_Y_TCNT = 0;
 		STEP_Y_OCR = ocr_val;
@@ -250,7 +281,8 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 		break;
 
 		case AXIS_Z:
-		STEP_Z_TIMSK_REG &= ~(1 << STEP_Z_OCIE_BIT);
+		steps_z_done = 0;
+		
 		STEP_Z_TCCRB_REG &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
 		STEP_Z_TCNT = 0;
 		STEP_Z_OCR = ocr_val;
@@ -266,17 +298,17 @@ void motor_stop(uint8_t axis) {
 	switch(axis) {
 		case AXIS_X:
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30));
-		STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT);
+		//STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT);
 		break;
 
 		case AXIS_Y:
 		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
-		STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT);
+		//STEP_Y_TIMSK_REG &= ~(1 << STEP_Y_OCIE_BIT);
 		break;
 
 		case AXIS_Z:
 		STEP_Z_TCCRB_REG &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
-		STEP_Z_TIMSK_REG &= ~(1 << STEP_Z_OCIE_BIT);
+		//STEP_Z_TIMSK_REG &= ~(1 << STEP_Z_OCIE_BIT);
 		break;
 	}
 }
@@ -284,23 +316,14 @@ void motor_stop(uint8_t axis) {
  //--- ISR: Interrupts on CompareMatch from the Timers ---
  ISR(TIMER3_COMPB_vect) {
 	 steps_x_done++;
-	 if (steps_x_done >= steps_x_target) {
-		 motor_stop(AXIS_X);
-	 }
  }
 
  ISR(TIMER1_COMPB_vect) {
-	 steps_y_done++;
-	 if (steps_y_done >= steps_y_target) {
-		 motor_stop(AXIS_Y);
-	 }
+	 steps_y_done++; 
  }
 
  ISR(TIMER4_COMPB_vect) {
-	 steps_z_done++;
-	 if (steps_z_done >= steps_z_target) {
-		 motor_stop(AXIS_Z);
-	 }
+	 steps_z_done++; 
  }
  
  // Interrupts from Limit Switches
@@ -308,24 +331,28 @@ void motor_stop(uint8_t axis) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 motor_stop(AXIS_Z);
+	 //set_referenced(0); //set reference to 0
  }
 
  ISR(INT1_vect) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 motor_stop(AXIS_Z);
+	//set_referenced(0); //set reference to 0
  }
 
  ISR(INT2_vect) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 motor_stop(AXIS_Z);
+	 //set_referenced(0); //set reference to 0
  }
 
  ISR(INT3_vect) {
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 motor_stop(AXIS_Z);
+	 //set_referenced(0); //set reference to 0
  }
  
  void set_X_Y_direction(uint8_t direction) {
@@ -437,23 +464,66 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 	 // Stop Motoren nach Erreichen von X_TOP
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
+	 
+	 set_referenced(1);			//set reference state to1
+	 request_reference_start(0); //reset request bit
+	 actual_steps_x = 0;	//set actual steps to 0
+	 actual_steps_y = 0;	//set actual steps to 0
 	 _delay_ms(200);
-	 actual_steps_x = 0;
-	 actual_steps_y = 0;
-	 set_referenced(1);
+	
+ }
+ 
+ 
+ void move_Y_left_until_laser(uint16_t laser_target_mm, uint16_t speed_hz)
+ {
+	 // Richtung setzen: Y-Richtung links ? X = CW, Y = CCW
+	 set_X_Y_direction(DIR_Y_LEFT);
+
+
+	 // Starte beide Motoren kontinuierlich
+	 motor_start_continous(AXIS_X, speed_hz);
+	 motor_start_continous(AXIS_Y, speed_hz);
+
+	 while (laser_read() > laser_target_mm) {
+		//wait until laser is smaller than target
+	 }
+
+	 // Stoppe beide Motoren
+	 motor_stop(AXIS_X);
+	 motor_stop(AXIS_Y);
+	 
+	actual_steps_y = actual_steps_y + steps_y_done;
+	 _delay_ms(200);
 	 
  }
  
- void check_limit_switches(void) {
-	 // Prüfe alle Endschalter 
-	 if (!(X_SWITCH_TOP_IN_REG & (1 << X_SWITCH_TOP_PIN)) ||
-	 !(X_SWITCH_BOTTOM_IN_REG & (1 << X_SWITCH_BOTTOM_PIN)) ||
-	 !(Y_SWITCH_LEFT_IN_REG & (1 << Y_SWITCH_LEFT_PIN)) ||
-	 !(Y_SWITCH_RIGHT_IN_REG & (1 << Y_SWITCH_RIGHT_PIN)))
-	 {
-		 // Einer oder mehrere Schalter sind betätigt ? Alle Motoren stoppen
-		 motor_stop(AXIS_X);
-		 motor_stop(AXIS_Y);
-		 motor_stop(AXIS_Z);
-	 }
+ // Axis Control for letters
+ void move_pen_backward() {
+	
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 20, 100);
+ }
+
+ void move_pen_forward() {
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 20, 100);
+ }
+
+ void move_X(int32_t steps, uint16_t speed) {
+	 move_to_position_steps_xy(actual_steps_x + steps, actual_steps_y, speed);
+ }
+
+ void move_Z(int32_t steps, uint16_t speed) {
+	 motor_set_direction(AXIS_Z, (steps > 0) ? DIR_CW : DIR_CCW);
+	 motor_start_steps(AXIS_Z, abs(steps), speed);
+	 while (steps_z_done < steps_z_target);
+	 actual_steps_z += steps;
+ }
+
+ void move_XZ_diagonal(int32_t dx, int32_t dz, uint16_t speed) {
+	 motor_set_direction(AXIS_X, dx > 0 ? DIR_CW : DIR_CCW);
+	 motor_set_direction(AXIS_Z, dz > 0 ? DIR_CW : DIR_CCW);
+	 motor_start_steps(AXIS_X, abs(dx), speed);
+	 motor_start_steps(AXIS_Z, abs(dz), speed);
+	 while (steps_x_done < steps_x_target || steps_z_done < steps_z_target);
+	 actual_steps_x += dx;
+	 actual_steps_z += dz;
  }
