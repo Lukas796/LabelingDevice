@@ -29,7 +29,7 @@ int main(void)
 	button_init();  
 	lcd_init();
 	init_ADC();  
-	USART_Init(BAUDRATE);
+	//USART_Init(BAUDRATE);
 	
 	uint8_t messung_aktiv = 0;
 	lcd_text("Labeling Device");

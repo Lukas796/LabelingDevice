@@ -68,7 +68,7 @@ void reference_StartPos_control(void){
 	
 	if ((is_referenced()) && (!is_inStartPos()))
 	{
-		move_to_position_steps_xy(1800,4300,1000);	// move to startposition 
+		move_to_position_steps_xy(2300,4300,1000);	// move to startposition 
 		
 		set_inStartPos(1);
 	}
@@ -93,8 +93,7 @@ void start_Laser_Positioning (void) {
 		
 		if ((laser_pos_reached) && (!Labeling_finfished))
 		{
-			//draw_A();
-			move_to_position_steps_xy(1800,4300,400);
+			draw_A();
 			Labeling_finfished = 1;
 		}
 	}

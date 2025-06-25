@@ -114,7 +114,7 @@ void USART_SendString(const char *str)
 	}
 }
 
-// Empfangs-Interrupt (ISR)
+ Empfangs-Interrupt (ISR)
 ISR(USART0_RX_vect) 
 {
 	uint8_t received_data = UDR0; // Empfangenes Zeichen holen
