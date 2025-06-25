@@ -9,8 +9,8 @@
 #ifndef LETTER_CONTROL_H_
 #define LETTER_CONTROL_H_
 
+#include "config.h" // need to be first
 
-
-
+void draw_A(void);
 
 #endif /* LETTER_CONTROL_H_ */

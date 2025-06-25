@@ -6,9 +6,7 @@
  */ 
 
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include "config.h"
+#include "config.h" // need to be first
 #include "USART.h"
 #include "lcd_control.h"
 #include "laser.h"
@@ -114,7 +112,7 @@ void USART_SendString(const char *str)
 	}
 }
 
- Empfangs-Interrupt (ISR)
+// Empfangs-Interrupt (ISR)
 ISR(USART0_RX_vect) 
 {
 	uint8_t received_data = UDR0; // Empfangenes Zeichen holen
@@ -132,7 +130,7 @@ ISR(USART0_RX_vect)
 }
 
 // Daten aus dem Empfangspuffer lesen
-uint8_t USART_ReadData() 
+uint8_t USART_ReadData(void) 
 {
 	if (usart_rx_head == usart_rx_tail) {
 		return 0; // Kein neues Zeichen verfügbar
@@ -145,7 +143,7 @@ uint8_t USART_ReadData()
 }
 
 // Prüft, ob Daten im Empfangspuffer vorhanden sind
-uint8_t USART_DataAvailable() {
+uint8_t USART_DataAvailable(void) {
 	return (usart_rx_head != usart_rx_tail);  // True, wenn Daten im Puffer vorhanden sind
 }
 

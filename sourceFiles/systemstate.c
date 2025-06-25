@@ -4,9 +4,9 @@
  * Created: 12.06.2025 09:20:17
  *  Author: lukasstrittmatter
  */ 
+#include "config.h" // need to be first
 #include "systemstate.h"
 #include "motor_control.h"
-#include "config.h"
 #include "letter_control.h"
 
 static uint8_t referenced = 0;	//static state variable if Axis are referenced	0 = not referenced , 1 = referenced
@@ -50,8 +50,6 @@ void request_Labeling_start(uint8_t state) {
 	start_Labeling = state;
 }
 
-
-
 void reference_StartPos_control(void){
 	
 	// Wenn Refernce Start Requested UND noch nicht referenziert wurde
@@ -86,13 +84,15 @@ void start_Laser_Positioning (void) {
 	{
 		if (!laser_pos_reached)
 		{
-			move_Y_left_until_laser(20,200);
 			
+			//move_Y_left_until_laser(20,500);
+			move_to_position_steps_xy(2300,5500,400);
 			laser_pos_reached = 1;
 		}
 		
 		if ((laser_pos_reached) && (!Labeling_finfished))
 		{
+			
 			draw_A();
 			Labeling_finfished = 1;
 		}

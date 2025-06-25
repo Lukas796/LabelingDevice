@@ -9,10 +9,11 @@
 #ifndef MOTOR_CONTROL_H_
 #define MOTOR_CONTROL_H_
 
-#include <avr/io.h>
-#include <stdint.h>
-#include <avr/interrupt.h>	
+#include "config.h" // need to be first
 
+uint16_t act_Pos_x(void);
+uint16_t act_Pos_y(void);
+uint16_t act_Pos_z(void);
 void motor_init(void);
 void motor_init_timer(void);
 void limit_switch_init(void); 
@@ -22,21 +23,20 @@ void motor_enable(uint8_t axis);
 void motor_disable(uint8_t axis);
 void motor_set_direction(uint8_t axis, uint8_t direction);
 void motor_step(uint8_t axis);
-void motor_stop(uint8_t axis);
 void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz);
 void motor_start_continous(uint8_t axis, uint16_t freq_hz);
-void start_XY_reference(void);
+void motor_stop(uint8_t axis);
+void set_X_Y_direction(uint8_t direction);
 void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, uint16_t speed_hz);
 void move_to_position_steps_z(int32_t target_steps_z, uint16_t speed_hz);
+void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, uint16_t speed_hz);
+void start_XY_reference(void);
+void move_Y_left_until_laser(uint16_t laser_target_mm, uint16_t speed_hz);
 void move_pen_backward(void);
 void move_pen_forward(void);
 void move_X_relative(int32_t steps, uint16_t speed);
 void move_Z_relative(int32_t steps, uint16_t speed);
 void move_XZ_diagonal_relative(int32_t steps_dx, int32_t steps_dz, uint16_t speed);
-
-uint16_t act_Pos_x(void);
-uint16_t act_Pos_y(void);
-uint16_t act_Pos_z(void);
 
 
 //IO-Port-Mapping for the EndSensors for X and Y

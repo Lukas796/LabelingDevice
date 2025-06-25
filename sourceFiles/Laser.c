@@ -4,8 +4,8 @@
  * Created: 22.05.2025 10:55:16
  *  Author: robin
  */ 
-#include "Laser.h"
-#include "config.h"
+#include "config.h" // need to be first
+#include "Laser.h" // need to be first
 
 // void setup() {
 //	Serial.begin(9600); // Serielle Verbindung starten mit 9600 Baud

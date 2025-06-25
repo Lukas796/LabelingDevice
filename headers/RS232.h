@@ -9,7 +9,7 @@
 #ifndef RS232_H_
 #define RS232_H_
 
-
+#include "config.h" // need to be first
 
 
 

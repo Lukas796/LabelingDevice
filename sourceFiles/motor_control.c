@@ -5,9 +5,10 @@
  * Authors : lukasstrittmatter
  */ 
 
-#include "motor_control.h"
 #include "config.h"
+#include "motor_control.h"
 #include "systemstate.h"
+#include "laser.h"
 
 // Schrittzähler je Motor
 volatile uint16_t steps_x_done = 0;
@@ -604,3 +605,4 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
  void move_XZ_diagonal_relative(int32_t steps_dx, int32_t steps_dz, uint16_t speed) {
 	 move_to_position_steps_xz(actual_steps_x + steps_dx, actual_steps_z + steps_dz, speed);
  }
+ 

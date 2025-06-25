@@ -4,11 +4,12 @@
  * Created: 23.06.2025 10:46:04
  *  Author: lukasstrittmatter
  */ 
+#include "config.h" // need to be first
+#include "buttons_control.h"
 #include "systemstate.h"
 #include "motor_control.h"
-#include "config.h"
 #include "letter_control.h"
-#include "buttons_control.h"
+
 
 void button_init(void) {
 	// Set PG1 - DPin 40 - Confirmbutton as input
