@@ -9,8 +9,11 @@
 #ifndef BUTTONS_CONTROL_H_
 #define BUTTONS_CONTROL_H_
 
-#include <avr/io.h>
-#include <stdint.h>
+#include "config.h" // need to be first
+
+//Functions from .c
+void button_init(void);
+void buttons(void);
 
 
 // --- Confirmation Button on PG1 ---

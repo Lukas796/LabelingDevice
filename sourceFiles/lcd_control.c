@@ -7,10 +7,7 @@
 #ifndef LCD_C_
 #define LCD_C_
 
-#define F_CPU 16000000UL  // 16 MHz Taktfrequenz
-#include <avr/io.h>
-#include <util/delay.h>
-
+#include "config.h" // need to be first
 #include "lcd_control.h"
 
 // LCD-Pins gem‰ﬂ deiner Hardwareverbindung

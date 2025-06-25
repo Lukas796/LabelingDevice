@@ -1,3 +1,5 @@
+
+=======
 /*  
  * USART.c  
  *  
@@ -13,27 +15,27 @@
 #include "laser.h"                
 #include "systemstate.h"        
 
-#define USART_BUFFER_SIZE 64														// Definiert die Größe des Ringpuffers für empfangene Daten  
+#define USART_BUFFER_SIZE 64														// Definiert die GrÃ¶ÃŸe des Ringpuffers fÃ¼r empfangene Daten  
 
 volatile uint8_t usart_rx_buffer[USART_BUFFER_SIZE];								// Ringpuffer zur Speicherung empfangener Daten  
-volatile uint8_t usart_rx_head = 0;													// Index für den nächsten Schreibzugriff im Puffer  
-volatile uint8_t usart_rx_tail = 0;													// Index für den nächsten Lesezugriff im Puffer  
-char LCDstr[17];																	// Puffer für LCD-Ausgaben (16 Zeichen + Nullterminator)  
+volatile uint8_t usart_rx_head = 0;													// Index fÃ¼r den nÃ¤chsten Schreibzugriff im Puffer  
+volatile uint8_t usart_rx_tail = 0;													// Index fÃ¼r den nÃ¤chsten Lesezugriff im Puffer  
+char LCDstr[17];																	// Puffer fÃ¼r LCD-Ausgaben (16 Zeichen + Nullterminator)  
 
 // USART initialisieren  
 void USART_Init(uint16_t baud)														// Initialisiert die USART-Schnittstelle  
 {  
-	UBRR0L = 103;																	// Setzt den niedrigen Teil der Baudrateneinstellung (z.B. 103 für ca. 9600 Baud bei 16MHz)  
-	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);							// Aktiviert Empfänger, Sender und den RX-Interrupt  
-	UCSR0C |= (1 << UCSZ01) | (1 << UCSZ00);										// Konfiguriert das Datenformat: 8 Datenbits, keine Parität, 1 Stopbit  
+	UBRR0L = 103;																	// Setzt den niedrigen Teil der Baudrateneinstellung (z.B. 103 fÃ¼r ca. 9600 Baud bei 16MHz)  
+	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);							// Aktiviert EmpfÃ¤nger, Sender und den RX-Interrupt  
+	UCSR0C |= (1 << UCSZ01) | (1 << UCSZ00);										// Konfiguriert das Datenformat: 8 Datenbits, keine ParitÃ¤t, 1 Stopbit  
 	sei();																			// Aktiviert globale Interrupts  
 }  
 
-// Empfängt und verarbeitet UART-Befehle  
-void USART_ProcessCommands(uint8_t* messung_aktiv, uint8_t* pos_aktiv)				// Verarbeitet empfangene Befehle; "messung_aktiv" zeigt an, ob Messung läuft  
+// EmpfÃ¤ngt und verarbeitet UART-Befehle  
+void USART_ProcessCommands(uint8_t* messung_aktiv, uint8_t* pos_aktiv)				// Verarbeitet empfangene Befehle; "messung_aktiv" zeigt an, ob Messung lÃ¤uft  
 {  
-	if (USART_DataAvailable()) {													// Prüft, ob Daten im Empfangspuffer vorhanden sind  
-		char buffer[30];															// Temporärer Puffer für den empfangenen Befehl  
+	if (USART_DataAvailable()) {													// PrÃ¼ft, ob Daten im Empfangspuffer vorhanden sind  
+		char buffer[30];															// TemporÃ¤rer Puffer fÃ¼r den empfangenen Befehl  
 		USART_ReadString(buffer, sizeof(buffer));									// Liest einen String aus dem Ringpuffer und speichert ihn in "buffer"  
 
 		if (strcmp(buffer, "M") == 0) {												// Wenn der Befehl "M" empfangen wurde  
@@ -41,27 +43,27 @@ void USART_ProcessCommands(uint8_t* messung_aktiv, uint8_t* pos_aktiv)				// Ver
 			} else if (strcmp(buffer, "MN") == 0) {									// Wenn der Befehl "MN" empfangen wurde  
 			*messung_aktiv = 0;														// Setze Messung inaktiv  
 			} else if (strcmp(buffer, "R") == 0) {									// Falls Befehl "R" (Referenzfahrt) erkannt wurde  
-			request_reference_start(1);										// Führt Referenzpositions-Kontrolle durch  
-			USART_SendString("Referenzfahrt gestartet.\n");							// Sendet entsprechende Bestätigung über USART  
+			request_reference_start(1);										// FÃ¼hrt Referenzpositions-Kontrolle durch  
+			USART_SendString("Referenzfahrt gestartet.\n");							// Sendet entsprechende BestÃ¤tigung Ã¼ber USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile (Adresse 0xC0)  
-			lcd_text("Referenzfahrt!  ");											// Schreibt "Referenzfahrt!  " auf das LCD, mit zusätzlichen Leerzeichen zum Überschreiben  
+			lcd_text("Referenzfahrt!  ");											// Schreibt "Referenzfahrt!  " auf das LCD, mit zusÃ¤tzlichen Leerzeichen zum Ãœberschreiben  
 			} else if (strcmp(buffer, "STOP") == 0) {								// Falls Befehl "STOP" erkannt wurde  
-			USART_SendString("Notstop.\n");											// Sendet "Notstop." über USART  
+			USART_SendString("Notstop.\n");											// Sendet "Notstop." Ã¼ber USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor wieder auf die zweite Zeile  
-			lcd_text("Notstop!        ");											// Schreibt "Notstop!" mit Leerzeichen, um die gesamte Zeile zu überschreiben  
+			lcd_text("Notstop!        ");											// Schreibt "Notstop!" mit Leerzeichen, um die gesamte Zeile zu Ã¼berschreiben  
 			} else if (strcmp(buffer, "START") == 0) {								// Falls Befehl "START" erkannt wurde  
 			request_Labeling_start(1);
-			USART_SendString("Wird gestartet.\n");									// Sendet die Nachricht "Wird gestartet." über USART  
+			USART_SendString("Wird gestartet.\n");									// Sendet die Nachricht "Wird gestartet." Ã¼ber USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile  
-			lcd_text("Wird gestartet! ");											// Schreibt "Wird gestartet!" auf das LCD, mit Leerzeichen zum Auffüllen  
+			lcd_text("Wird gestartet! ");											// Schreibt "Wird gestartet!" auf das LCD, mit Leerzeichen zum AuffÃ¼llen  
 			} else if (strstr(buffer, "Beschriftung:") != 0) {						// Falls der Befehl "Beschriftung:" im empfangenen String enthalten ist  
-			USART_SendString("Folgender Text wird geschrieben: ");					// Sendet eine Information über USART  
+			USART_SendString("Folgender Text wird geschrieben: ");					// Sendet eine Information Ã¼ber USART  
 			char* text_start = buffer + strlen("Beschriftung:");					// Ermittelt die Position, wo der eigentliche Text beginnt  
 			USART_SendString(text_start);											// Sendet den ausgelesenen Textteil  
 			USART_SendString("\n");													// Sendet einen Zeilenumbruch  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile  
-			char send_Text_buffer[17];												// Puffer für die formatierte Ausgabe auf dem LCD (16 Zeichen + Nullterminator)  
-			snprintf(send_Text_buffer, sizeof(send_Text_buffer), "%-16s",text_start); // Formatiert den Text linksbündig, füllt ggf. mit Leerzeichen auf  
+			char send_Text_buffer[17];												// Puffer fÃ¼r die formatierte Ausgabe auf dem LCD (16 Zeichen + Nullterminator)  
+			snprintf(send_Text_buffer, sizeof(send_Text_buffer), "%-16s",text_start); // Formatiert den Text linksbÃ¼ndig, fÃ¼llt ggf. mit Leerzeichen auf  
 			lcd_text(send_Text_buffer);												// Zeigt den formatierten Text auf dem LCD an  
 			} else if (strcmp(buffer, "POS") == 0){									// Wenn der Befehl "POS" empfangen wurde
 			*pos_aktiv = 1;															// Setze POS aktiv
@@ -74,84 +76,72 @@ void USART_ProcessCommands(uint8_t* messung_aktiv, uint8_t* pos_aktiv)				// Ver
 }  
 
 // Messungsprozess  
-void USART_MESSUNG(uint8_t messung_aktiv) {											// Führt den Messvorgang durch, wenn die Messung aktiv ist  
-	if (messung_aktiv) {															// Überprüft, ob Messungen aktiviert sind  
+void USART_MESSUNG(uint8_t messung_aktiv) {											// FÃ¼hrt den Messvorgang durch, wenn die Messung aktiv ist  
+	if (messung_aktiv) {															// ÃœberprÃ¼ft, ob Messungen aktiviert sind  
 		uint16_t distance = laser_read();											// Liest den Abstandswert vom Lasersensor ein  
-		char send_buffer[20];														// Puffer für den über USART gesendeten String  
+		char send_buffer[20];														// Puffer fÃ¼r den Ã¼ber USART gesendeten String  
 		snprintf(send_buffer, sizeof(send_buffer), "%u mm\n", distance);			// Formatiert den Abstandswert (z.B. "123 mm\n")  
-		USART_SendString(send_buffer);												// Sendet den formatierten String über die serielle Schnittstelle  
+		USART_SendString(send_buffer);												// Sendet den formatierten String Ã¼ber die serielle Schnittstelle  
 		uint16_t i = laser_read();													// Liest den Messwert erneut aus (zur Umwandlung in eine LCD-kompatible Zeichenkette)  
 		lcd_cmd (0xC0);																// Setzt den LCD-Cursor auf die zweite Zeile  
 		lcd_num (i, LCDstr);														// Konvertiert den Messwert in einen String und speichert diesen in LCDstr  
-		char send_Messung_buffer[17];												// Puffer für die LCD-Ausgabe, auf 16 Zeichen formatiert (plus Nullterminator)  
-		snprintf(send_Messung_buffer, sizeof(send_Messung_buffer), "%-16s",LCDstr); // Formatiert den Inhalt von LCDstr linksbündig, füllt mit Leerzeichen auf  
+		char send_Messung_buffer[17];												// Puffer fÃ¼r die LCD-Ausgabe, auf 16 Zeichen formatiert (plus Nullterminator)  
+		snprintf(send_Messung_buffer, sizeof(send_Messung_buffer), "%-16s",LCDstr); // Formatiert den Inhalt von LCDstr linksbÃ¼ndig, fÃ¼llt mit Leerzeichen auf  
 		lcd_text(send_Messung_buffer);												// Zeigt die formatierte Messung auf dem LCD an  
 	}  
 }
 
-// Positionsprozess: Führt den Positionsprozess durch, wenn die Positionierung aktiv ist
+// Positionsprozess: FÃ¼hrt den Positionsprozess durch, wenn die Positionierung aktiv ist
 
 void USART_POSITIONIERUNG(uint8_t pos_aktiv) {  // pos_aktiv steuert, ob die Positionsausgabe aktiv ist
 	if (pos_aktiv) {                             // Nur wenn Positionierung aktiviert ist...
 		// Erstelle einen String mit den drei Positionswerten und sende ihn via USART
-		char send_buffer[20];  // Puffer für die serielle Ausgabe
+		char send_buffer[20];  // Puffer fÃ¼r die serielle Ausgabe
 		snprintf(send_buffer, sizeof(send_buffer), "X:%u Y:%u Z:%u\n", act_Pos_x(), act_Pos_y(), act_Pos_z());
-		USART_SendString(send_buffer);           // Sende den formatierten String über die serielle Schnittstelle
+		USART_SendString(send_buffer);           // Sende den formatierten String Ã¼ber die serielle Schnittstelle
 	}
 }
 
-// Daten senden  
-void USART_SendData(uint8_t data) {													// Sendet ein einzelnes Byte über die USART-Schnittstelle  
-	while (!(UCSR0A & (1 << UDRE0)));												// Wartet, bis das USART-Datenregister leer ist (bereit zur Übertragung)  
-	UDR0 = data;																	// Schreibt das Datenbyte in das Datenregister, wodurch die Übertragung gestartet wird  
-}  
-
-// String senden  
-void USART_SendString(const char *str) {											// Sendet einen nullterminierten String über USART  
-	while (*str) {																	// Solange das aktuelle Zeichen nicht der Nullterminator ist  
-		USART_SendData(*str++);														// Sendet das Zeichen und inkrementiert den Zeiger auf den nächsten Buchstaben  
-	}  
-}  
 
 // Empfangs-Interrupt (ISR)  
 ISR(USART0_RX_vect) {																// Interrupt-Service-Routine, die aufgerufen wird, wenn ein Zeichen empfangen wurde  
 	uint8_t received_data = UDR0;													// Liest das empfangene Zeichen aus dem USART-Datenregister  
-	uint8_t next_head = (usart_rx_head + 1) % USART_BUFFER_SIZE;					// Berechnet den nächsten Index im Ringpuffer (unter Berücksichtigung des Wrap-arounds)  
-																					// Überprüfen, ob der Puffer voll ist  
-	if (next_head != usart_rx_tail) {												// Prüft, ob noch Platz im Buffer ist  
+	uint8_t next_head = (usart_rx_head + 1) % USART_BUFFER_SIZE;					// Berechnet den nÃ¤chsten Index im Ringpuffer (unter BerÃ¼cksichtigung des Wrap-arounds)  
+																					// ÃœberprÃ¼fen, ob der Puffer voll ist  
+	if (next_head != usart_rx_tail) {												// PrÃ¼ft, ob noch Platz im Buffer ist  
 		usart_rx_buffer[usart_rx_head] = received_data;								// Speichert das empfangene Zeichen im Ringpuffer  
 		usart_rx_head = next_head;													// Aktualisiert den Schreibindex des Puffers  
 		} else {  
 																					// Puffer voll - Fehlerhandling (optional)  
-		USART_SendString("Fehler: RX-Buffer voll!\n");								// Meldet über USART, dass der Empfangspuffer voll ist  
+		USART_SendString("Fehler: RX-Buffer voll!\n");								// Meldet Ã¼ber USART, dass der Empfangspuffer voll ist  
 	}  
 }  
 
 // Daten aus dem Empfangspuffer lesen  
 uint8_t USART_ReadData() {															// Liest ein Zeichen aus dem USART-Ringpuffer  
-	if (usart_rx_head == usart_rx_tail) {											// Prüft, ob der Puffer leer ist  
-		return 0;																	// Gibt 0 zurück, da kein neues Zeichen verfügbar ist  
+	if (usart_rx_head == usart_rx_tail) {											// PrÃ¼ft, ob der Puffer leer ist  
+		return 0;																	// Gibt 0 zurÃ¼ck, da kein neues Zeichen verfÃ¼gbar ist  
 	}  
 	uint8_t data = usart_rx_buffer[usart_rx_tail];									// Holt das Zeichen an der aktuellen Tail-Position aus dem Puffer  
-	usart_rx_tail = (usart_rx_tail + 1) % USART_BUFFER_SIZE;						// Erhöht den Lese-Index und berücksichtigt den Wrap-around  
-	return data;																	// Gibt das gelesene Zeichen zurück  
+	usart_rx_tail = (usart_rx_tail + 1) % USART_BUFFER_SIZE;						// ErhÃ¶ht den Lese-Index und berÃ¼cksichtigt den Wrap-around  
+	return data;																	// Gibt das gelesene Zeichen zurÃ¼ck  
 }  
 
-// Prüft, ob Daten im Empfangspuffer vorhanden sind  
-uint8_t USART_DataAvailable() {														// Liefert true (ungleich 0) zurück, wenn im Ringpuffer Daten vorliegen  
+// PrÃ¼ft, ob Daten im Empfangspuffer vorhanden sind  
+uint8_t USART_DataAvailable() {														// Liefert true (ungleich 0) zurÃ¼ck, wenn im Ringpuffer Daten vorliegen  
 	return (usart_rx_head != usart_rx_tail);										// Vergleicht Schreib- und Leseindex; weicht bei vorhandenen Daten voneinander ab  
 }  
 
 // String aus dem Empfangspuffer lesen  
-void USART_ReadString(char *buffer, uint8_t max_length) {							// Liest einen String aus dem Empfangspuffer bis zum Zeilenumbruch oder zur maximalen Länge  
-	uint8_t i = 0;																	// Initialisiert den Index für den Zielpuffer  
-																					// Daten aus dem Ringbuffer holen, bis \n gefunden wird oder max. Länge erreicht ist  
+void USART_ReadString(char *buffer, uint8_t max_length) {							// Liest einen String aus dem Empfangspuffer bis zum Zeilenumbruch oder zur maximalen LÃ¤nge  
+	uint8_t i = 0;																	// Initialisiert den Index fÃ¼r den Zielpuffer  
+																					// Daten aus dem Ringbuffer holen, bis \n gefunden wird oder max. LÃ¤nge erreicht ist  
 	while (USART_DataAvailable() && i < max_length - 1) {							// Liest weiter, solange Daten vorhanden sind und Platz im Puffer ist  
 		buffer[i] = USART_ReadData();												// Liest ein Zeichen und speichert es im Puffer  
 		if (buffer[i] == '\n') {													// Falls das Ende des Befehls (Zeilenumbruch) erreicht wird  
 			break;																	// Beendet das Einlesen  
 		}  
-		i++;																		// Erhöht den Index für das nächste Zeichen  
+		i++;																		// ErhÃ¶ht den Index fÃ¼r das nÃ¤chste Zeichen  
 	}  
-	buffer[i] = '\0';																// Fügt den Nullterminator an, um den String abzuschließen  
+	buffer[i] = '\0';																// FÃ¼gt den Nullterminator an, um den String abzuschlieÃŸen  
 }

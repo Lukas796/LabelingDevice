@@ -5,9 +5,10 @@
  * Authors : lukasstrittmatter
  */ 
 
-#include "motor_control.h"
 #include "config.h"
+#include "motor_control.h"
 #include "systemstate.h"
+#include "laser.h"
 
 // Schrittzähler je Motor
 volatile uint16_t steps_x_done = 0;
@@ -438,6 +439,89 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		actual_steps_y = target_steps_y;
 	}
 }
+
+void move_to_position_steps_z(int32_t target_steps_z, uint16_t speed_hz)
+{
+	int32_t delta_steps_z = target_steps_z - actual_steps_z;
+
+	// ========================
+	// --- Z-Achse bewegen ---
+	// ========================
+	if (delta_steps_z != 0) {
+		if (delta_steps_z > 0) {
+			// Positive Z-Richtung --> CW
+			motor_set_direction(AXIS_Z, DIR_CW);
+			} else {
+			// Negative Z-Richtung --> CCW
+			motor_set_direction(AXIS_Z, DIR_CCW);
+			delta_steps_z = -delta_steps_z;  // positiv machen für Bewegung
+		}
+
+		steps_z_done = 0;
+
+		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz);
+
+		while (steps_z_done < steps_z_target);  // warten bis fertig
+
+		motor_stop(AXIS_Z);
+		actual_steps_z = target_steps_z;
+	}
+}
+
+void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, uint16_t speed_hz)
+{
+	int32_t delta_steps_x = target_steps_x - actual_steps_x;
+	int32_t delta_steps_z = target_steps_z - actual_steps_z;
+
+	// ================================
+	// --- X-Achse und Z-Achse bewegen
+	// ================================
+	if ((delta_steps_x != 0) && (delta_steps_z != 0)) {
+		
+		// Richtung für X setzen
+		if (delta_steps_x > 0) {
+			set_X_Y_direction(DIR_X_BOTTOM);
+			} else {
+			set_X_Y_direction(DIR_X_TOP);
+			delta_steps_x = -delta_steps_x;
+		}
+
+		// Richtung für Z setzen
+		if (delta_steps_z > 0) {
+			motor_set_direction(AXIS_Z, DIR_CW);
+			} else {
+			motor_set_direction(AXIS_Z, DIR_CCW);
+			delta_steps_z = -delta_steps_z;
+		}
+
+		// Schrittzähler zurücksetzen
+		steps_x_done = 0;
+		steps_y_done = 0;
+		steps_z_done = 0;
+
+		// Motoren starten
+		motor_start_steps(AXIS_X, delta_steps_x, speed_hz);
+		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);
+		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz / 4);
+
+		// Motoren individuell stoppen
+		while (1) {
+			if (steps_x_done >= steps_x_target) motor_stop(AXIS_X);
+			if (steps_y_done >= steps_y_target) motor_stop(AXIS_Y);
+			if (steps_z_done >= steps_z_target) motor_stop(AXIS_Z);
+
+			if (steps_x_done >= steps_x_target &&
+			steps_y_done >= steps_y_target &&
+			steps_z_done >= steps_z_target) {
+				break;
+			}
+		}
+
+		// Positionen aktualisieren
+		actual_steps_x = target_steps_x;
+		actual_steps_z = target_steps_z;
+	}
+}
  
  void start_XY_reference(void) {
 	 // Set direction: move toward Y_RIGHT first
@@ -503,7 +587,6 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
  
  // Axis Control for letters
  void move_pen_backward() {
-	
 	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 20, 100);
  }
 
@@ -511,23 +594,15 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 20, 100);
  }
 
- void move_X(int32_t steps, uint16_t speed) {
+ void move_X_relative(int32_t steps, uint16_t speed) {
 	 move_to_position_steps_xy(actual_steps_x + steps, actual_steps_y, speed);
  }
 
- void move_Z(int32_t steps, uint16_t speed) {
-	 motor_set_direction(AXIS_Z, (steps > 0) ? DIR_CW : DIR_CCW);
-	 motor_start_steps(AXIS_Z, abs(steps), speed);
-	 while (steps_z_done < steps_z_target);
-	 actual_steps_z += steps;
+ void move_Z_relative(int32_t steps, uint16_t speed) {
+	 move_to_position_steps_z(actual_steps_z + steps, speed);
  }
 
- void move_XZ_diagonal(int32_t dx, int32_t dz, uint16_t speed) {
-	 motor_set_direction(AXIS_X, dx > 0 ? DIR_CW : DIR_CCW);
-	 motor_set_direction(AXIS_Z, dz > 0 ? DIR_CW : DIR_CCW);
-	 motor_start_steps(AXIS_X, abs(dx), speed);
-	 motor_start_steps(AXIS_Z, abs(dz), speed);
-	 while (steps_x_done < steps_x_target || steps_z_done < steps_z_target);
-	 actual_steps_x += dx;
-	 actual_steps_z += dz;
+ void move_XZ_diagonal_relative(int32_t steps_dx, int32_t steps_dz, uint16_t speed) {
+	 move_to_position_steps_xz(actual_steps_x + steps_dx, actual_steps_z + steps_dz, speed);
  }
+ 

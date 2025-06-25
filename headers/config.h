@@ -7,11 +7,17 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#ifndef F_CPU
+#define F_CPU 16000000UL  // CPU-Frequency for Delay-Functions
+#endif
+
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdint.h>
+#include <avr/interrupt.h>	
+#include <string.h>
+#include <stdio.h>
 
-#define F_CPU 16000000UL  // CPU-Frequency for Delay-Functions
 // --------------------------------------
 // --- Motor Control --------------------
 

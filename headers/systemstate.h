@@ -9,15 +9,19 @@
 #ifndef SYSTEMSTATE_H_
 #define SYSTEMSTATE_H_
 
-#include <avr/io.h>
-#include <stdint.h>
+#include "config.h" // need to be first
 
-void reference_control(void);
-void set_referenced(uint8_t state);
 uint8_t is_referenced(void);
-
-void set_inStartPos(uint8_t state);
 uint8_t is_inStartPos(void);
+uint8_t reference_start_requested(void);
+uint8_t labeling_start_requested(void);
+void set_referenced(uint8_t state);
+void set_inStartPos(uint8_t state);
+void request_reference_start(uint8_t state);
+void request_Labeling_start(uint8_t state);
+
+void reference_StartPos_control(void);
+void start_Laser_Positioning(void);
 
 
 #endif /* SYSTEMSTATE_H_ */
