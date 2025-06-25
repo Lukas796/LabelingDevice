@@ -28,6 +28,7 @@ int main(void)
 	USART_Init(BAUDRATE);
 	
 	uint8_t messung_aktiv = 0;
+	uint8_t pos_aktiv = 0;
 	lcd_text("Labeling Device");
 	
 	while (1)
@@ -36,9 +37,10 @@ int main(void)
 		reference_StartPos_control();
 		start_Laser_Positioning();
 		
-		USART_ProcessCommands(&messung_aktiv);  // Verarbeitet eingehende Steuerbefehle
-		USART_MESSUNG(messung_aktiv);           // Führt Messungen durch, falls aktiv
-		_delay_ms(100);
+		  USART_ProcessCommands(&messung_aktiv, &pos_aktiv);  // Verarbeitet eingehende Steuerbefehle
+		  USART_MESSUNG(messung_aktiv);           // Führt Messungen durch, falls aktiv
+		  USART_POSITIONIERUNG(pos_aktiv);
+		  _delay_ms(10);
 	}
 }
 
