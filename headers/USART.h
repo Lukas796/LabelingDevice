@@ -15,8 +15,7 @@ void USART_SendString(const char *str);
 uint8_t USART_ReadData(void);
 uint8_t USART_DataAvailable();
 ISR(USART0_RX_vect);
-
-
-
+void USART_MESSUNG(uint8_t messung_aktiv);
+void USART_POSITIONIERUNG(uint8_t pos_aktiv);
 
 #endif /* USART_H_ */
