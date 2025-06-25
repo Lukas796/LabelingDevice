@@ -27,6 +27,11 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz);
 void motor_start_continous(uint8_t axis, uint16_t freq_hz);
 void start_XY_reference(void);
 void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, uint16_t speed_hz);
+void move_pen_backward(void);
+uint16_t act_Pos_x(void);
+uint16_t act_Pos_y(void);
+uint16_t act_Pos_z(void);
+
 
 //IO-Port-Mapping for the EndSensors for X and Y
 #define X_SWITCH_TOP_PORT 		PORTD

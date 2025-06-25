@@ -124,6 +124,12 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="headers\buttons_control.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="headers\letter_control.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="headers\systemstate.h">
       <SubType>compile</SubType>
     </Compile>
@@ -148,10 +154,16 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sourceFiles\buttons_control.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="sourceFiles\Laser.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\lcd_control.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sourceFiles\letter_control.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\motor_control.c">
