@@ -6,6 +6,14 @@
  */ 
 
 
+/*
+ * systemstate.h
+ *
+ * Created: 12.06.2025 09:19:45
+ *  Author: lukasstrittmatter
+ */ 
+
+
 #ifndef SYSTEMSTATE_H_
 #define SYSTEMSTATE_H_
 

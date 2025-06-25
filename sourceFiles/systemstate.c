@@ -7,7 +7,6 @@
 #include "systemstate.h"
 #include "motor_control.h"
 #include "config.h"
-#include "letter_control.h"
 
 static uint8_t referenced = 0;	//static state variable if Axis are referenced	0 = not referenced , 1 = referenced
 static uint8_t start_reference = 0;	//static state variable if Axis are referenced	0 = dont start reference , 1 = start reference

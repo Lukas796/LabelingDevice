@@ -63,11 +63,15 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)									// Verarbeitet empfan
 			char send_Text_buffer[17];												// Puffer für die formatierte Ausgabe auf dem LCD (16 Zeichen + Nullterminator)  
 			snprintf(send_Text_buffer, sizeof(send_Text_buffer), "%-16s",text_start); // Formatiert den Text linksbündig, füllt ggf. mit Leerzeichen auf  
 			lcd_text(send_Text_buffer);												// Zeigt den formatierten Text auf dem LCD an  
+<<<<<<< HEAD
 			}
 			//else if (strstr(buffer, "POS") != 0){									// Wenn der Befehl "POS" empfangen wurde
 			//*pos_aktiv = 1;															// Setze POS aktiv
 			//} else if (strcmp(buffer, "NPOS") == 0) {								// Wenn der Befehl "NPOS" empfangen wurde
 			//*pos_aktiv = 0;
+=======
+			}  
+>>>>>>> parent of 6cee8bc (Positionierung)
 	}  
 }  
 
@@ -85,6 +89,7 @@ void USART_MESSUNG(uint8_t messung_aktiv) {											// Führt den Messvorgang d
 		snprintf(send_Messung_buffer, sizeof(send_Messung_buffer), "%-16s",LCDstr); // Formatiert den Inhalt von LCDstr linksbündig, füllt mit Leerzeichen auf  
 		lcd_text(send_Messung_buffer);												// Zeigt die formatierte Messung auf dem LCD an  
 	}  
+<<<<<<< HEAD
 }
 
 // Positionsprozess: Führt den Positionsprozess durch, wenn die Positionierung aktiv ist
@@ -100,6 +105,9 @@ void USART_MESSUNG(uint8_t messung_aktiv) {											// Führt den Messvorgang d
 		//USART_SendString(send_buffer);           // Sende den formatierten String über die serielle Schnittstelle
 	//}
 //}
+=======
+}  
+>>>>>>> parent of 6cee8bc (Positionierung)
 
 // Daten senden  
 void USART_SendData(uint8_t data) {													// Sendet ein einzelnes Byte über die USART-Schnittstelle  
