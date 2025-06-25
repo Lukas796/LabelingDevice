@@ -496,7 +496,7 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
 	 
-	actual_steps_y = actual_steps_y + steps_y_done;
+	actual_steps_y = actual_steps_y + (steps_y_done/2);
 	 _delay_ms(200);
 	 
  }

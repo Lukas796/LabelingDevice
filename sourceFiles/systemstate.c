@@ -94,7 +94,7 @@ void start_Laser_Positioning (void) {
 		if ((laser_pos_reached) && (!Labeling_finfished))
 		{
 			//draw_A();
-			//move_to_position_steps_xy(1800,4300,400);
+			move_to_position_steps_xy(1800,4300,400);
 			Labeling_finfished = 1;
 		}
 	}
