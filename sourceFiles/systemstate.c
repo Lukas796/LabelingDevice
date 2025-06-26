@@ -66,14 +66,14 @@ void reference_StartPos_control(void){
 	
 	if ((is_referenced()) && (!is_inStartPos()))
 	{
-		move_to_position_steps_xy(2300,4300,1000);	// move to startposition 
-		
+		move_to_position_steps_xy(2500,5000,1000);	// move to startposition 
+		move_to_position_steps_z(200,500);	// move to startposition 
 		set_inStartPos(1);
 	}
 	
 	if ((is_referenced()) && (is_inStartPos()) && !interrupts_initialized)
 	{
-		limit_switch_interrupt_init(); //init interrupts for limit switches
+		//limit_switch_interrupt_init(); //init interrupts for limit switches
 		interrupts_initialized = 1;
 	}
 
@@ -85,8 +85,8 @@ void start_Laser_Positioning (void) {
 		if (!laser_pos_reached)
 		{
 			
-			//move_Y_left_until_laser(20,500);
-			move_to_position_steps_xy(2300,5500,400);
+			move_Y_left_until_laser(20,200);
+
 			laser_pos_reached = 1;
 		}
 		
@@ -94,6 +94,13 @@ void start_Laser_Positioning (void) {
 		{
 			
 			draw_A();
+			_delay_ms(100);
+			draw_I();
+			_delay_ms(100);
+			draw_U();
+			_delay_ms(100);
+			draw_A();
+			
 			Labeling_finfished = 1;
 		}
 	}

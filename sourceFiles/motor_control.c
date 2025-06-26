@@ -65,7 +65,8 @@ void motor_init(void) {
 
 void motor_init_timer(void) {
 	// --- Timer X: Timer3, OC3B (PE4) ---
-	STEP_X_OC_REG |= (1 << STEP_X_OC_BIT);			// Toggle OC3B on compare match - set COM3B0 in TCCR3A
+	TCCR3A &= ~((1 << COM3B1) | (1 << COM3B0));		// OC3B disconnected (normal port
+	//STEP_X_OC_REG |= (1 << STEP_X_OC_BIT);		// Toggle OC3B on compare match - set COM3B0 in TCCR3A
 	STEP_X_TCCRB_REG |= (1 << WGM32);				// set CTC - Mode (Clear Timer on Compare Match) - set WGM32 in TCCR3B
 	STEP_X_OCR = 100;								// set init Value for OCR3A --> Target Value for Compare Match
 	STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);     // activate OCIE3B bit in TIMSK3 Register to activate Interrupt on Compare Match
@@ -74,13 +75,13 @@ void motor_init_timer(void) {
 	STEP_Y_OC_REG |= (1 << STEP_Y_OC_BIT);			 // Toggle OC1B on compare match-- setze COM1B= in TCCR1A
 	STEP_Y_TCCRB_REG |= (1 << WGM12);                // CTC-Modus: setze WGM12 in TCCR1B
 	STEP_Y_OCR = 100;
-	STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);
+	//STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);	// only use Timer3 for Interrupts
 	
 	// --- Timer Z: Timer4, OC4B (PH4) ---
-	STEP_Z_OC_REG |= (1 << STEP_Z_OC_BIT);       // Toggle OC4B on compare match
+	STEP_Z_OC_REG |= (1 << STEP_Z_OC_BIT);			// Toggle OC4B on compare match
 	STEP_Z_TCCRB_REG |= (1 << WGM42);                // CTC-Modus: WGM42 = 1
 	STEP_Z_OCR = 100;
-	STEP_Z_TIMSK_REG |= (1 << STEP_Z_OCIE_BIT);
+	//STEP_Z_TIMSK_REG |= (1 << STEP_Z_OCIE_BIT);	// only use Timer 3 for Interrupt
 
 }
 
@@ -161,23 +162,6 @@ void motor_set_direction(uint8_t axis, uint8_t direction) {
 	}
 }
 
-void motor_step(uint8_t axis) {
-	volatile uint8_t* port;
-	uint8_t pin;
-
-	switch (axis) {
-		case AXIS_X: port = &STEP_X_PORT; pin = STEP_X_PIN; break;
-		case AXIS_Y: port = &STEP_Y_PORT; pin = STEP_Y_PIN; break;
-		case AXIS_Z: port = &STEP_Z_PORT; pin = STEP_Z_PIN; break;
-		default: return;
-	}
-
-	*port |= (1 << pin);
-	_delay_ms(20);
-	*port &= ~(1 << pin);
-	_delay_ms(20);
-}
-
 
 // --- Timer-based motor Control --
 void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
@@ -199,15 +183,13 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		steps_x_done = 0;
 		steps_x_target = steps * 2;
 
+		STEP_X_OC_REG |= (1 << STEP_X_OC_BIT);		// Toggle OC3B on compare match - set COM3B0 in TCCR3A
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
 		//STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_X_TCCRB_REG |= (1 << CS31) | (1 << CS30); // start timer with Prescaler 64
 		
-		if (steps_x_done >= steps_x_target) {
-			motor_stop(AXIS_X);
-		}
 		break;
 
 		case AXIS_Y:
@@ -220,9 +202,6 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		//STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_Y_TCCRB_REG |= (1 << CS11) | (1 << CS10);
 		
-		if (steps_y_done >= steps_y_target) {
-			motor_stop(AXIS_Y);
-		}
 		break;
 
 		case AXIS_Z:
@@ -234,10 +213,6 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_Z_OCR = ocr_val;
 		
 		STEP_Z_TCCRB_REG |= (1 << CS41) | (1 << CS40);
-		
-		if (steps_z_done >= steps_z_target) {
-			motor_stop(AXIS_Z);
-		}
 		
 		break;
 
@@ -266,6 +241,7 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 		case AXIS_X:
 		steps_x_done = 0;
 		
+		STEP_X_OC_REG |= (1 << STEP_X_OC_BIT);		// Toggle OC3B on compare match - set COM3B0 in TCCR3A
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
@@ -298,7 +274,8 @@ void motor_start_continous(uint8_t axis, uint16_t freq_hz) {
 void motor_stop(uint8_t axis) {
 	switch(axis) {
 		case AXIS_X:
-		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30));
+		TCCR3A &= ~((1 << COM3B1) | (1 << COM3B0));		// OC3B disconnected (normal port
+		//STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30));	don't stop Timer3
 		//STEP_X_TIMSK_REG &= ~(1 << STEP_X_OCIE_BIT);
 		break;
 
@@ -317,15 +294,17 @@ void motor_stop(uint8_t axis) {
  //--- ISR: Interrupts on CompareMatch from the Timers ---
  ISR(TIMER3_COMPB_vect) {
 	 steps_x_done++;
+	 steps_y_done++;
+	 steps_z_done++;
  }
 
- ISR(TIMER1_COMPB_vect) {
-	 steps_y_done++; 
- }
-
- ISR(TIMER4_COMPB_vect) {
-	 steps_z_done++; 
- }
+ //ISR(TIMER1_COMPB_vect) {
+	 //steps_y_done++; 
+ //}
+//
+ //ISR(TIMER4_COMPB_vect) {
+	 //steps_z_done++; 
+ //}
  
  // Interrupts from Limit Switches
  ISR(INT0_vect) {
@@ -406,10 +385,11 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		motor_start_steps(AXIS_X, delta_steps_x, speed_hz);
 		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);
 
-		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten bis fertig
+		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten auf globales steps_target
 
 		motor_stop(AXIS_X);
 		motor_stop(AXIS_Y);
+		
 		actual_steps_x = target_steps_x;
 	}
 
@@ -502,7 +482,7 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		// Motoren starten
 		motor_start_steps(AXIS_X, delta_steps_x, speed_hz);
 		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);
-		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz / 4);
+		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz/4);
 
 		// Motoren individuell stoppen
 		while (1) {
@@ -528,6 +508,10 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 	 set_X_Y_direction(DIR_Y_RIGHT);
 	 motor_start_continous(AXIS_X, 1000);  // beide Motoren starten mit 100 Hz
 	 motor_start_continous(AXIS_Y, 1000);  // beide Motoren starten mit 100 Hz
+	
+	//start Z
+	 motor_set_direction(AXIS_Z, DIR_CW);
+	 motor_start_continous(AXIS_Z, 500);
 
 	 // Warte auf Y_RIGHT Endschalter
 	 while (Y_SWITCH_RIGHT_IN_REG & (1 << Y_SWITCH_RIGHT_PIN)) {
@@ -537,6 +521,8 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 	 // Stop Motoren nach Erreichen von Y_RIGHT
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
+	 motor_stop(AXIS_Z);
+	 
 	 _delay_ms(200);  // mechanische Dämpfung
 
 	 // Set direction: move toward X_TOP
@@ -552,6 +538,8 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 	 // Stop Motoren nach Erreichen von X_TOP
 	 motor_stop(AXIS_X);
 	 motor_stop(AXIS_Y);
+	 
+	 
 	 
 	 set_referenced(1);			//set reference state to1
 	 request_reference_start(0); //reset request bit
@@ -587,22 +575,26 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
  
  // Axis Control for letters
  void move_pen_backward() {
-	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 20, 100);
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 40, 100);
  }
 
  void move_pen_forward() {
-	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 20, 100);
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 40, 100);
  }
 
- void move_X_relative(int32_t steps, uint16_t speed) {
-	 move_to_position_steps_xy(actual_steps_x + steps, actual_steps_y, speed);
+ void move_X_relative(int32_t rel_steps, uint16_t speed) {
+	 int32_t target_x = actual_steps_x + rel_steps;
+	 move_to_position_steps_xy(target_x, actual_steps_y, speed);
  }
 
- void move_Z_relative(int32_t steps, uint16_t speed) {
-	 move_to_position_steps_z(actual_steps_z + steps, speed);
+ void move_Z_relative(int32_t rel_steps, uint16_t speed) {
+	 int32_t target_z = actual_steps_z + rel_steps;
+	 move_to_position_steps_z(target_z, speed);
  }
 
- void move_XZ_diagonal_relative(int32_t steps_dx, int32_t steps_dz, uint16_t speed) {
-	 move_to_position_steps_xz(actual_steps_x + steps_dx, actual_steps_z + steps_dz, speed);
+ void move_XZ_diagonal_relative(int32_t rel_steps_x, int32_t rel_steps_z, uint16_t speed) {
+	 int32_t target_x = actual_steps_x + rel_steps_x;
+	 int32_t target_z = actual_steps_z + rel_steps_z;
+	 move_to_position_steps_xz(target_x, target_z, speed);
  }
  

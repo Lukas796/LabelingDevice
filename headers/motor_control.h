@@ -34,9 +34,9 @@ void start_XY_reference(void);
 void move_Y_left_until_laser(uint16_t laser_target_mm, uint16_t speed_hz);
 void move_pen_backward(void);
 void move_pen_forward(void);
-void move_X_relative(int32_t steps, uint16_t speed);
-void move_Z_relative(int32_t steps, uint16_t speed);
-void move_XZ_diagonal_relative(int32_t steps_dx, int32_t steps_dz, uint16_t speed);
+void move_X_relative(int32_t rel_steps, uint16_t speed);
+void move_Z_relative(int32_t rel_steps, uint16_t speed);
+void move_XZ_diagonal_relative(int32_t rel_steps_x, int32_t rel_steps_z, uint16_t speed);
 
 
 //IO-Port-Mapping for the EndSensors for X and Y
