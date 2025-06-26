@@ -24,7 +24,9 @@ char LCDstr[17];																	// Puffer für LCD-Ausgaben (16 Zeichen + Nullte
 void USART_Init(uint16_t baud)														// Initialisiert die USART-Schnittstelle  
 {  
 	UBRR0L = 103;																	// Setzt den niedrigen Teil der Baudrateneinstellung (z.B. 103 für ca. 9600 Baud bei 16MHz)  
-	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);							// Aktiviert Empfänger, Sender und den RX-Interrupt  
+	//UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);							// Aktiviert Empfänger, Sender und den RX-Interrupt  
+	UCSR0B |= (1 << RXEN0) | (1 << TXEN0);							// Aktiviert Empfänger, Sender und den RX-Interrupt
+	
 	UCSR0C |= (1 << UCSZ01) | (1 << UCSZ00);										// Konfiguriert das Datenformat: 8 Datenbits, keine Parität, 1 Stopbit  
 	sei();																			// Aktiviert globale Interrupts  
 }  

@@ -406,7 +406,7 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		motor_start_steps(AXIS_X, delta_steps_x, speed_hz);
 		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);
 
-		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten bis fertig
+		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten auf globales steps_target
 
 		motor_stop(AXIS_X);
 		motor_stop(AXIS_Y);
@@ -502,7 +502,7 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		// Motoren starten
 		motor_start_steps(AXIS_X, delta_steps_x, speed_hz);
 		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);
-		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz / 4);
+		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz);
 
 		// Motoren individuell stoppen
 		while (1) {
@@ -594,15 +594,19 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 20, 100);
  }
 
- void move_X_relative(int32_t steps, uint16_t speed) {
-	 move_to_position_steps_xy(actual_steps_x + steps, actual_steps_y, speed);
+ void move_X_relative(int32_t rel_steps, uint16_t speed) {
+	 int32_t target_x = actual_steps_x + rel_steps;
+	 move_to_position_steps_xy(target_x, actual_steps_y, speed);
  }
 
- void move_Z_relative(int32_t steps, uint16_t speed) {
-	 move_to_position_steps_z(actual_steps_z + steps, speed);
+ void move_Z_relative(int32_t rel_steps, uint16_t speed) {
+	 int32_t target_z = actual_steps_z + rel_steps;
+	 move_to_position_steps_z(target_z, speed);
  }
 
- void move_XZ_diagonal_relative(int32_t steps_dx, int32_t steps_dz, uint16_t speed) {
-	 move_to_position_steps_xz(actual_steps_x + steps_dx, actual_steps_z + steps_dz, speed);
+ void move_XZ_diagonal_relative(int32_t rel_steps_x, int32_t rel_steps_z, uint16_t speed) {
+	 int32_t target_x = actual_steps_x + rel_steps_x;
+	 int32_t target_z = actual_steps_z + rel_steps_z;
+	 move_to_position_steps_xz(target_x, target_z, speed);
  }
  

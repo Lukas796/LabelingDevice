@@ -66,7 +66,7 @@ void reference_StartPos_control(void){
 	
 	if ((is_referenced()) && (!is_inStartPos()))
 	{
-		move_to_position_steps_xy(2300,4300,1000);	// move to startposition 
+		move_to_position_steps_xy(2300,5000,1000);	// move to startposition 
 		
 		set_inStartPos(1);
 	}
@@ -85,8 +85,56 @@ void start_Laser_Positioning (void) {
 		if (!laser_pos_reached)
 		{
 			
-			//move_Y_left_until_laser(20,500);
-			move_to_position_steps_xy(2300,5500,400);
+				move_Y_left_until_laser(20,100);
+				//move_to_position_steps_xy(500,500,1000);
+				
+				//move_to_position_steps_xz(1100, 150, 500);
+				//move_to_position_steps_xz(500, 0, 500);
+				//move_to_position_steps_xz(1100, 150, 500);
+				//move_to_position_steps_xz(500, 0, 500);
+				//move_Z_relative(100,500);
+				//move_X_relative(100,500);
+				//move_Z_relative(-100,500);
+				//move_X_relative(-100,500);
+				//move_to_position_steps_xy(2000,2000,1000);
+				//move_to_position_steps_xz(1600, 300, 500);
+				//move_to_position_steps_xy(2000,2000,1000);	// move to startposition
+				//move_to_position_steps_z(100,400);
+				//move_Z_relative(100,500);
+				//move_to_position_steps_xy(500,500,1000);	// move to startposition
+				//move_X_relative(100,500);
+				//move_to_position_steps_xz(2600 , 150, 500);
+				//move_Z_relative(200,500);
+				//move_X_relative(200,500);
+				//move_Y_left_until_laser(20,500);
+				//move_pen_backward();
+				//move_to_position_steps_xy(2300,4300,1000);	// move to startposition
+				//move_pen_backward();
+				//move_Z_relative(200,500);
+				//move_X_relative(200,500);
+				//move_X_relative(-200,500);
+				//move_pen_forward();
+				//move_to_position_steps_xz(2100 , 100, 500);
+				//move_to_position_steps_z(200,400);
+				//move_pen_backward();
+				//move_pen_forward();
+				//move_Y_left_until_laser(20,500);
+				//move_pen_backward();
+				//move_pen_forward();
+				//move_to_position_steps_xy(100,100,500);	// move to startposition
+				//move_to_position_steps_z(300,500);
+				//move_to_position_steps_xy(2300,4300,1000);	// move to startposition
+				//move_to_position_steps_xz(2100 , 350, 500);
+				//move_to_position_steps_z(100,500);
+				//move_Y_left_until_laser(20,500);
+				//move_to_position_steps_xy(200,200,300);	// move to startposition
+				//move_to_position_steps_z(600,500);
+				//move_to_position_steps_xy(2300,4300,400);	// move to startposition
+				//move_Y_left_until_laser(20,500);
+				//move_to_position_steps_xy(100,100,1000);	// move to startposition
+				//move_to_position_steps_xy(2300,4300,1000);	// move to startposition
+				//move_Y_left_until_laser(20,500);
+				//move_to_position_steps_xy(100,100,1000);	// move to startposition
 			laser_pos_reached = 1;
 		}
 		
@@ -94,6 +142,13 @@ void start_Laser_Positioning (void) {
 		{
 			
 			draw_A();
+			_delay_ms(100);
+			draw_A();
+			_delay_ms(100);
+			draw_A();
+			_delay_ms(100);
+			draw_A();
+			
 			Labeling_finfished = 1;
 		}
 	}
