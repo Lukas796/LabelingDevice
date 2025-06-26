@@ -315,17 +315,24 @@ void motor_stop(uint8_t axis) {
 }
 
  //--- ISR: Interrupts on CompareMatch from the Timers ---
- ISR(TIMER3_COMPB_vect) {
+ void step_x_handler(void) {
 	 steps_x_done++;
+	 USART_SendData('3');
+ }
+ void step_y_handler(void) {
+	 steps_y_done++;
+	 USART_SendData('1');
+ }
+ void step_z_handler(void) {
+	 steps_z_done++;
+	 USART_SendData('4');
  }
 
- ISR(TIMER1_COMPB_vect) {
-	 steps_y_done++; 
- }
+ // ISRs – rufen nur den Handler auf
+ ISR(TIMER3_COMPB_vect) { step_x_handler(); }
+ ISR(TIMER1_COMPB_vect) { step_y_handler(); }
+ ISR(TIMER4_COMPB_vect) { step_z_handler(); }
 
- ISR(TIMER4_COMPB_vect) {
-	 steps_z_done++; 
- }
  
  // Interrupts from Limit Switches
  ISR(INT0_vect) {
@@ -502,7 +509,7 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		// Motoren starten
 		motor_start_steps(AXIS_X, delta_steps_x, speed_hz);
 		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);
-		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz / 4);
+		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz);
 
 		// Motoren individuell stoppen
 		while (1) {

@@ -41,7 +41,7 @@ void USART_ProcessCommands(uint8_t* messung_aktiv, uint8_t* pos_aktiv)				// Ver
 			} else if (strcmp(buffer, "MN") == 0) {									// Wenn der Befehl "MN" empfangen wurde  
 			*messung_aktiv = 0;														// Setze Messung inaktiv  
 			} else if (strcmp(buffer, "R") == 0) {									// Falls Befehl "R" (Referenzfahrt) erkannt wurde  
-			reference_StartPos_control();											// Führt Referenzpositions-Kontrolle durch  
+			request_reference_start(1);												// Führt Referenzfahrt durch  
 			USART_SendString("Referenzfahrt gestartet.\n");							// Sendet entsprechende Bestätigung über USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile (Adresse 0xC0)  
 			lcd_text("Referenzfahrt!  ");											// Schreibt "Referenzfahrt!  " auf das LCD, mit zusätzlichen Leerzeichen zum Überschreiben  
@@ -50,6 +50,7 @@ void USART_ProcessCommands(uint8_t* messung_aktiv, uint8_t* pos_aktiv)				// Ver
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor wieder auf die zweite Zeile  
 			lcd_text("Notstop!        ");											// Schreibt "Notstop!" mit Leerzeichen, um die gesamte Zeile zu überschreiben  
 			} else if (strcmp(buffer, "START") == 0) {								// Falls Befehl "START" erkannt wurde  
+			request_Labeling_start(1);
 			USART_SendString("Wird gestartet.\n");									// Sendet die Nachricht "Wird gestartet." über USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile  
 			lcd_text("Wird gestartet! ");											// Schreibt "Wird gestartet!" auf das LCD, mit Leerzeichen zum Auffüllen  
@@ -94,7 +95,7 @@ void USART_POSITIONIERUNG(uint8_t pos_aktiv) {  // pos_aktiv steuert, ob die Pos
 	if (pos_aktiv) {                             // Nur wenn Positionierung aktiviert ist...
 		// Erstelle einen String mit den drei Positionswerten und sende ihn via USART
 		char send_buffer[20];  // Puffer für die serielle Ausgabe
-		snprintf(send_buffer, sizeof(send_buffer), "X:%u Y:%u Z:%u\n", 100u, 200u, 300u);
+		snprintf(send_buffer, sizeof(send_buffer), "X:%u Y:%u Z:%u\n", act_Pos_x(), act_Pos_y(), act_Pos_z());
 		USART_SendString(send_buffer);           // Sende den formatierten String über die serielle Schnittstelle
 	}
 }

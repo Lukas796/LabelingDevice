@@ -9,6 +9,7 @@
 #include "letter_control.h"
 #include "motor_control.h"
 #include "systemstate.h"
+uint8_t pos_aktiv = 0;
 
 void draw_A(void) {
 	const uint16_t speed = 600;
@@ -29,9 +30,15 @@ void draw_A(void) {
 	//move_Z_relative(crossbar_z_steps+20,speed);
 	
 	move_to_position_steps_xy(2300,3000,400);
-	
+	USART_SendString("A\n");
+	USART_ProcessCommands(&pos_aktiv);
+	USART_POSITIONIERUNG(pos_aktiv);
 	move_to_position_steps_xy(100,100,400);
-	
+	USART_SendString("B\n");
+	USART_ProcessCommands(&pos_aktiv); 
+	USART_POSITIONIERUNG(pos_aktiv);
 	move_to_position_steps_xy(2000,3000,400);
-
+	USART_SendString("C\n");
+	USART_ProcessCommands(&pos_aktiv);
+	USART_POSITIONIERUNG(pos_aktiv);
 }
