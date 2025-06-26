@@ -67,7 +67,7 @@ void reference_StartPos_control(void){
 	if ((is_referenced()) && (!is_inStartPos()))
 	{
 		move_to_position_steps_xy(2500,5000,1000);	// move to startposition 
-		
+		move_to_position_steps_z(200,500);	// move to startposition 
 		set_inStartPos(1);
 	}
 	
