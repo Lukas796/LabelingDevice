@@ -18,7 +18,7 @@
 
 int main(void)
 {
-	
+	sei();  // activate global interrupts
 	motor_init();
 	limit_switch_init();
 	motor_init_timer();
@@ -26,7 +26,8 @@ int main(void)
 	lcd_init();
 	init_ADC();  
 	USART_Init(BAUDRATE);
-	sei();  // activate global interrupts
+	initHandlers();
+	
 	
 	uint8_t messung_aktiv = 0;
 	uint8_t pos_aktiv = 0;
@@ -42,6 +43,8 @@ int main(void)
 		USART_ProcessCommands(&messung_aktiv, &pos_aktiv);  // Verarbeitet eingehende Steuerbefehle
 		USART_MESSUNG(messung_aktiv);           // Führt Messungen durch, falls aktiv
 		USART_POSITIONIERUNG(pos_aktiv);
+
+		
 		_delay_ms(10);
 	}
 }

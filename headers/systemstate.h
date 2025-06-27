@@ -22,6 +22,9 @@ void request_Labeling_start(uint8_t state);
 
 void reference_StartPos_control(void);
 void start_Laser_Positioning(void);
+void initHandlers(void);
+void processTextState(void);
+
 
 
 #endif /* SYSTEMSTATE_H_ */

@@ -329,9 +329,18 @@ void motor_stop(uint8_t axis) {
  }
 
  // ISRs – rufen nur den Handler auf
- ISR(TIMER3_COMPB_vect) { step_x_handler(); }
- ISR(TIMER1_COMPB_vect) { step_y_handler(); }
- ISR(TIMER4_COMPB_vect) { step_z_handler(); }
+ ISR(TIMER3_COMPB_vect) { 
+	 //step_x_handler();
+	 steps_x_done++; 
+	 }
+ ISR(TIMER1_COMPB_vect) { 
+	 //step_y_handler(); 
+	 steps_y_done++;
+	 }
+ ISR(TIMER4_COMPB_vect) { 
+	 //step_z_handler();
+	 steps_z_done++; 
+	 }
 
  
  // Interrupts from Limit Switches

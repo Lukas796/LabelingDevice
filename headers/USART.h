@@ -19,7 +19,9 @@ void USART_SendString(const char *str);
 uint8_t USART_ReadData(void);
 uint8_t USART_DataAvailable(void);
 ISR(USART0_RX_vect);
-
+extern char text_buffer[50];   // Puffer für alle eingehenden Zeilen
+extern char *text_start;          // zeigt auf den reinen Text innerhalb command_buffer
+const char* USART_GetText(void);
 
 
 

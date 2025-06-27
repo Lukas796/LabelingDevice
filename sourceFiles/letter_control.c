@@ -11,7 +11,7 @@
 #include "systemstate.h"
 uint8_t pos_aktiv = 0;
 
-void draw_A(void) {
+void draw_A() {
 	const uint16_t speed = 600;
 	const int32_t diag_steps_x = 600;
 	const int32_t diag_steps_z = 150;
@@ -31,14 +31,11 @@ void draw_A(void) {
 	
 	move_to_position_steps_xy(2300,3000,400);
 	USART_SendString("A\n");
-	USART_ProcessCommands(&pos_aktiv);
-	USART_POSITIONIERUNG(pos_aktiv);
+	USART_POSITIONIERUNG(1);
 	move_to_position_steps_xy(100,100,400);
 	USART_SendString("B\n");
-	USART_ProcessCommands(&pos_aktiv); 
-	USART_POSITIONIERUNG(pos_aktiv);
+	USART_POSITIONIERUNG(1);
 	move_to_position_steps_xy(2000,3000,400);
 	USART_SendString("C\n");
-	USART_ProcessCommands(&pos_aktiv);
-	USART_POSITIONIERUNG(pos_aktiv);
+	USART_POSITIONIERUNG(1);
 }
