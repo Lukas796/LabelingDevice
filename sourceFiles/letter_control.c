@@ -41,6 +41,8 @@ void draw_A(void) {
 	_delay_ms(20);
 	move_X_relative(half_height_x_steps,speed);
 	_delay_ms(20);
+	USART_SendString("A\n");
+	USART_POSITIONIERUNG(1);
 	
 }
 
@@ -54,6 +56,8 @@ void draw_I(void) {
 	_delay_ms(20);
 	move_Z_relative(50,speed);
 	_delay_ms(20);
+	USART_SendString("I\n");
+	USART_POSITIONIERUNG(1);
 }
 
 void draw_U(void) {
@@ -76,4 +80,6 @@ void draw_U(void) {
 	_delay_ms(20);
 	move_Z_relative(50,speed);
 	_delay_ms(20);
+	USART_SendString("U\n");
+	USART_POSITIONIERUNG(1);
 }

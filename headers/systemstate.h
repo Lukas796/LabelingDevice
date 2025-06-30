@@ -11,6 +11,8 @@
 
 #include "config.h" // need to be first
 
+#define MAX_CHAR 128 
+
 uint8_t is_referenced(void);
 uint8_t is_inStartPos(void);
 uint8_t reference_start_requested(void);
@@ -22,6 +24,11 @@ void request_Labeling_start(uint8_t state);
 
 void reference_StartPos_control(void);
 void start_Laser_Positioning(void);
+
+void initHandlers(void);
+void processTextState(void);
+
+ 
 
 
 #endif /* SYSTEMSTATE_H_ */
