@@ -12,6 +12,7 @@
 #include "lcd_control.h"          
 #include "laser.h"                
 #include "systemstate.h"        
+#include "motor_control.h"    
 
 #define USART_BUFFER_SIZE 64														// Definiert die Größe des Ringpuffers für empfangene Daten  
 

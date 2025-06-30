@@ -30,14 +30,15 @@
     //void draw_9(uint8_t pos);
 
     void draw_A(void);
-    //void draw_B(uint8_t pos);
-    //void draw_C(uint8_t pos);
-    //void draw_D(uint8_t pos);
-    //void draw_E(uint8_t pos);
-    //void draw_F(uint8_t pos);
-    //void draw_G(uint8_t pos);
-    //void draw_H(uint8_t pos);
+    void draw_B(void);
+	void draw_C(void);
+	void draw_D(void);
+	void draw_E(void);
+	void draw_F(void);
+	void draw_G(void);
+	void draw_H(void);
     void draw_I(void);
+	void draw_J(void);
     //void draw_J(uint8_t pos);
     //void draw_K(uint8_t pos);
     //void draw_L(uint8_t pos);
@@ -56,5 +57,6 @@
     //void draw_Y(uint8_t pos);
     //void draw_Z(uint8_t pos);
     //void draw_space(uint8_t pos);
+	void draw_TEST(void);
 
 #endif /* LETTER_CONTROL_H_ */
