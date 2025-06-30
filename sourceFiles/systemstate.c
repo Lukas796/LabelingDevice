@@ -92,16 +92,37 @@ void start_Laser_Positioning (void) {
 		
 		if ((laser_pos_reached) && (!Labeling_finfished))
 		{
-			draw_A();
+			//draw_A();
 			draw_B();
-			draw_C();
-			draw_D();
-			draw_E();
-			draw_F();
-			draw_G();
-			draw_H();
-			draw_I();
-			draw_U();
+			//draw_C();
+			//draw_D();
+			//draw_E();
+			//draw_F();
+			//draw_G();
+			//draw_H();
+			//draw_I();
+			//draw_J();
+			draw_K();
+			//draw_L();
+			//draw_M();
+			draw_N();
+			//draw_O();
+			//draw_P();
+			draw_Q();
+			draw_R();
+			draw_S();
+			draw_T();
+			//draw_U();
+			//draw_V();
+			//draw_W();
+			draw_X();
+			draw_Y();
+			draw_Z();
+			move_X_relative(700,500); //Zweite Zeile
+			move_to_position_steps_z(1000,500);	// move to startposition for second line
+			draw_A();
+			
+			//draw_U();
 			//draw_TEST();
 			//processTextState(); // check String
 			//
