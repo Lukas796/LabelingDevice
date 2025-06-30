@@ -66,8 +66,8 @@ void reference_StartPos_control(void){
 	
 	if ((is_referenced()) && (!is_inStartPos()))
 	{
-		move_to_position_steps_xy(2500,5000,1000);	// move to startposition 
-		move_to_position_steps_z(200,500);	// move to startposition 
+		move_to_position_steps_xy(1800,5000,1000);	// move to startposition 
+		move_to_position_steps_z(1000,200);	// move to startposition 
 		set_inStartPos(1);
 	}
 	
@@ -92,10 +92,42 @@ void start_Laser_Positioning (void) {
 		
 		if ((laser_pos_reached) && (!Labeling_finfished))
 		{
-			processTextState(); // check String
+			draw_A();
+			draw_B();
+			draw_C();
+			draw_D();
+			draw_E();
+			draw_F();
+			draw_G();
+			draw_H();
+			draw_I();
+			draw_J();
+			draw_K();
+			draw_L();
+			draw_M();
+			draw_N();
+			draw_O();
+			draw_P();
+			move_X_relative(700,500); //Zweite Zeile
+			move_to_position_steps_z(1000,500);	// move to startposition for second line
+			draw_Q();
+			draw_R();
+			draw_S();
+			draw_T();
+			draw_U();
+			draw_V();
+			draw_W();
+			draw_X();
+			draw_Y();
+			draw_Z();
 			
-			move_X_relative(400,500); //Zweite Zeile
-			move_to_position_steps_z(200,500);	// move to startposition for second line	
+			
+			//draw_U();
+			//draw_TEST();
+			//processTextState(); // check String
+			//
+			//move_X_relative(400,500); //Zweite Zeile
+			//move_to_position_steps_z(200,500);	// move to startposition for second line	
 			//processTextStateLine2(); // check String
 			Labeling_finfished = 1;
 		}

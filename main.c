@@ -33,6 +33,8 @@ int main(void)
 	
 	lcd_text("Labeling Device");
 	
+	
+	
 
 	while (1)
 	{

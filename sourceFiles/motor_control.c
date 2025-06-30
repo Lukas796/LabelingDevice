@@ -187,7 +187,6 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_X_TCCRB_REG &= ~((1 << CS32) | (1 << CS31) | (1 << CS30)); // stop Timer, to set Velocity
 		STEP_X_TCNT = 0;
 		STEP_X_OCR = ocr_val;
-		//STEP_X_TIMSK_REG |= (1 << STEP_X_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_X_TCCRB_REG |= (1 << CS31) | (1 << CS30); // start timer with Prescaler 64
 		
 		break;
@@ -199,7 +198,6 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_Y_TCCRB_REG &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
 		STEP_Y_TCNT = 0;
 		STEP_Y_OCR = ocr_val;
-		//STEP_Y_TIMSK_REG |= (1 << STEP_Y_OCIE_BIT);    // INTERRUPT AKTIVIEREN
 		STEP_Y_TCCRB_REG |= (1 << CS11) | (1 << CS10);
 		
 		break;
@@ -211,7 +209,6 @@ void motor_start_steps(uint8_t axis, uint16_t steps, uint16_t freq_hz) {
 		STEP_Z_TCCRB_REG &= ~((1 << CS42) | (1 << CS41) | (1 << CS40));
 		STEP_Z_TCNT = 0;
 		STEP_Z_OCR = ocr_val;
-		
 		STEP_Z_TCCRB_REG |= (1 << CS41) | (1 << CS40);
 		
 		break;
@@ -416,14 +413,16 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		
 		motor_stop(AXIS_X);
 		motor_stop(AXIS_Y);
+		
 		actual_steps_y = target_steps_y;
+		_delay_ms(20);
 	}
 }
 
 void move_to_position_steps_z(int32_t target_steps_z, uint16_t speed_hz)
 {
 	int32_t delta_steps_z = target_steps_z - actual_steps_z;
-
+	
 	// ========================
 	// --- Z-Achse bewegen ---
 	// ========================
@@ -442,9 +441,9 @@ void move_to_position_steps_z(int32_t target_steps_z, uint16_t speed_hz)
 		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz);
 
 		while (steps_z_done < steps_z_target);  // warten bis fertig
-
 		motor_stop(AXIS_Z);
 		actual_steps_z = target_steps_z;
+		_delay_ms(20);
 	}
 }
 
@@ -452,7 +451,7 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 {
 	int32_t delta_steps_x = target_steps_x - actual_steps_x;
 	int32_t delta_steps_z = target_steps_z - actual_steps_z;
-
+	
 	// ================================
 	// --- X-Achse und Z-Achse bewegen
 	// ================================
@@ -484,22 +483,14 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);
 		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz/4);
 
-		// Motoren individuell stoppen
-		while (1) {
-			if (steps_x_done >= steps_x_target) motor_stop(AXIS_X);
-			if (steps_y_done >= steps_y_target) motor_stop(AXIS_Y);
-			if (steps_z_done >= steps_z_target) motor_stop(AXIS_Z);
-
-			if (steps_x_done >= steps_x_target &&
-			steps_y_done >= steps_y_target &&
-			steps_z_done >= steps_z_target) {
-				break;
-			}
-		}
-
-		// Positionen aktualisieren
+		
+		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target || steps_z_done < steps_z_target);  // warten bis fertig
+		motor_stop(AXIS_X);
+		motor_stop(AXIS_Y);
+		motor_stop(AXIS_Z);
 		actual_steps_x = target_steps_x;
 		actual_steps_z = target_steps_z;
+		_delay_ms(20);
 	}
 }
  
@@ -545,6 +536,7 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 	 request_reference_start(0); //reset request bit
 	 actual_steps_x = 0;	//set actual steps to 0
 	 actual_steps_y = 0;	//set actual steps to 0
+	 actual_steps_z = 0;	//set actual steps to 0
 	 _delay_ms(200);
 	
  }
