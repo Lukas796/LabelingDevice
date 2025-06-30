@@ -79,9 +79,10 @@ void draw_D(void) {
 	move_Z_relative(crossbar_z_steps,speed);				//move right - oberer Strich
 	move_XZ_diagonal_relative(diag_steps_x, diag_steps_z, speed);	//move down/right. schräger strich rechts oben
 	move_X_relative(height_x_steps,speed);					//move down - komplette höhe
-	move_Z_relative(-crossbar_z_steps,speed);				//move left - unterer Strich
+	move_Z_relative(-crossbar_z_steps-diag_steps_z,speed);				//move left - unterer Strich
 	move_pen_backward();
-	move_Z_relative(crossbar_z_steps+50,speed);			//move right - unterer Strich
+	move_Z_relative(crossbar_z_steps+diag_steps_z,speed);			//move right - unterer Strich
+	move_Z_relative(50,speed);			//move right - unterer Strich
 	USART_SendString("D\n");
 	USART_POSITIONIERUNG(1);
 }
@@ -193,7 +194,7 @@ void draw_J(void) {
 	_delay_ms(20);
 	move_Z_relative(-crossbar_z_steps,speed);		//oberer strich nach rechts
 	move_pen_backward();
-	move_Z_relative(crossbar_z_steps+50,speed);
+	move_Z_relative(crossbar_z_steps+60,speed);
 	_delay_ms(20);
 	USART_SendString("J\n");
 	USART_POSITIONIERUNG(1);
@@ -265,7 +266,7 @@ void draw_N(void) {
 	move_X_relative(-height_x_steps,speed);
 	move_pen_backward();
 	move_X_relative(height_x_steps+diag_steps_x,speed);
-	move_Z_relative(50,speed);
+	move_Z_relative(60,speed);
 	_delay_ms(20);
 	USART_SendString("N\n");
 	USART_POSITIONIERUNG(1);
@@ -487,13 +488,21 @@ void draw_Z(void) {
 	move_pen_forward();
 	move_Z_relative(crossbar_z_steps+diag_steps_z,speed);
 	move_XZ_diagonal_relative(diag_steps_x, -diag_steps_z, speed);
-	move_X_relative(height_x_steps-diag_steps_x,speed);
-	move_Z_relative(-crossbar_z_steps,speed);
+	move_X_relative(half_height_x_steps-diag_steps_x,speed);
+	move_Z_relative(-crossbar_z_steps+diag_steps_z,speed);
+	move_X_relative(half_height_x_steps,speed);
 	move_XZ_diagonal_relative(diag_steps_x, -diag_steps_z, speed);
 	move_Z_relative(crossbar_z_steps+diag_steps_z,speed);
 	move_pen_backward();
 	move_Z_relative(50,speed);
 	USART_SendString("Z\n");
+	USART_POSITIONIERUNG(1);
+}
+
+void draw_space(void) {
+	
+	move_Z_relative(200,speed);
+	USART_SendString(" \n");
 	USART_POSITIONIERUNG(1);
 }
 
