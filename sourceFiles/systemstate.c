@@ -8,6 +8,7 @@
 #include "systemstate.h"
 #include "motor_control.h"
 #include "letter_control.h"
+#include "USART.h"								// extern char *text_start
 
 static uint8_t referenced = 0;	//static state variable if Axis are referenced	0 = not referenced , 1 = referenced
 static uint8_t start_reference = 0;	//static state variable if Axis are referenced	0 = dont start reference , 1 = start reference
@@ -16,7 +17,15 @@ static uint8_t interrupts_initialized = 0;
 static uint8_t laser_pos_reached = 0;
 static uint8_t start_Labeling = 0;
 static uint8_t Labeling_finfished = 0;
-
+//static volatile uint8_t pos_send_flag = 0;
+//
+//void request_position_send(uint8_t state) {
+	//pos_send_flag = state;
+//}
+//
+//uint8_t position_send_requested(void) {
+	//return pos_send_flag;
+//}
 
 uint8_t is_referenced(void) {
 	return referenced;
@@ -92,42 +101,10 @@ void start_Laser_Positioning (void) {
 		
 		if ((laser_pos_reached) && (!Labeling_finfished))
 		{
-			draw_A();
-			draw_B();
-			draw_C();
-			draw_D();
-			draw_E();
-			draw_F();
-			draw_G();
-			draw_H();
-			draw_I();
-			draw_J();
-			draw_K();
-			draw_L();
-			draw_M();
-			draw_N();
-			draw_O();
-			draw_P();
+			processTextoState();			 // check String
 			move_X_relative(700,500); //Zweite Zeile
 			move_to_position_steps_z(1000,500);	// move to startposition for second line
-			draw_Q();
-			draw_R();
-			draw_S();
-			draw_T();
-			draw_U();
-			draw_V();
-			draw_W();
-			draw_X();
-			draw_Y();
-			draw_Z();
-			
-			
-			//draw_U();
-			//draw_TEST();
-			//processTextState(); // check String
-			//
-			//move_X_relative(400,500); //Zweite Zeile
-			//move_to_position_steps_z(200,500);	// move to startposition for second line	
+			processTextuState();
 			//processTextStateLine2(); // check String
 			Labeling_finfished = 1;
 		}
@@ -162,32 +139,32 @@ void initHandlers(void) {
 
 	// Buchstaben A–Z
 	handlerTable['A'] = draw_A;
-	//handlerTable['B'] = draw_B;
-	//handlerTable['C'] = draw_C;
-	//handlerTable['D'] = draw_D;
-	//handlerTable['E'] = draw_E;
-	//handlerTable['F'] = draw_F;
-	//handlerTable['G'] = draw_G;
-	//handlerTable['H'] = draw_H;
+	handlerTable['B'] = draw_B;
+	handlerTable['C'] = draw_C;
+	handlerTable['D'] = draw_D;
+	handlerTable['E'] = draw_E;
+	handlerTable['F'] = draw_F;
+	handlerTable['G'] = draw_G;
+	handlerTable['H'] = draw_H;
 	handlerTable['I'] = draw_I;
-	//handlerTable['J'] = draw_J;
-	//handlerTable['K'] = draw_K;
-	//handlerTable['L'] = draw_L;
-	//handlerTable['M'] = draw_M;
-	//handlerTable['N'] = draw_N;
-	//handlerTable['O'] = draw_O;
-	//handlerTable['P'] = draw_P;
-	//handlerTable['Q'] = draw_Q;
-	//handlerTable['R'] = draw_R;
-	//handlerTable['S'] = draw_S;
-	//handlerTable['T'] = draw_T;
+	handlerTable['J'] = draw_J;
+	handlerTable['K'] = draw_K;
+	handlerTable['L'] = draw_L;
+	handlerTable['M'] = draw_M;
+	handlerTable['N'] = draw_N;
+	handlerTable['O'] = draw_O;
+	handlerTable['P'] = draw_P;
+	handlerTable['Q'] = draw_Q;
+	handlerTable['R'] = draw_R;
+	handlerTable['S'] = draw_S;
+	handlerTable['T'] = draw_T;
 	handlerTable['U'] = draw_U;
-	//handlerTable['V'] = draw_V;
-	//handlerTable['W'] = draw_W;
-	//handlerTable['X'] = draw_X;
-	//handlerTable['Y'] = draw_Y;
-	//handlerTable['Z'] = draw_Z;
-	//handlerTable[' '] = draw_space;
+	handlerTable['V'] = draw_V;
+	handlerTable['W'] = draw_W;
+	handlerTable['X'] = draw_X;
+	handlerTable['Y'] = draw_Y;
+	handlerTable['Z'] = draw_Z;
+	handlerTable[' '] = draw_space;
 	
 }
 
@@ -195,8 +172,8 @@ void initHandlers(void) {
 // processTextState(): Zerlegt den String und ruft für jedes Zeichen seinen
 //                   Handler mit der Position als Parameter auf
 //-----------------------------------------------------------------------------
-void processTextState(void) {
-	const char *txt = USART_GetText();
+void processTextoState(void) {
+	const char *txt = USART_GetTexto();
 	// 1) Wenn kein Text, Abbruch
 	if (!txt || !*txt) {
 		USART_SendString("nichts zu tun\r\n");
@@ -209,11 +186,23 @@ void processTextState(void) {
 		if ((uint8_t)c < MAX_CHAR && handlerTable[(uint8_t)c]) {
 			handlerTable[(uint8_t)c](pos);
 		}
-		// Debug-Ausgabe
-		char dbg[16];
-		int n = snprintf(dbg, sizeof(dbg), "%02u:%c\r\n", pos, c);
-		if (n > 0) {
-			USART_SendString(dbg);
+	}
+}
+
+void processTextuState(void) {
+	const char *txt = USART_GetTextu();
+	// 1) Wenn kein Text, Abbruch
+	if (!txt || !*txt) {
+		USART_SendString("nichts zu tun\r\n");
+		return;
+	}
+	USART_SendString(txt);
+	// 2) Nur starten, wenn Labeling angefordert
+	for (uint8_t pos = 0; txt[pos] != '\0'; pos++) {
+		char c = txt[pos];
+		if ((uint8_t)c < MAX_CHAR && handlerTable[(uint8_t)c]) {
+			handlerTable[(uint8_t)c](pos);
 		}
+		
 	}
 }
