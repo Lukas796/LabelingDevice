@@ -5,55 +5,50 @@
  *  Author: lukasstrittmatter
  */ 
 
-#include "config.h" // need to be first
-#include "letter_control.h"
-#include "motor_control.h"
-#include "systemstate.h"
-#include "USART.h"
+#include "config.h" // need to be first, include generell config 
+#include "letter_control.h"	// inkludiere die eigene Header datei
+#include "motor_control.h"	// inkludiere die Motor_control- Funktionen 
+#include "systemstate.h"	// inkludiere die Systemstate - Funktionen 
+#include "USART.h"			// inkludiere die USART Funktionen 
 
-const uint16_t speed = 100; // need to be divided by 4
-const int16_t diag_steps_x = 100;
-const int16_t diag_steps_z = 25;// need to be diag_steps_x /4
-const int16_t crossbar_z_steps = 100;
-const int16_t height_x_steps = 500;
-const int16_t half_height_x_steps = 250;
+const uint16_t speed = 100;			// need to be divided by 4
+const int16_t diag_steps_x = 100;	// diagonal steps in X-Dirction
+const int16_t diag_steps_z = 25;	// need to be diag_steps_x /4
+const int16_t crossbar_z_steps = 100;	//crossbar z steps
+const int16_t height_x_steps = 500;		// height x Steps
+const int16_t half_height_x_steps = 250;	// half Height X Steps -> nned to be height_x Steps /2
 
 void draw_A(void) {
 	
 	if (pos_aktiv){
-		USART_SendString("\n");
-		USART_POSITIONIERUNG(1);}
-	move_pen_forward();
-	//request_position_send(1);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_X_relative(-height_x_steps,speed);
-	//request_position_send(1);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_XZ_diagonal_relative(-diag_steps_x, diag_steps_z, speed);
-	//request_position_send(1);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_Z_relative(crossbar_z_steps,speed);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_XZ_diagonal_relative(diag_steps_x, diag_steps_z, speed);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_X_relative(height_x_steps,speed);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_pen_backward();
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_X_relative(-half_height_x_steps,speed);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_pen_forward();
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_Z_relative(-crossbar_z_steps-diag_steps_z,speed);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_pen_backward();
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_Z_relative(crossbar_z_steps+60,speed);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	move_X_relative(half_height_x_steps,speed);
-	if (pos_aktiv){USART_POSITIONIERUNG(1);}
-	//request_position_send(1);
-	
+		USART_SendString("\n");					//Mache neuen Absatz, wenn Positionierung in GUI aktiv
+		USART_POSITIONIERUNG(1);}				//sende Anfangs Position, wenn Positionierung in GUI aktiv
+	move_pen_forward();							//setzte Stift vor
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_X_relative(-height_x_steps,speed);		//fahre X Hoch 
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_XZ_diagonal_relative(-diag_steps_x, diag_steps_z, speed);	// fahre diagonal hoch und rechts
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_Z_relative(crossbar_z_steps,speed);	//fahre Z rechts
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_XZ_diagonal_relative(diag_steps_x, diag_steps_z, speed);	// fahre diagonal runter und rechts
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_X_relative(height_x_steps,speed);		// fahre X komplett runter 
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_pen_backward();						//setzte Stift zurück
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_X_relative(-half_height_x_steps,speed);	//fahre zur Hälfte hoch
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_pen_forward();							// setzte Stift nach vorne
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_Z_relative(-crossbar_z_steps-diag_steps_z-diag_steps_z,speed);	// fahre Z komplett nach links
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist	
+	move_pen_backward();						// setzte Stift zurück
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_Z_relative(crossbar_z_steps+60,speed);	//fahre Z nach rechts zum Startpunkt des neuen Buchstaben
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
+	move_X_relative(half_height_x_steps,speed);	// fahre X wieder um die  Hälfte runter
+	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
 }
 
 void draw_B(void) {
