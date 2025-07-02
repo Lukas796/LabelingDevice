@@ -7,16 +7,19 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// define F_CPU to 16 Mhz, wenn sie davor noch nicht definiert wurde
 #ifndef F_CPU
 #define F_CPU 16000000UL  // CPU-Frequency for Delay-Functions
 #endif
 
-#include <avr/io.h>
-#include <util/delay.h>
-#include <stdint.h>
-#include <avr/interrupt.h>	
-#include <string.h>
-#include <stdio.h>
+//---------------------------------------
+//--- set all includes ------------------
+#include <avr/io.h>			// AVR-IO-Register: Alle Informationen für alle Register des AVR Chips ATMega2560
+#include <util/delay.h>		// Delay_Funktionen: _delay_ms() auf Basis von F_CPU
+#include <stdint.h>			// Standard Integer Typen (uint16t, int32_t, etc)
+#include <avr/interrupt.h>	// Interrupt Funktionen: sei() zum gloablen Aktivieren der Interrupts, ermöglicht Schreiben von ISR-Routinen: ISR(Timer_COMPA_vect)
+#include <string.h>			// String-Funktionen
+#include <stdio.h>			// standard I/O: Wird für Umleitungen auf UART gebraucht
 
 // --------------------------------------
 // --- Motor Control --------------------

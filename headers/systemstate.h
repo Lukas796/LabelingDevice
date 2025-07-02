@@ -13,6 +13,8 @@
 
 #define MAX_CHAR 128 
 
+// -----------------------------
+// Functions in systemstate.c
 uint8_t is_referenced(void);
 uint8_t is_inStartPos(void);
 uint8_t reference_start_requested(void);
@@ -27,6 +29,7 @@ void start_Laser_Positioning(void);
 
 void initHandlers(void);
 void processTextState(void);
+
 
 //void    request_position_send(uint8_t state);
 //uint8_t position_send_requested(void);
