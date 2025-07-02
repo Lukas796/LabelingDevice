@@ -30,4 +30,11 @@ void start_Laser_Positioning(void);
 void initHandlers(void);
 void processTextState(void);
 
+
+//void    request_position_send(uint8_t state);
+//uint8_t position_send_requested(void);
+
+ 
+
+
 #endif /* SYSTEMSTATE_H_ */

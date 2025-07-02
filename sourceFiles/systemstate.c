@@ -4,6 +4,7 @@
  * Created: 12.06.2025 09:20:17
  *  Author: lukasstrittmatter
  */ 
+
 #include "config.h"			// include config.h - need to be first
 #include "systemstate.h"	// include own header File
 #include "motor_control.h"	// include motor_control Functions
@@ -27,32 +28,32 @@ uint8_t is_inStartPos(void) {
 	return inStartPos;		// return static state variable for inStartPos
 }
 
-// reference_start_requested(): Funktion mit der die Anfrage ob eine refernzfahrt ausgeführt werden soll abgefragt werden kann. Ausgabe ist 0 = keine Anfrage, 1 = ja Refernzfahrt soll ausgeführt werden
+// reference_start_requested(): Funktion mit der die Anfrage ob eine refernzfahrt ausgefÃ¼hrt werden soll abgefragt werden kann. Ausgabe ist 0 = keine Anfrage, 1 = ja Refernzfahrt soll ausgefÃ¼hrt werden
 uint8_t reference_start_requested(void) {
 	return start_reference;	// return static state variable for istart_refernce
 }
 
-// labeling_start_requested(): Funktion mit der der Start des labelingvorgangs ab´gefragt werden kann. 0 = kein Start, 1 = ja es soll gestartet werden 
+// labeling_start_requested(): Funktion mit der der Start des labelingvorgangs abÂ´gefragt werden kann. 0 = kein Start, 1 = ja es soll gestartet werden 
 uint8_t labeling_start_requested(void) {
 	return start_Labeling;	// return static state variable for start_Labeling
 }
 
-// set_referenced(1): mit dieser Funktion kann die state Variable für refenced auf 1 oder 0 gesetzt werden. 1 = ist refernziert, 0 = ist nicht refernziert
+// set_referenced(1): mit dieser Funktion kann die state Variable fÃ¼r refenced auf 1 oder 0 gesetzt werden. 1 = ist refernziert, 0 = ist nicht refernziert
 void set_referenced(uint8_t state) {
 	referenced = state;	// set static state variable for referenced
 }
 
-// set_inStartPos(1): mit dieser Funktion kann die State Variable für das Erreichen der StartPosition auf 1 oder 0 gesetzt werden.
+// set_inStartPos(1): mit dieser Funktion kann die State Variable fÃ¼r das Erreichen der StartPosition auf 1 oder 0 gesetzt werden.
 void set_inStartPos(uint8_t state) {
 	inStartPos = state;	// set static state variable for inStartPos
 }
 
-// request_reference_start(1): mit dieser Funktion kann die State Variable für das Starten der Referenzfahrt gesetzt werden.
+// request_reference_start(1): mit dieser Funktion kann die State Variable fÃ¼r das Starten der Referenzfahrt gesetzt werden.
 void request_reference_start(uint8_t state) {
 	start_reference = state;	// set static state variable for start_reference
 }
 
-// request_Labeling_start(1): mit dieser Funktion kann die State Variable für das Starten der Becshriftung gesetzt werden.
+// request_Labeling_start(1): mit dieser Funktion kann die State Variable fÃ¼r das Starten der Becshriftung gesetzt werden.
 void request_Labeling_start(uint8_t state) {
 	start_Labeling = state;	// set static state variable for start_Labeling
 }
@@ -88,7 +89,7 @@ void reference_StartPos_control(void){
 	}
 } 
 
-// start_Laser_Positioning(): Mt dieser Funktion wird der Stift zum Blatt gefahren und die gewünschte Buchstaben werden geschrieben 
+// start_Laser_Positioning(): Mt dieser Funktion wird der Stift zum Blatt gefahren und die gewÃ¼nschte Buchstaben werden geschrieben 
 void start_Laser_Positioning (void) {
 	
 	// Starte Laserpositionierung und Beschriftung wenn: Labeling Start angefragt wurde, Refernziert ist, Startposition erreicht wurde und interrupts initialisert sind
@@ -104,63 +105,31 @@ void start_Laser_Positioning (void) {
 		// Abfarge ob der Stift mit der Laserpositionierung ans Blatt gefahren wurde und ob die Becshriftung noch nicht fertig ist
 		if ((laser_pos_reached) && (!Labeling_finfished))
 		{
-			draw_A();
-			draw_B();
-			draw_C();
-			draw_D();
-			draw_E();
-			draw_F();
-			draw_G();
-			draw_H();
-			draw_I();
-			draw_J();
-			draw_K();
-			draw_L();
-			draw_M();
-			draw_N();
-			draw_O();
-			draw_P();
+			processTextoState();			 // check String
 			move_X_relative(700,500); //Zweite Zeile
 			move_to_position_steps_z(1000,500);	// move to startposition for second line
-			draw_Q();
-			draw_R();
-			draw_S();
-			draw_T();
-			draw_U();
-			draw_V();
-			draw_W();
-			draw_X();
-			draw_Y();
-			draw_Z();
-			
-			
-			//draw_U();
-			//draw_TEST();
-			//processTextState(); // check String
-			//
-			//move_X_relative(400,500); //Zweite Zeile
-			//move_to_position_steps_z(200,500);	// move to startposition for second line	
+			processTextuState();
 			//processTextStateLine2(); // check String
-			Labeling_finfished = 1;	// setzte state Variable für Labeling finished auf 1
+			Labeling_finfished = 1;	// setzte state Variable fÃ¼r Labeling finished auf 1
 		}
 	}
 		
 }
 
 //-----------------------------------------------------------------------------
-// Signatur für alle Handlers: bekommen die 0-basierte Position mit
+// Signatur fÃ¼r alle Handlers: bekommen die 0-basierte Position mit
 //-----------------------------------------------------------------------------
 typedef void (*charHandler_t)(uint8_t pos);
 //-----------------------------------------------------------------------------
-// Lookup?Tabelle für alle 36 Zeichen
+// Lookup?Tabelle fÃ¼r alle 36 Zeichen
 //-----------------------------------------------------------------------------
 static charHandler_t handlerTable[MAX_CHAR];
 
 //-----------------------------------------------------------------------------
-// initHandlers(): füllt die handlerTable einmalig zu Programmstart
+// initHandlers(): fÃ¼llt die handlerTable einmalig zu Programmstart
 //-----------------------------------------------------------------------------
 void initHandlers(void) {
-	// Ziffern 0–9
+	// Ziffern 0â€“9
 	//handlerTable['0'] = draw_0;
 	//handlerTable['1'] = draw_1;
 	//handlerTable['2'] = draw_2;
@@ -172,43 +141,43 @@ void initHandlers(void) {
 	//handlerTable['8'] = draw_8;
 	//handlerTable['9'] = draw_9;
 
-	// Buchstaben A–Z
+	// Buchstaben Aâ€“Z
 	handlerTable['A'] = draw_A;
-	//handlerTable['B'] = draw_B;
-	//handlerTable['C'] = draw_C;
-	//handlerTable['D'] = draw_D;
-	//handlerTable['E'] = draw_E;
-	//handlerTable['F'] = draw_F;
-	//handlerTable['G'] = draw_G;
-	//handlerTable['H'] = draw_H;
+	handlerTable['B'] = draw_B;
+	handlerTable['C'] = draw_C;
+	handlerTable['D'] = draw_D;
+	handlerTable['E'] = draw_E;
+	handlerTable['F'] = draw_F;
+	handlerTable['G'] = draw_G;
+	handlerTable['H'] = draw_H;
 	handlerTable['I'] = draw_I;
-	//handlerTable['J'] = draw_J;
-	//handlerTable['K'] = draw_K;
-	//handlerTable['L'] = draw_L;
-	//handlerTable['M'] = draw_M;
-	//handlerTable['N'] = draw_N;
-	//handlerTable['O'] = draw_O;
-	//handlerTable['P'] = draw_P;
-	//handlerTable['Q'] = draw_Q;
-	//handlerTable['R'] = draw_R;
-	//handlerTable['S'] = draw_S;
-	//handlerTable['T'] = draw_T;
+	handlerTable['J'] = draw_J;
+	handlerTable['K'] = draw_K;
+	handlerTable['L'] = draw_L;
+	handlerTable['M'] = draw_M;
+	handlerTable['N'] = draw_N;
+	handlerTable['O'] = draw_O;
+	handlerTable['P'] = draw_P;
+	handlerTable['Q'] = draw_Q;
+	handlerTable['R'] = draw_R;
+	handlerTable['S'] = draw_S;
+	handlerTable['T'] = draw_T;
 	handlerTable['U'] = draw_U;
-	//handlerTable['V'] = draw_V;
-	//handlerTable['W'] = draw_W;
-	//handlerTable['X'] = draw_X;
-	//handlerTable['Y'] = draw_Y;
-	//handlerTable['Z'] = draw_Z;
-	//handlerTable[' '] = draw_space;
+	handlerTable['V'] = draw_V;
+	handlerTable['W'] = draw_W;
+	handlerTable['X'] = draw_X;
+	handlerTable['Y'] = draw_Y;
+	handlerTable['Z'] = draw_Z;
+	handlerTable[' '] = draw_space;
 	
 }
 
 //-----------------------------------------------------------------------------
-// processTextState(): Zerlegt den String und ruft für jedes Zeichen seinen
+// processTextState(): Zerlegt den String und ruft fÃ¼r jedes Zeichen seinen
 //                   Handler mit der Position als Parameter auf
 //-----------------------------------------------------------------------------
-void processTextState(void) {
-	const char *txt = USART_GetText();
+void processTextoState(void) {
+	const char *txt = USART_GetTexto();
 	// 1) Wenn kein Text, Abbruch
 	if (!txt || !*txt) {
 		USART_SendString("nichts zu tun\r\n");
@@ -221,11 +190,23 @@ void processTextState(void) {
 		if ((uint8_t)c < MAX_CHAR && handlerTable[(uint8_t)c]) {
 			handlerTable[(uint8_t)c](pos);
 		}
-		// Debug-Ausgabe
-		char dbg[16];
-		int n = snprintf(dbg, sizeof(dbg), "%02u:%c\r\n", pos, c);
-		if (n > 0) {
-			USART_SendString(dbg);
+	}
+}
+
+void processTextuState(void) {
+	const char *txt = USART_GetTextu();
+	// 1) Wenn kein Text, Abbruch
+	if (!txt || !*txt) {
+		USART_SendString("nichts zu tun\r\n");
+		return;
+	}
+	USART_SendString(txt);
+	// 2) Nur starten, wenn Labeling angefordert
+	for (uint8_t pos = 0; txt[pos] != '\0'; pos++) {
+		char c = txt[pos];
+		if ((uint8_t)c < MAX_CHAR && handlerTable[(uint8_t)c]) {
+			handlerTable[(uint8_t)c](pos);
 		}
+		
 	}
 }

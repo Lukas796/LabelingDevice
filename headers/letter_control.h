@@ -9,6 +9,10 @@
 #ifndef LETTER_CONTROL_H_
 #define LETTER_CONTROL_H_
 
+void    request_position_send(uint8_t state);
+uint8_t position_send_requested(void);
+
+
 	#include "config.h" // need to be first
 
     // wir nutzen nur ’0’–’9’ und ’A’–’Z’, Rest bleibt NULL
@@ -47,6 +51,7 @@
 	void draw_P(void);
 	void draw_Q(void);
 	void draw_R(void);
+	void draw_S(void);
 	void draw_T(void);
 	void draw_U(void);
     void draw_V(void);
