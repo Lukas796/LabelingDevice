@@ -1,8 +1,6 @@
 import tkinter as tk
 import serial
 import re
-import matplotlib
-matplotlib.use("TkAgg")  # Für macOS explizit setzen
 import matplotlib.pyplot as plt
 import serial.tools.list_ports
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -42,12 +40,10 @@ def toggle_measurement(*args):
     if abstand_var.get():
         ser.write("M\n".encode())
         messung_aktiv = 1
-        print("📡 Messung aktiviert")
     else:
         ser.write("MN\n".encode())
         messung_aktiv = 0
         ser.reset_input_buffer()
-        print("⛔️ Messung deaktiviert")
 
 def toggle_ref(*args):
     if not ensure_serial_connection():
@@ -56,7 +52,6 @@ def toggle_ref(*args):
 
     if ref_var.get():
         ser.write("R\n".encode())
-        print("🚀 Referenzfahrt gestartet")
 
 def toggle_position_tracking(*args):
     if pos_var.get():
@@ -68,7 +63,7 @@ def schedule_position_update():
             ser.write("POS\n".encode())
         except Exception as e:
             print(f"⚠️ Fehler bei POS-Abfrage: {e}")
-        root.after(1000, schedule_position_update)
+        root.after(1000, schedule_position_update)  # Alle 1000 ms
 
 def send_text():
     if not ensure_serial_connection():
@@ -77,32 +72,30 @@ def send_text():
     text = text_entry.get().strip()
     if text:
         ser.write(f"Beschriftung:{text}\n".encode())
-        print(f"📝 Text gesendet: {text}")
 
 def start_action():
     if not ensure_serial_connection():
         return
     ser.write("START\n".encode())
-    print("▶️ Start gesendet")
 
 def stop_action():
     if not ensure_serial_connection():
         return
     ser.write("STOP\n".encode())
-    print("🛑 Not-Aus gesendet")
 
 def receive_data():
     global counter
     if ser and ser.in_waiting > 0:
         received_message = ser.readline().decode("latin-1").strip()
         try:
+            # Abstandsmessung
             if "mm" in received_message and messung_aktiv:
                 distance = int(re.search(r'\d+', received_message).group())
                 time_values.append(counter)
                 position_values.append(distance)
                 counter += 1
                 update_plot()
-                print(f"📏 Abstand: {distance} mm")
+            # Positionsdaten
             elif received_message.startswith("X:") and "Y:" in received_message and "Z:" in received_message:
                 x = re.search(r"X:(-?\d+)", received_message)
                 y = re.search(r"Y:(-?\d+)", received_message)
@@ -111,9 +104,8 @@ def receive_data():
                     x_label.config(text=f"X = {x.group(1)}")
                     y_label.config(text=f"Y = {y.group(1)}")
                     z_label.config(text=f"Z = {z.group(1)}")
-                    print(f"📍 Position: X={x.group(1)} Y={y.group(1)} Z={z.group(1)}")
             else:
-                print(f"ℹ️ Nachricht: {received_message}")
+                print(received_message)
         except ValueError:
             print(f"⚠️ Fehlerhafte Nachricht: {received_message}")
 
@@ -135,7 +127,7 @@ root.title("Arduino Steuerung")
 top_frame = tk.Frame(root)
 top_frame.pack(side=tk.TOP, pady=10)
 
-plot_frame = tk.Frame(root, bg="gray20")
+plot_frame = tk.Frame(root)
 plot_frame.pack(side=tk.TOP, pady=10)
 
 bottom_frame = tk.Frame(root)
@@ -188,8 +180,6 @@ start_button.pack(pady=5)
 stop_button = tk.Button(bottom_frame, text="Not-Aus", command=stop_action, bg="red", fg="white")
 stop_button.pack(pady=5)
 
-# Verbindung prüfen & starten
-ensure_serial_connection()
-update_plot()  # leeren Plot zeigen
+# Starte Datenempfang
 root.after(500, receive_data)
 root.mainloop()
