@@ -8,26 +8,30 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Globale Variablen
 ser = None
 messung_aktiv = 0
+pos_aktiv = 0
 time_values = []
 position_values = []
 counter = 0
 
 def find_arduino_port():
-    ports = list(serial.tools.list_ports.comports())
+    ports = serial.tools.list_ports.comports()
     for port in ports:
-        if "usbmodem" in port.device or "usbserial" in port.device:
+        if "usbmodem" in port.device or "usbserial" in port.device or "COM" in port.device:
             return port.device
-    raise IOError("Kein Arduino-Port gefunden.")
+    return None
 
 def ensure_serial_connection():
     global ser
     if ser is None:
         try:
             port = find_arduino_port()
-            ser = serial.Serial(port, 9600)
+            if port is None:
+                print("⚠️ Kein USB-Port gefunden!")
+                return False
+            ser = serial.Serial(port, 9600, timeout=1)
             print(f"✅ Verbunden mit {port}")
         except Exception as e:
-            print(f"⚠️ Fehler bei Verbindung: {e}")
+            print(f"❌ Fehler beim Öffnen des Ports: {e}")
             return False
     return True
 
@@ -58,44 +62,39 @@ def toggle_position_tracking(*args):
         schedule_position_update()
 
 def schedule_position_update():
-    if pos_var.get() and ser:
+    if pos_var.get() and ensure_serial_connection():
         try:
             ser.write("POS\n".encode())
         except Exception as e:
             print(f"⚠️ Fehler bei POS-Abfrage: {e}")
-        root.after(1000, schedule_position_update)  # Alle 1000 ms
+        root.after(1000, schedule_position_update)
 
 def send_text():
     if not ensure_serial_connection():
         return
-
     text = text_entry.get().strip()
     if text:
         ser.write(f"Beschriftung:{text}\n".encode())
 
 def start_action():
-    if not ensure_serial_connection():
-        return
-    ser.write("START\n".encode())
+    if ensure_serial_connection():
+        ser.write("START\n".encode())
 
 def stop_action():
-    if not ensure_serial_connection():
-        return
-    ser.write("STOP\n".encode())
+    if ensure_serial_connection():
+        ser.write("STOP\n".encode())
 
 def receive_data():
     global counter
     if ser and ser.in_waiting > 0:
         received_message = ser.readline().decode("latin-1").strip()
         try:
-            # Abstandsmessung
             if "mm" in received_message and messung_aktiv:
                 distance = int(re.search(r'\d+', received_message).group())
                 time_values.append(counter)
                 position_values.append(distance)
                 counter += 1
                 update_plot()
-            # Positionsdaten
             elif received_message.startswith("X:") and "Y:" in received_message and "Z:" in received_message:
                 x = re.search(r"X:(-?\d+)", received_message)
                 y = re.search(r"Y:(-?\d+)", received_message)
@@ -108,7 +107,6 @@ def receive_data():
                 print(received_message)
         except ValueError:
             print(f"⚠️ Fehlerhafte Nachricht: {received_message}")
-
     root.after(300, receive_data)
 
 def update_plot():
@@ -119,7 +117,7 @@ def update_plot():
     ax.set_ylabel("Position (mm)")
     canvas.draw()
 
-# --- GUI Aufbau ---
+# GUI Aufbau
 root = tk.Tk()
 root.title("Arduino Steuerung")
 
@@ -154,7 +152,7 @@ fig, ax = plt.subplots(figsize=(6, 3))
 canvas = FigureCanvasTkAgg(fig, master=plot_frame)
 canvas.get_tk_widget().pack()
 
-# Position Labels
+# Positionslabels
 position_frame = tk.Frame(root)
 position_frame.pack(pady=5)
 
@@ -180,6 +178,6 @@ start_button.pack(pady=5)
 stop_button = tk.Button(bottom_frame, text="Not-Aus", command=stop_action, bg="red", fg="white")
 stop_button.pack(pady=5)
 
-# Starte Datenempfang
+# Datenempfang starten
 root.after(500, receive_data)
 root.mainloop()
