@@ -233,8 +233,6 @@ void draw_H(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_X_relative(-half_height_x_steps-diag_steps_x, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
-	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(crossbar_z_steps, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_pen_backward();
@@ -257,7 +255,6 @@ void draw_H(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(50, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 }
 
 void draw_I(void) {
@@ -267,17 +264,12 @@ void draw_I(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_X_relative(-height_x_steps-diag_steps_x, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
-	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_pen_backward();
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_X_relative(height_x_steps+diag_steps_x, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
-	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(50, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 }
 
 void draw_J(void) {
@@ -289,15 +281,9 @@ void draw_J(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(crossbar_z_steps, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
-	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_X_relative(height_x_steps, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
-	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_XZ_diagonal_relative(diag_steps_x, -diag_steps_z, speed);
-	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(-crossbar_z_steps, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
@@ -305,7 +291,6 @@ void draw_J(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(crossbar_z_steps+60, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 }
 
 void draw_K(void) {
@@ -345,7 +330,6 @@ void draw_K(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(50, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 }
 
 void draw_L(void) {
@@ -390,7 +374,6 @@ void draw_M(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(50, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 }
 
 void draw_N(void) {
@@ -418,7 +401,6 @@ void draw_N(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(60, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 }
 
 void draw_O(void) {
@@ -471,7 +453,6 @@ void draw_P(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(50, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 }
 
 void draw_Q(void) {
@@ -552,7 +533,6 @@ void draw_R(void) {
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
 	move_Z_relative(50, speed);
 	if (pos_aktiv) USART_POSITIONIERUNG(1);
-	_delay_ms(20);
 }
 
 void draw_S(void) {
