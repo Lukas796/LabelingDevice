@@ -11,7 +11,7 @@
 #include "systemstate.h"	// inkludiere die Systemstate - Funktionen 
 #include "USART.h"			// inkludiere die USART Funktionen 
 
-const uint16_t speed = 100;			// need to be divided by 4
+const uint16_t speed = 400;			// need to be divided by 4
 const int16_t diag_steps_x = 100;	// diagonal steps in X-Dirction
 const int16_t diag_steps_z = 25;	// need to be diag_steps_x /4
 const int16_t crossbar_z_steps = 100;	//crossbar z steps

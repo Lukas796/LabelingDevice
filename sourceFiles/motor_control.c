@@ -138,9 +138,9 @@ void motor_init_timer(void) {
 	
 	// --- Timer Z: Timer4, OC4B (PH4) ---
 	STEP_Z_OC_REG |= (1 << STEP_Z_OC_BIT);			// Toggle OC4B on compare match
-	STEP_Z_TCCRB_REG |= (1 << WGM42);                // CTC-Modus: WGM42 = 1 in TCCR4B
+	STEP_Z_TCCRB_REG |= (1 << WGM42);               // CTC-Modus: WGM42 = 1 in TCCR4B
 	STEP_Z_OCR = 100;								// set init Value for OCR4A --> Target Value for Compare Match
-	//STEP_Z_TIMSK_REG |= (1 << STEP_Z_OCIE_BIT);	// only use Timer 3 for Interrupt --> dont activate Interrupt for Timer 4
+	STEP_Z_TIMSK_REG |= (1 << STEP_Z_OCIE_BIT);		// only use Timer 3 for Interrupt --> dont activate Interrupt for Timer 4
 
 }
 
@@ -326,7 +326,7 @@ void motor_stop(uint8_t axis) {
  ISR(TIMER3_COMPB_vect) {
 	 steps_x_done++;	// zähle steps_x_done hoch
 	 steps_y_done++;	// zähle steps_y_done hoch
-	 steps_z_done++;	// zähle steps_z_done hoch
+	// steps_z_done++;	// zähle steps_z_done hoch
  }
 
 //--> die anderen Interrupts nicht mehr verwenden
@@ -334,9 +334,9 @@ void motor_stop(uint8_t axis) {
 	 //steps_y_done++; 
  //}
 //
- //ISR(TIMER4_COMPB_vect) {
-	 //steps_z_done++; 
- //}
+ ISR(TIMER4_COMPB_vect) {
+	 steps_z_done++; 
+ }
  
  // --- ISR: Interrupts from Limit Switches
  // Stoppe alle Achsen wenn ein Interrupt ausgelöst wird
@@ -522,12 +522,17 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz/4);   // starte Z-Achse mit positionsunterschied in Z und viermal langsamer geschwidnigkeit für steilere Flanke
 
 		
-		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target || steps_z_done < steps_z_target);  // warten bis alle fertig
-		
-		//stoppe Alle Motoren
-		motor_stop(AXIS_X);	//stoppe X-Achse
-		motor_stop(AXIS_Y);	//stoppe Y-Achse
-		motor_stop(AXIS_Z);	//stoppe Z-Achse
+		while (1) {
+			if (steps_x_done >= steps_x_target) motor_stop(AXIS_X);
+			if (steps_y_done >= steps_y_target) motor_stop(AXIS_Y);
+			if (steps_z_done >= steps_z_target) motor_stop(AXIS_Z);
+
+			if (steps_x_done >= steps_x_target &&
+			steps_y_done >= steps_y_target &&
+			steps_z_done >= steps_z_target) {
+				break;
+			}
+		}
 		
 		actual_steps_x = target_steps_x;	//setzte die Aktuelle position von X (Zielwert als aktuelle Position)
 		actual_steps_z = target_steps_z;	// setzte aktuelle Position von Z (Zielwert von Z)
