@@ -43,6 +43,8 @@
 #define SENSOR_ADC_CHANNEL 0  // z.B. ADC0 für A0
 
 // UART
-#define BAUDRATE 9600
+#define BAUD  115200UL
+#define UBRR_VAL   ((F_CPU/(8UL*BAUD)) - 1)  // = 16
+
 
 #endif

@@ -38,16 +38,22 @@ const char* USART_GetTextu(void) {
 
 
 // USART initialisieren  
-void USART_Init(uint16_t baud)														// Initialisiert die USART-Schnittstelle  
-{  
-	UBRR0L = 103;																	// Setzt den niedrigen Teil der Baudrateneinstellung (z.B. 103 für ca. 9600 Baud bei 16MHz)  
-	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);							// Aktiviert Empfänger, Sender und den RX-Interrupt  
-	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00)    // 8-Bit Data
-	| (1 << UPM01)                     // Even Parity enabled
-	/* UPM00 = 0 */                     // (00 = No Parity, 10 = Even, 11 = Odd)
-	/* USBS0 = 0 */;                    // 0 = 1 Stopbit, 1 = 2 Stopbits
-	sei();																			// Aktiviert globale Interrupts  
-}  
+void USART_Init(uint16_t ubrr_value) {
+	// 1) Double Speed-Modus für geringeren Fehler aktivieren
+	UCSR0A |= (1 << U2X0);
+
+	// 2) UBRR0 High und Low setzen
+	UBRR0H = (uint8_t)(ubrr_value >> 8);
+	UBRR0L = (uint8_t)ubrr_value;
+
+	// 3) RX, TX und RX-Interrupt aktivieren
+	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+
+	// 4) Frame-Format: 8 Datenbit, gerade Parität, 1 Stopbit
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00) | (1 << UPM01);
+
+	sei();  // globale Interrupts an
+}
 
 // Empfängt und verarbeitet UART-Befehle  
 void USART_ProcessCommands(uint8_t* messung_aktiv)				// Verarbeitet empfangene Befehle; "messung_aktiv" zeigt an, ob Messung läuft  
@@ -87,7 +93,7 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)				// Verarbeitet empfangene 
 			texto_start = texto_buffer;												// Ermittelt die Position, wo der eigentliche Text beginnt
 			//USART_SendString(texto_start);											// Sendet den ausgelesenen Textteil
 			//USART_SendString("\n");													// Sendet einen Zeilenumbruch
-			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile
+			lcd_cmd(0x80);															// Setzt den LCD-Cursor auf die zweite Zeile
 			char send_Texto_buffer[17];												// Puffer für die formatierte Ausgabe auf dem LCD (16 Zeichen + Nullterminator)
 			snprintf(send_Texto_buffer, sizeof(send_Texto_buffer), "%-16s",texto_start);// Formatiert den Text linksbündig, füllt ggf. mit Leerzeichen auf
 			lcd_text(send_Texto_buffer);											// Zeigt den formatierten Text auf dem LCD an
@@ -114,14 +120,13 @@ void USART_MESSUNG(uint8_t messung_aktiv) {											// Führt den Messvorgang 
 	if (messung_aktiv) {															// Überprüft, ob Messungen aktiviert sind  
 		uint16_t distance = laser_read();											// Liest den Abstandswert vom Lasersensor ein  
 		char send_buffer[20];														// Puffer für den über USART gesendeten String  
-		snprintf(send_buffer, sizeof(send_buffer), "%u mm\n", distance);			// Formatiert den Abstandswert (z.B. "123 mm\n")  
-		USART_SendString(send_buffer);												// Sendet den formatierten String über die serielle Schnittstelle  
-		uint16_t i = laser_read();													// Liest den Messwert erneut aus (zur Umwandlung in eine LCD-kompatible Zeichenkette)  
+		snprintf(send_buffer, sizeof(send_buffer), "%u mm\r\n", distance);			// Formatiert den Abstandswert (z.B. "123 mm\n")  
+		USART_SendString(send_buffer);												// Sendet den formatierten String über die serielle Schnittstelle    
 		lcd_cmd (0xC0);																// Setzt den LCD-Cursor auf die zweite Zeile  
-		lcd_num (i, LCDstr);														// Konvertiert den Messwert in einen String und speichert diesen in LCDstr  
+		lcd_num (distance, LCDstr);														// Konvertiert den Messwert in einen String und speichert diesen in LCDstr  
 		char send_Messung_buffer[17];												// Puffer für die LCD-Ausgabe, auf 16 Zeichen formatiert (plus Nullterminator)  
 		snprintf(send_Messung_buffer, sizeof(send_Messung_buffer), "%-16s",LCDstr); // Formatiert den Inhalt von LCDstr linksbündig, füllt mit Leerzeichen auf  
-		lcd_text(send_Messung_buffer);												// Zeigt die formatierte Messung auf dem LCD an  
+		lcd_text(send_Messung_buffer);												// Zeigt die formatierte Messung auf dem LCD an 
 	}  
 }
 
