@@ -33,7 +33,7 @@ int main(void)
 	lcd_text("Labeling Device");
 	
 	
-	
+	DDRL |= (1 << PL1) | (1 << PL5);  // PL1 und PL3 als Ausgang setzen
 
 	while (1)
 	{

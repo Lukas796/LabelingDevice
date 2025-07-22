@@ -30,28 +30,30 @@ volatile uint16_t actual_steps_x = 0;	// aktueller Schrittwert X --> Koordinaten
 volatile uint16_t actual_steps_y = 0;	// aktueller Schrittwert Y --> Koordinatensystem
 volatile uint16_t actual_steps_z = 0;	// aktueller Schrittwert Z 
 
-volatile uint16_t actual_steps_x_USART = 0;	// aktueller Schrittwert X --> Koordinatensystem
-volatile uint16_t actual_steps_y_USART = 0;	// aktueller Schrittwert Y --> Koordinatensystem
-volatile uint16_t actual_steps_z_USART = 0;	// aktueller Schrittwert Z
+volatile uint8_t actual_steps_x_USART = 0;	// aktueller Schrittwert X --> Koordinatensystem
+volatile uint8_t actual_steps_y_USART = 0;	// aktueller Schrittwert Y --> Koordinatensystem
+volatile uint8_t actual_steps_z_USART = 0;	// aktueller Schrittwert Z
 
 volatile uint8_t countMode_X = 0;		// countmdoe X: 0 = dont count, 1 = count positive, 2 = count negative
 volatile uint8_t countMode_Y = 0;		// countmdoe Y: 0 = dont count, 1 = count positive, 2 = count negative
 volatile uint8_t countMode_Z = 0;		// countmdoe Z: 0 = dont count, 1 = count positive, 2 = count negative
+
+volatile uint8_t sendPos = 0;		// Flag to send Pos
 // -------------------------------------
 // --- FUNCTIONS -----------------------
 
 // act_Pos_x(): gibt den aktuellen Schrittwert von Koordinate X zurück
-uint16_t act_Pos_x(void) {				
+uint8_t act_Pos_x(void) {				
 	return actual_steps_x_USART;				// Ausgabe der Variable
 }
 
 // act_Pos_y(): gibt den aktuellen Schrittwert von Koordinate Y zurück
-uint16_t act_Pos_y(void) {				
+uint8_t act_Pos_y(void) {				
 	return actual_steps_y_USART;				// Ausgabe der Variable
 }
 
 // act_Pos_z(): gibt den aktuellen Schrittwert von Koordinate Z zurück
-uint16_t act_Pos_z(void) {				
+uint8_t act_Pos_z(void) {				
 	return actual_steps_z_USART;				// Ausgabe der Variable
 }
 
@@ -331,11 +333,15 @@ void motor_stop(uint8_t axis) {
  //--- ISR: Interrupts on CompareMatch from the Timers ---
  // Interrupt von Timer 3 --> zählt Schritte für alle Motoren hoch
  ISR(TIMER3_COMPB_vect) {
-	 
+	//PORTL |= (1 << PL1);  // Toggle Bit 3 (PL3)
+	static uint8_t toggle_xyz = 0;  // 0 = X, 1 = Y, 2 = z
 	static uint8_t step_send_counter = 0;
 	
 	 steps_x_done++;	// zähle steps_x_done hoch
 	 steps_y_done++;	// zähle steps_y_done hoch
+	 
+	
+	 
 	 
 	if ((steps_x_done % 2) == 0) {
 		if (countMode_X == 1) {
@@ -355,14 +361,24 @@ void motor_stop(uint8_t axis) {
 		}
 	}
 	
-	 if (pos_aktiv && ((countMode_X != 0) || (countMode_Y != 0))) {
+	 if (pos_aktiv && !sendPos && ((countMode_X != 0) || (countMode_Y != 0))) {
 		 step_send_counter++;
-		 if (step_send_counter >= 40) {
-			 USART_POSITIONIERUNG(1);
+		 if (step_send_counter >= 10)  {
+			 if (toggle_xyz == 0) {
+				 USART_POSITIONIERUNG_X(1);
+				 toggle_xyz = 1;  // nächstes Mal Y senden
+				 } else if (toggle_xyz == 1) {
+				 USART_POSITIONIERUNG_Y(1);
+				 toggle_xyz = 2;  // nächstes Mal X senden
+				 }else if (toggle_xyz == 2) {
+				 USART_POSITIONIERUNG_Z(1);
+				 toggle_xyz = 0;  // nächstes Mal X senden
+			 }
+			 sendPos = 1;
 			 step_send_counter = 0;
 		 }
 	 }
-	 
+	 //PORTL &= ~(1 << PL1);  // Toggle Bit 3 (PL3)
 	// steps_z_done++;	// zähle steps_z_done hoch
  }
 
@@ -372,25 +388,28 @@ void motor_stop(uint8_t axis) {
  //}
 //
  ISR(TIMER4_COMPB_vect) {
+	 //PORTL |= (1 << PL5);  // Toggle Bit 3 (PL3)
 	 static uint8_t step_send_counter = 0;  // Lokaler Zähler für das Senden
 	 steps_z_done++; 
 	 
 	 if ((steps_z_done % 2) == 0) {
-		if (countMode_Z == 1) {
-			actual_steps_z_USART = actual_steps_z + (steps_z_done / 2);
-		 
-			} else if (countMode_Z == 2) {
-			actual_steps_z_USART = actual_steps_z - (steps_z_done / 2);
-		}
-	 } 
+		 if (countMode_Z == 1) {
+			 actual_steps_z_USART = actual_steps_z + (steps_z_done / 2);
+			 
+			 } else if (countMode_Z == 2) {
+			 actual_steps_z_USART = actual_steps_z - (steps_z_done / 2);
+		 }
+	 }
 
-	 if (pos_aktiv && ((countMode_Z == 1) || (countMode_Z == 2)) && (countMode_X == 0) && (countMode_Y == 0)) {
+	 if (pos_aktiv && !sendPos &&((countMode_Z == 1) || (countMode_Z == 2)) && (countMode_X == 0) && (countMode_Y == 0)) {
 		 step_send_counter++;
 		 if (step_send_counter >= 40) {
-			 USART_POSITIONIERUNG(1);
+			 sendPos = 1;
+			 USART_POSITIONIERUNG_Z(1);
 			 step_send_counter = 0;
 		 }
 	 }
+	// PORTL &= ~(1 << PL5);  // Toggle Bit 3 (PL3)
  }
  
  // --- ISR: Interrupts from Limit Switches
@@ -474,7 +493,17 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		motor_start_steps(AXIS_X, delta_steps_x, speed_hz); //starte Motor X mit Schrittanzahl in X-Richtung
 		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);  //starte Motor Y mit Schrittanzahl in X-Richtung
 
-		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  //warten bis Motoren ihre Schritte gemacht haben
+	
+		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target){
+			if (sendPos) {
+				//cli();
+				//USART_POSITIONIERUNG(1);
+				//sei();
+				sendPos = 0;
+				}
+		}
+		
+		  //warten bis Motoren ihre Schritte gemacht haben
 		countMode_X = 0;	// dont Count
 		countMode_Y = 0;	// dont Count
 		motor_stop(AXIS_X);		// Stoppe Motor X
@@ -505,7 +534,15 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		motor_start_steps(AXIS_X, delta_steps_y, speed_hz);		// starte Motor X mit den Schritten in Y-Richtung
 		motor_start_steps(AXIS_Y, delta_steps_y, speed_hz);		// starte Motor Y mit den Schritten in Y-Richtung
 
-		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten bis fertig
+		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target){  // warten bis fertig
+			if (sendPos) {
+				//cli();
+				//USART_POSITIONIERUNG(1);
+				//sei();
+				sendPos = 0;
+			}
+		}
+		
 		countMode_X = 0;
 		countMode_Y = 0;
 		motor_stop(AXIS_X);		// stoppe Motor X
@@ -540,7 +577,14 @@ void move_to_position_steps_z(int32_t target_steps_z, uint16_t speed_hz)
 		steps_z_done = 0;				// Rücksetzen der gemachten Schritte in Z
 		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz);	// starte den Motor  mit der berechneten Schrittdifferenz und er gewünschten Geschwindigkeit
 		
-		while (steps_z_done < steps_z_target);  // warten bis fertig
+		while (steps_z_done < steps_z_target) {  // warten bis fertig		
+			if (sendPos) {
+				//cli();
+				//USART_POSITIONIERUNG(1);
+				//sei();
+				sendPos = 0;
+			}
+		}
 		countMode_Z = 0;
 		motor_stop(AXIS_Z);						// Z-Achse Stoppen
 		actual_steps_z = target_steps_z;		// aktuelle Position mit Zielposition überschrieben 
@@ -591,6 +635,7 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz/4);   // starte Z-Achse mit positionsunterschied in Z und viermal langsamer geschwidnigkeit für steilere Flanke
 
 		while (1) {
+			
 			if (steps_x_done >= steps_x_target) { 
 				countMode_X = 0;
 				motor_stop(AXIS_X);
@@ -603,7 +648,12 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 				countMode_Z = 0;
 				motor_stop(AXIS_Z);
 				}
-
+			if (sendPos) {
+				//cli();
+				//USART_POSITIONIERUNG(1);
+				//sei();
+				sendPos = 0;
+			}					
 			if (steps_x_done >= steps_x_target &&
 			steps_y_done >= steps_y_target &&
 			steps_z_done >= steps_z_target) {
@@ -701,12 +751,12 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
  
  //move_pen_backward(): Der Stift wird um 40 Schritte vom Blatt weg gefahren
  void move_pen_backward() {
-	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 40, 100);	//start X,Y mit Zielwerten für Y-Offset von -40 Schritten
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 100, 400);	//start X,Y mit Zielwerten für Y-Offset von -40 Schritten
  }
 
  //move_pen_backward(): Der Stift wird um 40 Schritte zum Blatt hin gefahren
  void move_pen_forward() {
-	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 40, 100); //start X,Y mit Zielwerten für Y-Offset von 40 Schritten
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 100, 400); //start X,Y mit Zielwerten für Y-Offset von 40 Schritten
  }
 
 // move_X_relative(100, 1000): Der Stift wird um eine gewünschte Schrittanzahl relativ nach X verfahren

@@ -14,9 +14,9 @@
 //-----------------------
 //--- FUNKTIONEN -------- 
 
-uint16_t act_Pos_x(void);
-uint16_t act_Pos_y(void);
-uint16_t act_Pos_z(void);
+uint8_t act_Pos_x(void);
+uint8_t act_Pos_y(void);
+uint8_t act_Pos_z(void);
 void motor_init(void);
 void motor_init_timer(void);
 void limit_switch_init(void); 
