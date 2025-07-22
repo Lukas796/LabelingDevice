@@ -89,10 +89,10 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)				// Verarbeitet empfangene 
 			USART_SendString("Zeile 1 wird geschrieben:\n");
 			command_buffer[strcspn(command_buffer, "\r\n")] = '\0';
 			command_buffer[strcspn(command_buffer, ":")] = '\0';					// Entfernt alles ab ":"
-			strcpy(texto_buffer, command_buffer);								// Kopiert damit durch START nachfolgend nicht überschieben wird
+			strcpy(texto_buffer, command_buffer);									// Kopiert damit durch START nachfolgend nicht überschieben wird
 			texto_start = texto_buffer;												// Ermittelt die Position, wo der eigentliche Text beginnt
-			//USART_SendString(texto_start);											// Sendet den ausgelesenen Textteil
-			//USART_SendString("\n");													// Sendet einen Zeilenumbruch
+			//USART_SendString(texto_start);										// Sendet den ausgelesenen Textteil
+			//USART_SendString("\n");												// Sendet einen Zeilenumbruch
 			lcd_cmd(0x80);															// Setzt den LCD-Cursor auf die zweite Zeile
 			char send_Texto_buffer[17];												// Puffer für die formatierte Ausgabe auf dem LCD (16 Zeichen + Nullterminator)
 			snprintf(send_Texto_buffer, sizeof(send_Texto_buffer), "%-16s",texto_start);// Formatiert den Text linksbündig, füllt ggf. mit Leerzeichen auf
@@ -102,10 +102,10 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)				// Verarbeitet empfangene 
 			USART_SendString("Zeile 2 wird geschrieben:\n");
 			command_buffer[strcspn(command_buffer, "\r\n")] = '\0';
 			command_buffer[strcspn(command_buffer, ":")] = '\0';					// Entfernt alles ab ":"
-			strcpy(textu_buffer, command_buffer);								// Kopiert damit durch START nachfolgend nicht überschieben wird
+			strcpy(textu_buffer, command_buffer);									// Kopiert damit durch START nachfolgend nicht überschieben wird
 			textu_start = textu_buffer;												// Ermittelt die Position, wo der eigentliche Text beginnt
-			//USART_SendString(textu_start);											// Sendet den ausgelesenen Textteil
-			//USART_SendString("\n");													// Sendet einen Zeilenumbruch
+			//USART_SendString(textu_start);										// Sendet den ausgelesenen Textteil
+			//USART_SendString("\n");												// Sendet einen Zeilenumbruch
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile
 			char send_Textu_buffer[17];												// Puffer für die formatierte Ausgabe auf dem LCD (16 Zeichen + Nullterminator)
 			snprintf(send_Textu_buffer, sizeof(send_Textu_buffer), "%-16s",textu_start);// Formatiert den Text linksbündig, füllt ggf. mit Leerzeichen auf
@@ -123,7 +123,7 @@ void USART_MESSUNG(uint8_t messung_aktiv) {											// Führt den Messvorgang 
 		snprintf(send_buffer, sizeof(send_buffer), "%u mm\r\n", distance);			// Formatiert den Abstandswert (z.B. "123 mm\n")  
 		USART_SendString(send_buffer);												// Sendet den formatierten String über die serielle Schnittstelle    
 		lcd_cmd (0xC0);																// Setzt den LCD-Cursor auf die zweite Zeile  
-		lcd_num (distance, LCDstr);														// Konvertiert den Messwert in einen String und speichert diesen in LCDstr  
+		lcd_num (distance, LCDstr);													// Konvertiert den Messwert in einen String und speichert diesen in LCDstr  
 		char send_Messung_buffer[17];												// Puffer für die LCD-Ausgabe, auf 16 Zeichen formatiert (plus Nullterminator)  
 		snprintf(send_Messung_buffer, sizeof(send_Messung_buffer), "%-16s",LCDstr); // Formatiert den Inhalt von LCDstr linksbündig, füllt mit Leerzeichen auf  
 		lcd_text(send_Messung_buffer);												// Zeigt die formatierte Messung auf dem LCD an 
@@ -133,7 +133,6 @@ void USART_MESSUNG(uint8_t messung_aktiv) {											// Führt den Messvorgang 
 // Positionsprozess: Führt den Positionsprozess durch, wenn die Positionierung aktiv ist
 
 void USART_POSITIONIERUNG(uint8_t state) {  // pos_aktiv steuert, ob die Positionsausgabe aktiv ist
-	//if (pos_aktiv && position_send_requested()) {                            // Nur wenn Positionierung aktiviert ist...
 	uint16_t xPos = act_Pos_x();
 	uint16_t yPos = act_Pos_y();
 	uint16_t zPos = act_Pos_z();
@@ -176,28 +175,26 @@ void USART_SendString(const char *str) {											// Sendet einen nullterminier
 }  
 
 // Empfangs-Interrupt (ISR)  
-ISR(USART0_RX_vect) {
-	uint8_t status = UCSR0A;
-	uint8_t data   = UDR0;           // Muss auf UDR0 zugegriffen werden, um das Flag zurückzusetzen
+ISR(USART0_RX_vect) {																// ISR aufgerufen, wenn ein Byte empfangen wurde
+	uint8_t status = UCSR0A;														// Status-Register auslesen (FE0, DOR0, UPE0)
+	uint8_t data   = UDR0;															// Datenregister lesen und RXC0-Flag löschen
 
-	if (status & ((1 << FE0) | (1 << DOR0) | (1 << UPE0))) {
-		// Frame Error FE0, Overrun Error DOR0 oder Parity Error UPE0 aufgetreten
-		// hier z.B. verwerfen oder zurückmelden:
-		USART_SendString("UART Error: ");
-		if (status & (1 << UPE0)) USART_SendString("Parity ");
-		if (status & (1 << FE0))  USART_SendString("Frame ");
-		if (status & (1 << DOR0)) USART_SendString("Overrun ");
-		USART_SendString("error\n");
-		return;  // kein weiteres Puffer?Speichern
+	if (status & ((1 << FE0) | (1 << DOR0) | (1 << UPE0))) {						// Fehler-Flags prüfen
+		USART_SendString("UART Error: ");											// Fehlermeldung starten
+		if (status & (1 << UPE0)) USART_SendString("Parity ");						// Parity-Fehler melden
+		if (status & (1 << FE0))  USART_SendString("Frame ");						// Frame-Fehler melden
+		if (status & (1 << DOR0)) USART_SendString("Overrun ");						// Overrun-Fehler melden
+		USART_SendString("error\n");												// Fehlermeldung abschließen
+		return;																		// Byte verwerfen, nicht in Puffer
 	}
 
-	// sonst ins Ringbuffer:
-	uint8_t next = (usart_rx_head + 1) % USART_BUFFER_SIZE;
-	if (next != usart_rx_tail) {
-		usart_rx_buffer[usart_rx_head] = data;
-		usart_rx_head = next;
+	uint8_t next = (usart_rx_head + 1) % USART_BUFFER_SIZE;							// nächsten Puffer-Index berechnen
+	if (next != usart_rx_tail) {													// nur speichern, wenn Puffer nicht voll
+		usart_rx_buffer[usart_rx_head] = data;										// empfangenes Byte im Ringpuffer ablegen
+		usart_rx_head = next;														// Head-Zeiger vorwärts bewegen
 	}
 }
+
 
 
 // Daten aus dem Empfangspuffer lesen  
@@ -229,19 +226,18 @@ uint8_t USART_DataAvailable() {														// Liefert true (ungleich 0) zurüc
 	//buffer[i] = '\0';																// Fügt den Nullterminator an, um den String abzuschließen  
 //}
 
-void USART_ReadString(char *buffer, uint8_t max_length) {
-	uint8_t i = 0;
-	char c;
-	do {
-		// warte aufs nächste Byte
-		while (!USART_DataAvailable()) {}
-		c = USART_ReadData();
-		if (c == '\r') continue;              // CR überspringen
-		if (i < max_length-1) buffer[i++] = c;
-	} while (c != '\n');
-	// das '\n' sitzt jetzt in buffer[i-1]
-	buffer[i-1] = '\0';                      // ersetze '\n' durch '\0'
+void USART_ReadString(char *buffer, uint8_t max_length) { // liest eine LF-terminierte Zeichenkette in buffer ein
+	uint8_t i = 0;                                      // Schreibindex für buffer initialisieren
+	char c;                                             // Variable zum Zwischenspeichern des gelesenen Zeichens
+	do {                                                // Schleife, bis ein Zeilenende (‘\n’) empfangen wurde
+		while (!USART_DataAvailable()) {}              // Warte, bis mindestens ein Byte im SW-Ringpuffer liegt
+		c = USART_ReadData();                          // Lese das nächste Byte aus dem Ringpuffer
+		if (c == '\r') continue;                       // Wenn Carriage Return, überspringe und lese weiter
+		if (i < max_length-1) buffer[i++] = c;         // Wenn noch Platz im buffer, speichere das Zeichen und inkrementiere i
+	} while (c != '\n');                               // Wiederhole, solange das gelesene Zeichen nicht Line Feed ist
+	buffer[i-1] = '\0';                                // Ersetze das abschließende '\n' durch Terminator '\0'
 }
+
 
 //void USART_ReadLine(char *buffer, uint8_t max_length) {							// Liest einen String aus dem Empfangspuffer bis zum Zeilenumbruch oder zur maximalen Länge
 	//uint8_t i = 0;																	// Initialisiert den Index für den Zielpuffer
