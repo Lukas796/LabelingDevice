@@ -616,12 +616,12 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
  
  //move_pen_backward(): Der Stift wird um 40 Schritte vom Blatt weg gefahren
  void move_pen_backward() {
-	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 40, 100);	//start X,Y mit Zielwerten für Y-Offset von -40 Schritten
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y - 100, 400);	//start X,Y mit Zielwerten für Y-Offset von -40 Schritten
  }
 
  //move_pen_backward(): Der Stift wird um 40 Schritte zum Blatt hin gefahren
  void move_pen_forward() {
-	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 40, 100); //start X,Y mit Zielwerten für Y-Offset von 40 Schritten
+	 move_to_position_steps_xy(actual_steps_x, actual_steps_y + 100, 400); //start X,Y mit Zielwerten für Y-Offset von 40 Schritten
  }
 
 // move_X_relative(100, 1000): Der Stift wird um eine gewünschte Schrittanzahl relativ nach X verfahren
