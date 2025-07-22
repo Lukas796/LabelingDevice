@@ -63,29 +63,38 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)				// Verarbeitet empfangene 
 		USART_ReadString(command_buffer, sizeof(command_buffer));					// Liest einen String aus dem Ringpuffer und speichert ihn in "buffer"   
 		if (strcmp(command_buffer, "M") == 0) {										// Wenn der Befehl "M" empfangen wurde  
 			*messung_aktiv = 1;														// Setze Messung aktiv  
-			} else if (strcmp(command_buffer, "MN") == 0) {							// Wenn der Befehl "MN" empfangen wurde  
+			} 
+		if (strcmp(command_buffer, "MN") == 0) {							// Wenn der Befehl "MN" empfangen wurde  
 			*messung_aktiv = 0;														// Setze Messung inaktiv  
-			} else if (strcmp(command_buffer, "R") == 0) {							// Falls Befehl "R" (Referenzfahrt) erkannt wurde  
+			} 
+		if (strcmp(command_buffer, "R") == 0) {							// Falls Befehl "R" (Referenzfahrt) erkannt wurde  
 			request_reference_start(1);												// Führt Referenzfahrt durch  
 			USART_SendString("Referenzfahrt gestartet.\n");							// Sendet entsprechende Bestätigung über USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile (Adresse 0xC0)  
 			lcd_text("Referenzfahrt!  ");											// Schreibt "Referenzfahrt!  " auf das LCD, mit zusätzlichen Leerzeichen zum Überschreiben  
-			} else if (strcmp(command_buffer, "STOP") == 0) {						// Falls Befehl "STOP" erkannt wurde  
+			} 
+		if (strcmp(command_buffer, "STOP") == 0) {						// Falls Befehl "STOP" erkannt wurde  
 			USART_SendString("Notstop.\n");											// Sendet "Notstop." über USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor wieder auf die zweite Zeile  
 			lcd_text("Notstop!        \n");											// Schreibt "Notstop!" mit Leerzeichen, um die gesamte Zeile zu überschreiben  
-			} else if (strcmp(command_buffer, "START") == 0) {						// Falls Befehl "START" erkannt wurde  
+			} 
+		if (strcmp(command_buffer, "START") == 0) {						// Falls Befehl "START" erkannt wurde  
 			request_Labeling_start(1);
-			USART_SendString("Wird gestartet.\n");									// Sendet die Nachricht "Wird gestartet." über USART  
+			USART_SendString("Wird gestartet.\n");
+			pos_aktiv = 1;
+			USART_SendString("POS\n");									// Sendet die Nachricht "Wird gestartet." über USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile  
 			lcd_text("Wird gestartet! \n");											// Schreibt "Wird gestartet!" auf das LCD, mit Leerzeichen zum Auffüllen  
-			} else if (strcmp(command_buffer, "POS") == 0){							// Wenn der Befehl "POS" empfangen wurde
-			pos_aktiv = 1;															// Setze POS aktiv
+			} 
+		if (strcmp(command_buffer, "POS") == 0){							// Wenn der Befehl "POS" empfangen wurde
+			//pos_aktiv = 1;															// Setze POS aktiv
 			USART_SendString("POS\n");
-			} else if (strcmp(command_buffer, "NPOS") == 0) {						// Wenn der Befehl "NPOS" empfangen wurde
-			pos_aktiv = 0;
+			} 
+		if (strcmp(command_buffer, "NPOS") == 0) {						// Wenn der Befehl "NPOS" empfangen wurde
+			//pos_aktiv = 0;
 			USART_SendString("NPOS\n");
-			} else if (strstr(command_buffer, ":Texto")!= 0) {						// Falls der Befehl "Text:" im empfangenen String enthalten ist  
+			} 
+		if (strstr(command_buffer, ":Texto")!= 0) {						// Falls der Befehl "Text:" im empfangenen String enthalten ist  
 			USART_SendString("Zeile 1 wird geschrieben:\n");
 			command_buffer[strcspn(command_buffer, "\r\n")] = '\0';
 			command_buffer[strcspn(command_buffer, ":")] = '\0';					// Entfernt alles ab ":"
@@ -98,7 +107,8 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)				// Verarbeitet empfangene 
 			snprintf(send_Texto_buffer, sizeof(send_Texto_buffer), "%-16s",texto_start);// Formatiert den Text linksbündig, füllt ggf. mit Leerzeichen auf
 			lcd_text(send_Texto_buffer);											// Zeigt den formatierten Text auf dem LCD an
 			USART_SendString(send_Texto_buffer);
-			} else if (strstr(command_buffer, ":Textu")!= 0) {						// Falls der Befehl "Text:" im empfangenen String enthalten ist
+			} 
+		if (strstr(command_buffer, ":Textu")!= 0) {						// Falls der Befehl "Text:" im empfangenen String enthalten ist
 			USART_SendString("Zeile 2 wird geschrieben:\n");
 			command_buffer[strcspn(command_buffer, "\r\n")] = '\0';
 			command_buffer[strcspn(command_buffer, ":")] = '\0';					// Entfernt alles ab ":"
@@ -139,8 +149,10 @@ void USART_POSITIONIERUNG(uint8_t state) {  // pos_aktiv steuert, ob die Positio
 	uint16_t zPos = act_Pos_z();
 		// Erstelle einen String mit den drei Positionswerten und sende ihn via USART
 	char send_buffer_pos[20];  // Puffer für die serielle Ausgabe
-	snprintf(send_buffer_pos, sizeof(send_buffer_pos), "X:%u Y:%u Z:%u\r\n",xPos , yPos, zPos);
+	snprintf(send_buffer_pos, sizeof(send_buffer_pos), "X:%u Y:%u Z:%u",xPos , yPos, zPos);
+	
 	USART_SendString(send_buffer_pos);           // Sende den formatierten String über die serielle Schnittstelle
+	USART_SendString("\r\n");	
 		//USART_POSITIONIERUNG(0);
 		//request_position_send(0);
 	//}

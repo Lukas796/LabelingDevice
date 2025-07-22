@@ -111,6 +111,7 @@ void start_Laser_Positioning (void) {
 			processTextuState();
 			//processTextStateLine2(); // check String
 			Labeling_finfished = 1;	// setzte state Variable für Labeling finished auf 1
+			//pos_aktiv = 0;
 		}
 	}
 		

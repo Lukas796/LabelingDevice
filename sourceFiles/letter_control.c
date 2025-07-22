@@ -45,7 +45,7 @@ void draw_A(void) {
 	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist	
 	move_pen_backward();						// setzte Stift zurück
 	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
-	move_Z_relative(crossbar_z_steps+60,speed);	//fahre Z nach rechts zum Startpunkt des neuen Buchstaben
+	move_Z_relative(crossbar_z_steps+diag_steps_z+diag_steps_z+50,speed);	//fahre Z nach rechts zum Startpunkt des neuen Buchstaben
 	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
 	move_X_relative(half_height_x_steps,speed);	// fahre X wieder um die  Hälfte runter
 	if (pos_aktiv){USART_POSITIONIERUNG(1);}	//sendet aktuelle Position, wenn Positionierung in GUI aktiv ist
