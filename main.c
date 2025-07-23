@@ -41,7 +41,9 @@ int main(void)
 		reference_StartPos_control();
 		start_Laser_Positioning();
 		
+		if (!labeling_start_requested()) {
 		USART_ProcessCommands(&messung_aktiv);  // Verarbeitet eingehende Steuerbefehle
+		}
 		USART_MESSUNG(messung_aktiv);           // Führt Messungen durch, falls aktiv
 		//USART_POSITIONIERUNG(pos_aktiv);
 		_delay_ms(10);
