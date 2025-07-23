@@ -363,17 +363,17 @@ void motor_stop(uint8_t axis) {
 	
 	 if (pos_aktiv && !sendPos && ((countMode_X != 0) || (countMode_Y != 0))) {
 		 step_send_counter++;
-		 if (step_send_counter >= 10)  {
-			 if (toggle_xyz == 0) {
-				 USART_POSITIONIERUNG_X(1);
-				 toggle_xyz = 1;  // nächstes Mal Y senden
-				 } else if (toggle_xyz == 1) {
-				 USART_POSITIONIERUNG_Y(1);
-				 toggle_xyz = 2;  // nächstes Mal X senden
-				 }else if (toggle_xyz == 2) {
-				 USART_POSITIONIERUNG_Z(1);
-				 toggle_xyz = 0;  // nächstes Mal X senden
-			 }
+		 if (step_send_counter >= 40)  {
+			 //if (toggle_xyz == 0) {
+				 //USART_POSITIONIERUNG_X(1);
+				 //toggle_xyz = 1;  // nächstes Mal Y senden
+				 //} else if (toggle_xyz == 1) {
+				 //USART_POSITIONIERUNG_Y(1);
+				 //toggle_xyz = 2;  // nächstes Mal X senden
+				 //}else if (toggle_xyz == 2) {
+				 //USART_POSITIONIERUNG_Z(1);
+				 //toggle_xyz = 0;  // nächstes Mal X senden
+			 //}
 			 sendPos = 1;
 			 step_send_counter = 0;
 		 }
@@ -405,7 +405,7 @@ void motor_stop(uint8_t axis) {
 		 step_send_counter++;
 		 if (step_send_counter >= 40) {
 			 sendPos = 1;
-			 USART_POSITIONIERUNG_Z(1);
+			 //USART_POSITIONIERUNG_Z(1);
 			 step_send_counter = 0;
 		 }
 	 }
@@ -496,9 +496,9 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 	
 		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target){
 			if (sendPos) {
-				//cli();
-				//USART_POSITIONIERUNG(1);
-				//sei();
+				cli();
+				USART_POSITIONIERUNG(1);
+				sei();
 				sendPos = 0;
 				}
 		}
@@ -536,9 +536,9 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 
 		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target){  // warten bis fertig
 			if (sendPos) {
-				//cli();
-				//USART_POSITIONIERUNG(1);
-				//sei();
+				cli();
+				USART_POSITIONIERUNG(1);
+				sei();
 				sendPos = 0;
 			}
 		}
@@ -579,9 +579,9 @@ void move_to_position_steps_z(int32_t target_steps_z, uint16_t speed_hz)
 		
 		while (steps_z_done < steps_z_target) {  // warten bis fertig		
 			if (sendPos) {
-				//cli();
-				//USART_POSITIONIERUNG(1);
-				//sei();
+				cli();
+				USART_POSITIONIERUNG(1);
+				sei();
 				sendPos = 0;
 			}
 		}
@@ -649,9 +649,9 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 				motor_stop(AXIS_Z);
 				}
 			if (sendPos) {
-				//cli();
-				//USART_POSITIONIERUNG(1);
-				//sei();
+				cli();
+				USART_POSITIONIERUNG(1);
+				sei();
 				sendPos = 0;
 			}					
 			if (steps_x_done >= steps_x_target &&

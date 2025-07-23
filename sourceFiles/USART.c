@@ -142,12 +142,14 @@ void USART_MESSUNG(uint8_t messung_aktiv) {											// Führt den Messvorgang 
 
 // Positionsprozess: Führt den Positionsprozess durch, wenn die Positionierung aktiv ist
 
-void USART_POSITIONIERUNG_X(uint8_t state) {  // pos_aktiv steuert, ob die Positionsausgabe aktiv ist
+void USART_POSITIONIERUNG(uint8_t state) {  // pos_aktiv steuert, ob die Positionsausgabe aktiv ist
 	//if (pos_aktiv && position_send_requested()) {                            // Nur wenn Positionierung aktiviert ist...
-	uint8_t xPos = act_Pos_x();
+	uint16_t xPos = act_Pos_x();
+	uint16_t yPos = act_Pos_y();
+	uint16_t zPos = act_Pos_z();
 		// Erstelle einen String mit den drei Positionswerten und sende ihn via USART
 	char send_buffer_pos[20];  // Puffer für die serielle Ausgabe
-	snprintf(send_buffer_pos, sizeof(send_buffer_pos), "X:%u",xPos);
+	snprintf(send_buffer_pos, sizeof(send_buffer_pos), "X:%u Y:%u Z:%u",xPos , yPos, zPos);
 	
 	USART_SendString(send_buffer_pos);           // Sende den formatierten String über die serielle Schnittstelle
 	USART_SendString("\r\n");	
@@ -155,37 +157,6 @@ void USART_POSITIONIERUNG_X(uint8_t state) {  // pos_aktiv steuert, ob die Posit
 		//request_position_send(0);
 	//}
 }
-
-void USART_POSITIONIERUNG_Y(uint8_t state) {  // pos_aktiv steuert, ob die Positionsausgabe aktiv ist
-	//if (pos_aktiv && position_send_requested()) {                            // Nur wenn Positionierung aktiviert ist...
-	
-	uint8_t yPos = act_Pos_y();
-	// Erstelle einen String mit den drei Positionswerten und sende ihn via USART
-	char send_buffer_pos[20];  // Puffer für die serielle Ausgabe
-	snprintf(send_buffer_pos, sizeof(send_buffer_pos), "Y:%u",yPos);
-	
-	USART_SendString(send_buffer_pos);           // Sende den formatierten String über die serielle Schnittstelle
-	USART_SendString("\r\n");
-	//USART_POSITIONIERUNG(0);
-	//request_position_send(0);
-	//}
-}
-
-void USART_POSITIONIERUNG_Z(uint8_t state) {  // pos_aktiv steuert, ob die Positionsausgabe aktiv ist
-	//if (pos_aktiv && position_send_requested()) {                            // Nur wenn Positionierung aktiviert ist...
-	
-	uint8_t zPos = act_Pos_z();
-	// Erstelle einen String mit den drei Positionswerten und sende ihn via USART
-	char send_buffer_pos[20];  // Puffer für die serielle Ausgabe
-	snprintf(send_buffer_pos, sizeof(send_buffer_pos), "Z:%u",zPos);
-	
-	USART_SendString(send_buffer_pos);           // Sende den formatierten String über die serielle Schnittstelle
-	USART_SendString("\r\n");
-	//USART_POSITIONIERUNG(0);
-	//request_position_send(0);
-	//}
-}
-
 
 //void USART_Text(uint8_t text_aktiv){
 	//if (text_aktiv){
