@@ -23,17 +23,17 @@ volatile uint8_t usart_rx_tail = 0;													// Index für den nächsten Lese
 volatile uint8_t pos_aktiv = 0;
 
 char LCDstr[17];																	// Puffer für LCD-Ausgaben (16 Zeichen + Nullterminator)  
-char texto_buffer[50];																// Puffer für Texto
+char texto_buffer[50];
 char *texto_start = NULL;
-char textu_buffer[50];																// Puffer für Textu
+char textu_buffer[50];
 char *textu_start = NULL;
 
-const char* USART_GetTexto(void) {													// Liefert Zeiger auf den Anfang des texto-Puffers
-	return texto_start;																// Rückgabe des Pointers texto_start
+const char* USART_GetTexto(void) {
+	return texto_start;
 }
 
-const char* USART_GetTextu(void) {													// Liefert Zeiger auf den Anfang des textu-Puffers
-	return textu_start;																// Rückgabe des Pointers textu_start
+const char* USART_GetTextu(void) {
+	return textu_start;
 }
 
 
@@ -79,20 +79,20 @@ void USART_ProcessCommands(uint8_t* messung_aktiv)				// Verarbeitet empfangene 
 			lcd_text("Notstop!        \n");											// Schreibt "Notstop!" mit Leerzeichen, um die gesamte Zeile zu überschreiben  
 			} 
 		if (strcmp(command_buffer, "START") == 0) {						// Falls Befehl "START" erkannt wurde  
-			request_Labeling_start(1);												//Setzt Flag für Start
-			USART_SendString("Wird gestartet.\n");									//Send String
-			pos_aktiv = 1;															//Pos-Flag setzen
+			request_Labeling_start(1);
+			USART_SendString("Wird gestartet.\n");
+			pos_aktiv = 1;
 			USART_SendString("POS\n");									// Sendet die Nachricht "Wird gestartet." über USART  
 			lcd_cmd(0xC0);															// Setzt den LCD-Cursor auf die zweite Zeile  
 			lcd_text("Wird gestartet! \n");											// Schreibt "Wird gestartet!" auf das LCD, mit Leerzeichen zum Auffüllen  
 			} 
 		if (strcmp(command_buffer, "POS") == 0){							// Wenn der Befehl "POS" empfangen wurde
 			//pos_aktiv = 1;															// Setze POS aktiv
-			USART_SendString("POS\n");													// Send String POS
+			USART_SendString("POS\n");
 			} 
 		if (strcmp(command_buffer, "NPOS") == 0) {						// Wenn der Befehl "NPOS" empfangen wurde
 			//pos_aktiv = 0;
-			USART_SendString("NPOS\n");												//Send String NPOS
+			USART_SendString("NPOS\n");
 			} 
 		if (strstr(command_buffer, ":Texto")!= 0) {						// Falls der Befehl "Text:" im empfangenen String enthalten ist  
 			USART_SendString("Zeile 1 wird geschrieben:\n");
@@ -156,6 +156,21 @@ void USART_POSITIONIERUNG(uint8_t state) {  // pos_aktiv steuert, ob die Positio
 	USART_SendString("\r\n");	
 }
 
+//void USART_Text(uint8_t text_aktiv){
+	//if (text_aktiv){
+		//char buffer[30];
+		//USART_ReadLine(buffer, sizeof(buffer));
+		//char* text_start = buffer + strlen("Text:");								// Ermittelt die Position, wo der eigentliche Text beginnt
+		//USART_SendString(text_start);												// Sendet den ausgelesenen Textteil
+		//USART_SendString("\n");														// Sendet einen Zeilenumbruch
+		//lcd_cmd(0xC0);																// Setzt den LCD-Cursor auf die zweite Zeile
+		//char send_Text_buffer[17];													// Puffer für die formatierte Ausgabe auf dem LCD (16 Zeichen + Nullterminator)
+		//snprintf(send_Text_buffer, sizeof(send_Text_buffer), "%-16s",text_start);	// Formatiert den Text linksbündig, füllt ggf. mit Leerzeichen auf
+		//lcd_text(send_Text_buffer);													// Zeigt den formatierten Text auf dem LCD an
+		//*text_aktiv = 0;															// Stellt Text aktiv wieder auf 0
+	//}
+//}
+
 
 // Daten senden  
 void USART_SendData(uint8_t data) {													// Sendet ein einzelnes Byte über die USART-Schnittstelle  
@@ -171,26 +186,26 @@ void USART_SendString(const char *str) {											// Sendet einen nullterminier
 }  
 
 // Empfangs-Interrupt (ISR)  
-ISR(USART0_RX_vect) {														// ISR für empfangene Daten an USART0
-	uint8_t status = UCSR0A;												// Lese Statusregister, um Fehlerflags zu prüfen
-	uint8_t data   = UDR0;													// Lese UDR0, um das RxC-Flag zurückzusetzen
+ISR(USART0_RX_vect) {
+	uint8_t status = UCSR0A;
+	uint8_t data   = UDR0;           // Muss auf UDR0 zugegriffen werden, um das Flag zurückzusetzen
 
-	if (status & ((1 << FE0) | (1 << DOR0) | (1 << UPE0))) {				// Prüfe auf Frame-, Overrun- oder Paritätsfehler
+	if (status & ((1 << FE0) | (1 << DOR0) | (1 << UPE0))) {
 		// Frame Error FE0, Overrun Error DOR0 oder Parity Error UPE0 aufgetreten
 		// hier z.B. verwerfen oder zurückmelden:
-		USART_SendString("UART Error: ");									// Sende Fehlermeldungspräfix
-		if (status & (1 << UPE0)) USART_SendString("Parity ");				// Meldung: Parity-Fehler
-		if (status & (1 << FE0))  USART_SendString("Frame ");				// Meldung: Frame-Error
-		if (status & (1 << DOR0)) USART_SendString("Overrun ");				// Meldung: Overrun-Error
-		USART_SendString("error\n");										// Abschließende Fehlermeldung mit Zeilenumbruch
-		return;																// Beende ISR ohne Pufferung bei Fehler
-	}                                                                                      
+		USART_SendString("UART Error: ");
+		if (status & (1 << UPE0)) USART_SendString("Parity ");
+		if (status & (1 << FE0))  USART_SendString("Frame ");
+		if (status & (1 << DOR0)) USART_SendString("Overrun ");
+		USART_SendString("error\n");
+		return;  // kein weiteres Puffer?Speichern
+	}
 
 	// sonst ins Ringbuffer:
-	uint8_t next = (usart_rx_head + 1) % USART_BUFFER_SIZE; // Berechnet Index der nächsten Pufferstelle im Ringpuffer
-	if (next != usart_rx_tail) {							// Prüft, ob der Puffer nicht überläuft (Head ≠ Tail)
-		usart_rx_buffer[usart_rx_head] = data;				// Legt das empfangene Byte an der aktuellen Head-Position ab
-		usart_rx_head = next;								// Setzt den Head-Zeiger auf die soeben beschriebene Position
+	uint8_t next = (usart_rx_head + 1) % USART_BUFFER_SIZE;
+	if (next != usart_rx_tail) {
+		usart_rx_buffer[usart_rx_head] = data;
+		usart_rx_head = next;
 	}
 }
 
@@ -210,15 +225,43 @@ uint8_t USART_DataAvailable() {														// Liefert true (ungleich 0) zurüc
 	return (usart_rx_head != usart_rx_tail);										// Vergleicht Schreib- und Leseindex; weicht bei vorhandenen Daten voneinander ab  
 }  
 
+// String aus dem Empfangspuffer lesen  
+//void USART_ReadString(char *buffer, uint8_t max_length) {							// Liest einen String aus dem Empfangspuffer bis zum Zeilenumbruch oder zur maximalen Länge  
+	//uint8_t i = 0;																	// Initialisiert den Index für den Zielpuffer  
+																					//// Daten aus dem Ringbuffer holen, bis \n gefunden wird oder max. Länge erreicht ist  
+	//while (USART_DataAvailable() && i < max_length - 1) {							// Liest weiter, solange Daten vorhanden sind und Platz im Puffer ist  
+		//buffer[i] = USART_ReadData();												// Liest ein Zeichen und speichert es im Puffer  
+		//if (buffer[i] == '\n') {													// Falls das Ende des Befehls (Zeilenumbruch) erreicht wird  
+			//break;																	// Beendet das Einlesen  
+		//}  
+		//i++;																		// Erhöht den Index für das nächste Zeichen  
+	//}  
+	//buffer[i] = '\0';																// Fügt den Nullterminator an, um den String abzuschließen  
+//}
 
-void USART_ReadString(char *buffer, uint8_t max_length) {							// Liest eine Zeichenkette von der USART-Schnittstelle ein
-	uint8_t i = 0;																	// Initialisiert den Puffer-Index
-	char c;																			// Variable für das gelesene Zeichen
-	do {																			// Beginnt Schleife zum Einlesen bis '\n'
-		while (!USART_DataAvailable()) {}											// Warte auf das nächste empfangene Byte
-		c = USART_ReadData();														// Lese das nächste Byte aus dem USART
-		if (c == '\r') continue;													// Überspringe Carriage Return (CR)
-		if (i < max_length-1) buffer[i++] = c;										// Speichere Zeichen im Puffer, solange Platz ist
-	} while (c != '\n');															// Wiederhole, bis Line Feed (LF) empfangen wurde
-	buffer[i-1] = '\0';																// Ersetze das abschließende '\n' durch Null-Terminator
-}																					// Ende der Funktion
+void USART_ReadString(char *buffer, uint8_t max_length) {
+	uint8_t i = 0;
+	char c;
+	do {
+		// warte aufs nächste Byte
+		while (!USART_DataAvailable()) {}
+		c = USART_ReadData();
+		if (c == '\r') continue;              // CR überspringen
+		if (i < max_length-1) buffer[i++] = c;
+	} while (c != '\n');
+	// das '\n' sitzt jetzt in buffer[i-1]
+	buffer[i-1] = '\0';                      // ersetze '\n' durch '\0'
+}
+
+//void USART_ReadLine(char *buffer, uint8_t max_length) {							// Liest einen String aus dem Empfangspuffer bis zum Zeilenumbruch oder zur maximalen Länge
+	//uint8_t i = 0;																	// Initialisiert den Index für den Zielpuffer
+	//char c;
+	//// Daten aus dem Ringbuffer holen, bis \n gefunden wird oder max. Länge erreicht ist
+	//do {																			// 1) Warte blockierend aufs nächste Byte
+		//while (!USART_DataAvailable()) {;}											// busy?wait, bis ein Zeichen da ist
+		//c = USART_ReadData();														// 2) Hol das Byte aus dem Puffer
+		//if (c == '\r') {continue;}													// 3) Optional: CR ignorieren
+		//if (i < max_length - 1) {buffer[i++] = c;}									// 4) Abspeichern, wenn noch Platz ist
+	//} while (c != '\n');															// 5) Wenn '\n' gelesen, Abbruch (Zeilenende)
+	//buffer[i] = '\0';																// 6) Null-Terminator setzen
+//}
