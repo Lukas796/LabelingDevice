@@ -42,17 +42,17 @@ volatile uint8_t countMode_Z = 0;		// countmdoe Z: 0 = dont count, 1 = count pos
 
 // act_Pos_x(): gibt den aktuellen Schrittwert von Koordinate X zurück
 uint16_t act_Pos_x(void) {				
-	return actual_steps_x_USART;				// Ausgabe der Variable
+	return actual_steps_x_USART;				// Ausgabe der Variable zur GUI
 }
 
 // act_Pos_y(): gibt den aktuellen Schrittwert von Koordinate Y zurück
 uint16_t act_Pos_y(void) {				
-	return actual_steps_y_USART;				// Ausgabe der Variable
+	return actual_steps_y_USART;				// Ausgabe der Variable zur GUI
 }
 
 // act_Pos_z(): gibt den aktuellen Schrittwert von Koordinate Z zurück
 uint16_t act_Pos_z(void) {				
-	return actual_steps_z_USART;				// Ausgabe der Variable
+	return actual_steps_z_USART;				// Ausgabe der Variable zur GUI
 }
 
 // motor_init(): initialisiert die Anschlusspins aller Motoren als Ausgänge, 
@@ -337,29 +337,33 @@ void motor_stop(uint8_t axis) {
 	 steps_x_done++;	// zähle steps_x_done hoch
 	 steps_y_done++;	// zähle steps_y_done hoch
 	 
-	if ((steps_x_done % 2) == 0) {
-		if (countMode_X == 1) {
-			actual_steps_x_USART = actual_steps_x + (steps_x_done / 2);
+	 // OPTINAL FÜR "DAUERHAFTE POSITIONSERFASSUNG IN GUI"
+	 // Schritterfassung für X-Position
+	if ((steps_x_done % 2) == 0) {	//nur bei geraden Schrittanzahlen 
+		if (countMode_X == 1) {		//positive X-Position, wenn X-Bewegung ausgführt wird
+			actual_steps_x_USART = actual_steps_x + (steps_x_done / 2);	//zähle aktuelle schritte hoch - positiv
 			
-			} else if (countMode_X == 2) {
-			actual_steps_x_USART = actual_steps_x - (steps_x_done / 2);
+			} else if (countMode_X == 2) {	//negative X-Position, wenn X-Bewegung ausgführt wird
+			actual_steps_x_USART = actual_steps_x - (steps_x_done / 2);	//zähle aktuelle schritte hoch - negativ
 		}
 	}	
 	
-	if ((steps_y_done % 2) == 0) {
-		if (countMode_Y == 1) {
-			actual_steps_y_USART = actual_steps_y + (steps_y_done / 2);
+	// Schritterfassung für Y-Position
+	if ((steps_y_done % 2) == 0) {	//nur bei geraden Schrittanzahlen 
+		if (countMode_Y == 1) {	//positive Y-Position, wenn Y-Bewegung ausgführt wird
+			actual_steps_y_USART = actual_steps_y + (steps_y_done / 2);	//zähle aktuelle schritte hoch - positiv
 		
-			} else if (countMode_Y == 2) {
-			actual_steps_y_USART = actual_steps_y - (steps_y_done / 2);
+			} else if (countMode_Y == 2) {	//negative Y-Position, wenn Y-Bewegung ausgführt wird
+			actual_steps_y_USART = actual_steps_y - (steps_y_done / 2);	//zähle aktuelle schritte hoch - negativ
 		}
 	}
 	
-	 if (pos_aktiv && ((countMode_X != 0) || (countMode_Y != 0))) {
-		 step_send_counter++;
-		 if (step_send_counter >= 40) {
-			 USART_POSITIONIERUNG(1);
-			 step_send_counter = 0;
+	//Positionen via UART senden 
+	 if (pos_aktiv && ((countMode_X != 0) || (countMode_Y != 0))) {		//wenn pos_aktiv von UART und ein Countmode nicht 0 ist, dann senden 
+		 step_send_counter++;	// zähle lokalen step_counter hoch
+		 if (step_send_counter >= 40) {	// schicke nur jeden 40 Takt bzw. 20 Schritt
+			 USART_POSITIONIERUNG(1);	//schicke Positionen 
+			 step_send_counter = 0;		// reset loakler Counter 
 		 }
 	 }
 	 
@@ -371,24 +375,28 @@ void motor_stop(uint8_t axis) {
 	 //steps_y_done++; 
  //}
 //
+
  ISR(TIMER4_COMPB_vect) {
-	 static uint8_t step_send_counter = 0;  // Lokaler Zähler für das Senden
-	 steps_z_done++; 
+	 static uint8_t step_send_counter = 0;  // Lokaler Zähler für das Senden der Position 
+	 steps_z_done++;						// zähle steps_z_done hoch 
 	 
-	 if ((steps_z_done % 2) == 0) {
-		if (countMode_Z == 1) {
-			actual_steps_z_USART = actual_steps_z + (steps_z_done / 2);
+	 // OPTINAL FÜR "DAUERHAFTE POSITIONSERFASSUNG IN GUI"
+	 // Schritterfassung für Z-Position
+	 if ((steps_z_done % 2) == 0) {	//nur bei geraden Schrittanzahlen 
+		if (countMode_Z == 1) {	//positive Z-Position, wenn Z-Bewegung ausgführt wird
+			actual_steps_z_USART = actual_steps_z + (steps_z_done / 2); //zähle aktuelle schritte hoch - positiv
 		 
-			} else if (countMode_Z == 2) {
-			actual_steps_z_USART = actual_steps_z - (steps_z_done / 2);
+			} else if (countMode_Z == 2) {	//negative Z-Position, wenn Z-Bewegung ausgführt wird
+			actual_steps_z_USART = actual_steps_z - (steps_z_done / 2);	//zähle aktuelle schritte hoch - negativ
 		}
 	 } 
 
-	 if (pos_aktiv && ((countMode_Z == 1) || (countMode_Z == 2)) && (countMode_X == 0) && (countMode_Y == 0)) {
-		 step_send_counter++;
-		 if (step_send_counter >= 40) {
-			 USART_POSITIONIERUNG(1);
-			 step_send_counter = 0;
+	//Positionen via UART senden 
+	 if (pos_aktiv && ((countMode_Z == 1) || (countMode_Z == 2)) && (countMode_X == 0) && (countMode_Y == 0)) {	//wenn pos_aktiv von UART und Z im Countmode 1 oder 2 ist und Xund Y jeweils im CountMode 0 ist, dann senden 
+		 step_send_counter++;	// zähle lokalen step_counter hoch
+		 if (step_send_counter >= 40) {	// schicke nur jeden 40 Takt bzw. 20 Schritt
+			 USART_POSITIONIERUNG(1);	//schicke Positionen
+			 step_send_counter = 0;		// reset loakler Counter 
 		 }
 	 }
  }
@@ -460,11 +468,11 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		if (delta_steps_x > 0) {								// wenn ja, dann chceke ob x positiv verfahren werden muss
 			// Positive X-Richtung 
 			set_X_Y_direction(DIR_X_BOTTOM);					// setzte Richtung der Motoren X und Y für positive X -Richtung (runter)
-			countMode_X = 1;	//positiv
+			countMode_X = 1;	//positiv zählen 
 			} else {
 			// Negative X-Richtung 
 			set_X_Y_direction(DIR_X_TOP);						// setzte Richtung der Motoren X und Y für negative X -Richtung (hoch)
-			countMode_X = 2;	//negativ
+			countMode_X = 2;	//negativ zählen 
 			delta_steps_x = -delta_steps_x;						// positiv machen für Bewegung
 		}
 
@@ -481,7 +489,7 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		motor_stop(AXIS_Y);		// Stoppe Motor Y
 		
 		actual_steps_x = target_steps_x;	// Schreibe den gewünschten Wert von der StiftKoordinate X auf den aktuellen Wert von X-Koordinate
-		actual_steps_x_USART = actual_steps_x;
+		actual_steps_x_USART = actual_steps_x;	//setze aktuelle Position auch für GUI
 	}
 
 	// ========================
@@ -491,11 +499,11 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		if (delta_steps_y > 0) {							// checke ob positoiv verfahren werden muss
 			// Positive Y-Richtung 
 			set_X_Y_direction(DIR_Y_LEFT);					// setzte X-Y Diection
-			countMode_Y = 1;	//positiv
+			countMode_Y = 1;	//positiv zählen 
 			} else {
 			// Negative Y-Richtung 
 			set_X_Y_direction(DIR_Y_RIGHT);					// setzte X-Y Diection
-			countMode_Y = 2;	//negativ
+			countMode_Y = 2;	//negativ zählen 
 			delta_steps_y = -delta_steps_y;					// positiv machen für Bewegung
 		}
 
@@ -506,13 +514,13 @@ void move_to_position_steps_xy(int32_t target_steps_x, int32_t target_steps_y, u
 		motor_start_steps(AXIS_Y, delta_steps_y, speed_hz);		// starte Motor Y mit den Schritten in Y-Richtung
 
 		while (steps_x_done < steps_x_target || steps_y_done < steps_y_target);  // warten bis fertig
-		countMode_X = 0;
-		countMode_Y = 0;
+		countMode_X = 0;	//nicht zählen 
+		countMode_Y = 0;	// nicht zählen 
 		motor_stop(AXIS_X);		// stoppe Motor X
 		motor_stop(AXIS_Y);		// stoppe Motor Y
 		
 		actual_steps_y = target_steps_y;		// schriebe den Zielwetr für Stiftkoordinate auf den Aktuellen Wert für Y
-		actual_steps_y_USART = actual_steps_y;
+		actual_steps_y_USART = actual_steps_y;	// Y-Position für auch für GUI setzten 
 		_delay_ms(20);							// Daempfung
 	}
 }
@@ -529,11 +537,11 @@ void move_to_position_steps_z(int32_t target_steps_z, uint16_t speed_hz)
 		if (delta_steps_z > 0) {					// ist er positiv
 			// Positive Z-Richtung --> CW
 			motor_set_direction(AXIS_Z, DIR_CW);	// setzte CW als positive Z Richtung
-			countMode_Z = 1;	// positiv
+			countMode_Z = 1;	// positiv zählen 
 			} else {
 			// Negative Z-Richtung --> CCW
 			motor_set_direction(AXIS_Z, DIR_CCW);	// setzte CCW als negative Z-Richtung
-			countMode_Z = 2;	// negativ
+			countMode_Z = 2;	// negativ zählen 
 			delta_steps_z = -delta_steps_z;  // positiv machen für Bewegung
 		}
 
@@ -541,10 +549,10 @@ void move_to_position_steps_z(int32_t target_steps_z, uint16_t speed_hz)
 		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz);	// starte den Motor  mit der berechneten Schrittdifferenz und er gewünschten Geschwindigkeit
 		
 		while (steps_z_done < steps_z_target);  // warten bis fertig
-		countMode_Z = 0;
+		countMode_Z = 0;						// nicht zählen 
 		motor_stop(AXIS_Z);						// Z-Achse Stoppen
 		actual_steps_z = target_steps_z;		// aktuelle Position mit Zielposition überschrieben 
-		actual_steps_z_USART = actual_steps_z;
+		actual_steps_z_USART = actual_steps_z;	// Z Position auch für GUI setzten 
 		_delay_ms(20);							// Daempfung
 	}
 }
@@ -564,20 +572,20 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		// Richtung für X setzen
 		if (delta_steps_x > 0) {								// checke erst ob X positiv verfahren muss 
 			set_X_Y_direction(DIR_X_BOTTOM);					// setzte Positive Richtung für X
-			countMode_X = 1;
+			countMode_X = 1;									// positiv zählen 
 			} else {
 			set_X_Y_direction(DIR_X_TOP);						// setzte negative Richtung für X
-			countMode_X = 2;
+			countMode_X = 2;									// negativ zählen 
 			delta_steps_x = -delta_steps_x;						// Positionsunterscheid positiv machen für Bewegung
 		}
 
 		// Richtung für Z setzen
 		if (delta_steps_z > 0) {								// checke ob ZAche positiv fahren muss
 			motor_set_direction(AXIS_Z, DIR_CW);				// Positiv -> CW
-			countMode_Z = 1;
+			countMode_Z = 1;									// positiv zählen 
 			} else {
 			motor_set_direction(AXIS_Z, DIR_CCW);				// negativ in Z --> CCW
-			countMode_Z = 2;
+			countMode_Z = 2;									// negtaiv zählen 
 			delta_steps_z = -delta_steps_z;						// Schritte positiv machen 
 		}
 
@@ -590,20 +598,22 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		motor_start_steps(AXIS_Y, delta_steps_x, speed_hz);		// starte Y-Achse mit positionsunterschied in X
 		motor_start_steps(AXIS_Z, delta_steps_z, speed_hz/4);   // starte Z-Achse mit positionsunterschied in Z und viermal langsamer geschwidnigkeit für steilere Flanke
 
+		// überprüfe jede Schrittanzahlund stoppe den jeweiligen Motor
 		while (1) {
-			if (steps_x_done >= steps_x_target) { 
-				countMode_X = 0;
-				motor_stop(AXIS_X);
+			if (steps_x_done >= steps_x_target) {		// checke X-Schritte 
+				countMode_X = 0;						// Ist Postion nicht mehr zählen 
+				motor_stop(AXIS_X);						// motor stoppen 
 				}
-			if (steps_y_done >= steps_y_target) {
-				countMode_Y = 0;
-				motor_stop(AXIS_Y);
+			if (steps_y_done >= steps_y_target) {		// checke Y-Schritte 
+				countMode_Y = 0;						// Ist Postion nicht mehr zählen 
+				motor_stop(AXIS_Y);						// motor stoppen
 				}
-			if (steps_z_done >= steps_z_target){
-				countMode_Z = 0;
-				motor_stop(AXIS_Z);
+			if (steps_z_done >= steps_z_target){		// checke Z-Schritte 
+				countMode_Z = 0;						// Ist Postion nicht mehr zählen
+				motor_stop(AXIS_Z);						// motor stoppen 
 				}
 
+			// wenn alle Motoren Zielschritte erreicht haben While Schleife beenden 
 			if (steps_x_done >= steps_x_target &&
 			steps_y_done >= steps_y_target &&
 			steps_z_done >= steps_z_target) {
@@ -615,8 +625,8 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 		countMode_Z = 0;	// dont Count
 		actual_steps_x = target_steps_x;	//setzte die Aktuelle position von X (Zielwert als aktuelle Position)
 		actual_steps_z = target_steps_z;	// setzte aktuelle Position von Z (Zielwert von Z)
-		actual_steps_x_USART = actual_steps_x;
-		actual_steps_z_USART = actual_steps_z;
+		actual_steps_x_USART = actual_steps_x;	// aktuelle Position X für GUI setzen 
+		actual_steps_z_USART = actual_steps_z;	// aktuelle Postion Z für GUI setzen 
 		_delay_ms(20);						// Daempfung
 	}
 }
@@ -665,9 +675,9 @@ void move_to_position_steps_xz(int32_t target_steps_x, int32_t target_steps_z, u
 	 actual_steps_x = 0;	//set actual steps to 0
 	 actual_steps_y = 0;	//set actual steps to 0
 	 actual_steps_z = 0;	//set actual steps to 0
-	 actual_steps_x_USART = 0;
-	 actual_steps_y_USART = 0;
-	 actual_steps_z_USART = 0;
+	 actual_steps_x_USART = 0;	// setzte aktuelle USART Position auch auf 0 
+	 actual_steps_y_USART = 0;	// setzte aktuelle USART Position auch auf 0
+	 actual_steps_z_USART = 0;	// setzte aktuelle USART Position auch auf 0
 	 _delay_ms(200);	// mechanische Daempfung
 	
  }

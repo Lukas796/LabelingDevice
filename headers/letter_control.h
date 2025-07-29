@@ -9,30 +9,10 @@
 #ifndef LETTER_CONTROL_H_
 #define LETTER_CONTROL_H_
 
-void    request_position_send(uint8_t state);
-uint8_t position_send_requested(void);
-
-
+	//--- INCLUDES ----
 	#include "config.h" // need to be first
-
-    // wir nutzen nur ’0’–’9’ und ’A’–’Z’, Rest bleibt NULL
-
-
-
-    //-----------------------------------------------------------------------------
-    // Forward?Deklarationen Deiner Draw?Routinen (jeweils in einem anderen Modul)
-    //-----------------------------------------------------------------------------
-    //void draw_0(uint8_t pos);
-    //void draw_1(uint8_t pos);
-    //void draw_2(uint8_t pos);
-    //void draw_3(uint8_t pos);
-    //void draw_4(uint8_t pos);
-    //void draw_5(uint8_t pos);
-    //void draw_6(uint8_t pos);
-    //void draw_7(uint8_t pos);
-    //void draw_8(uint8_t pos);
-    //void draw_9(uint8_t pos);
-
+	
+	//--- FUNCTIONS for Letters ----
     void draw_A(void);
     void draw_B(void);
 	void draw_C(void);

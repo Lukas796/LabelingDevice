@@ -5,11 +5,9 @@
  *  Author: robin
  */ 
 #include "config.h" // need to be first
-#include "Laser.h" // need to be first
+#include "Laser.h" // own header
 
-// void setup() {
-//	Serial.begin(9600); // Serielle Verbindung starten mit 9600 Baud
-// }
+
 
 void init_ADC() {
 	ADMUX |= (1 << REFS0);												// REFS0 1 und REFS1 0 --> AVCC with external capacitor at AREF Pin -->5V Versorgung (Standardmessung)
