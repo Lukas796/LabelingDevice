@@ -145,9 +145,6 @@
     <Compile Include="headers\motor_control.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="headers\RS232.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="headers\USART.h">
       <SubType>compile</SubType>
     </Compile>
@@ -167,9 +164,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\motor_control.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sourceFiles\RS232.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sourceFiles\systemstate.c">

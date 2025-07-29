@@ -164,24 +164,24 @@ void initHandlers(void) {
 // processTextState(): Zerlegt den String und ruft für jedes Zeichen seinen
 //                   Handler mit der Position als Parameter auf
 //-----------------------------------------------------------------------------
-void processTextoState(void) {
-	const char *txt = USART_GetTexto();
-	// 1) Wenn kein Text, Abbruch
-	if (!txt || !*txt) {
-		USART_SendString("nichts zu tun\r\n");
-		return;
+void processTextoState(void) {								// Funktion zum Verarbeiten des Textzustands
+	const char *txt = USART_GetTexto();						// Text von der USART-Schnittstelle abrufen
+	
+	if (!txt || !*txt) {									// abbrechen, falls kein Text oder leerer String
+		USART_SendString("nichts zu tun\r\n");				// Meldung „nichts zu tun“ senden
+		return;												// Funktion vorzeitig beenden
 	}
-	USART_SendString(txt);
+	USART_SendString(txt);									 // empfangenen Text über USART ausgeben
 	// 2) Nur starten, wenn Labeling angefordert
-	for (uint8_t pos = 0; txt[pos] != '\0'; pos++) {
-		char c = txt[pos];
-		if ((uint8_t)c < MAX_CHAR && handlerTable[(uint8_t)c]) {
-			handlerTable[(uint8_t)c](pos);
+	for (uint8_t pos = 0; txt[pos] != '\0'; pos++) {					// über alle Zeichen iterieren bis Nullterminator
+		char c = txt[pos];												// aktuelles Zeichen in Variable c speichern
+		if ((uint8_t)c < MAX_CHAR && handlerTable[(uint8_t)c]) {		// prüfen, ob Zeichen im Bereich und ein Handler registriert ist
+			handlerTable[(uint8_t)c](pos);								// passenden Handler mit Zeichenposition aufrufen
 		}
 	}
 }
 
-void processTextuState(void) {
+void processTextuState(void) {								//dasselbe für die untere Textzeile Textu
 	const char *txt = USART_GetTextu();
 	// 1) Wenn kein Text, Abbruch
 	if (!txt || !*txt) {
