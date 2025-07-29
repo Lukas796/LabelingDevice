@@ -15,7 +15,8 @@
 
 // -----------------------------
 // Functions in systemstate.c
-uint8_t is_referenced(void);
+// Funktionen zum Abfragen und Setzen des Systemzustands
+uint8_t is_referenced(void);		
 uint8_t is_inStartPos(void);
 uint8_t reference_start_requested(void);
 uint8_t labeling_start_requested(void);
@@ -24,17 +25,11 @@ void set_inStartPos(uint8_t state);
 void request_reference_start(uint8_t state);
 void request_Labeling_start(uint8_t state);
 
+// Ablauffunktionien für Referenz und Buchstabenschrieben 
 void reference_StartPos_control(void);
 void start_Laser_Positioning(void);
 
+// handlerfunktionien 
 void initHandlers(void);
-void processTextState(void);
-
-
-//void    request_position_send(uint8_t state);
-//uint8_t position_send_requested(void);
-
- 
-
 
 #endif /* SYSTEMSTATE_H_ */

@@ -105,13 +105,11 @@ void start_Laser_Positioning (void) {
 		// Abfarge ob der Stift mit der Laserpositionierung ans Blatt gefahren wurde und ob die Becshriftung noch nicht fertig ist
 		if ((laser_pos_reached) && (!Labeling_finfished))
 		{
-			processTextoState();			 // check String
+			processTextoState();			 // check String für Obere Textzeile 
 			move_X_relative(700,500); //Zweite Zeile
 			move_to_position_steps_z(1000,500);	// move to startposition for second line
-			processTextuState();
-			//processTextStateLine2(); // check String
+			processTextuState();			// check String für Untere Textzeile 
 			Labeling_finfished = 1;	// setzte state Variable für Labeling finished auf 1
-			//pos_aktiv = 0;
 		}
 	}
 		
@@ -130,17 +128,6 @@ static charHandler_t handlerTable[MAX_CHAR];
 // initHandlers(): füllt die handlerTable einmalig zu Programmstart
 //-----------------------------------------------------------------------------
 void initHandlers(void) {
-	// Ziffern 0–9
-	//handlerTable['0'] = draw_0;
-	//handlerTable['1'] = draw_1;
-	//handlerTable['2'] = draw_2;
-	//handlerTable['3'] = draw_3;
-	//handlerTable['4'] = draw_4;
-	//handlerTable['5'] = draw_5;
-	//handlerTable['6'] = draw_6;
-	//handlerTable['7'] = draw_7;
-	//handlerTable['8'] = draw_8;
-	//handlerTable['9'] = draw_9;
 
 	// Buchstaben A–Z
 	handlerTable['A'] = draw_A;

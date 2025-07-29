@@ -13,7 +13,7 @@
 
 //-----------------------
 //--- FUNKTIONEN -------- 
-
+// genauer in .c beschrieben
 uint16_t act_Pos_x(void);
 uint16_t act_Pos_y(void);
 uint16_t act_Pos_z(void);
