@@ -1,14 +1,15 @@
 /*
- * CFile1.c
+ * Laser.c
  *
  * Created: 22.05.2025 10:55:16
  *  Author: robin
  */ 
+
+// --- Includes ---
 #include "config.h" // need to be first
 #include "Laser.h" // own header
 
-
-
+// --- Functions ---
 void init_ADC() {
 	ADMUX |= (1 << REFS0);												// REFS0 1 und REFS1 0 --> AVCC with external capacitor at AREF Pin -->5V Versorgung (Standardmessung)
 	ADMUX &= ~(1 << REFS1);												// ADC Multiplexer Selection Register ADMUX

@@ -1,3 +1,11 @@
+
+/*
+ * lcd_control.h
+ *
+ * Created: 22.05.2025 10:55:33
+ *  Author: robin
+ */ 
+
 #ifndef LCD_H_
 #define LCD_H_
 
